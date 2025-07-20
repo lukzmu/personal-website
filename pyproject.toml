@@ -1,0 +1,39 @@
+[project]
+name = "blog"
+version = "1.0.0"
+description = "My python blog"
+readme = "README.md"
+authors = [
+    {name = "Lukasz Zmudzinski", email = "lukasz@zmudzinski.sh"},
+]
+
+requires-python = "<4.0,>=3.13"
+dependencies = [
+    "pelican<5.0.0,>=4.11.0",
+    "markdown>=3.8",
+    "pygments>=2.18.0",
+]
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "poethepoet>=0.36.0",
+    "python-dotenv>=1.1.1",
+    "ruff<1.0.0,>=0.9.1",
+    "ty>=0.0.1a15",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "C",  # flake8-comprehensions
+    "I",  # isort errors
+    "B",  # flake8-bugbear
+]
+
+[tool.poe.tasks]
+start = "uv run python -m pelican -lr src/content -s src/core/settings.py -o output -b 0.0.0.0 --ignore-cache"

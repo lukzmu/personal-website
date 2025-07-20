@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="{{ DEFAULT_LANG }}" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ SITENAME }}</title>        
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/code.css" />
+        <link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/page.css" />
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto">
+                {% include "partial/navigation.html" %}
+                {% block content %}                
+                {% endblock %}
+                {% include "partial/footer.html" %}
+            </div>
+        </main>
+    </body>
+</html>

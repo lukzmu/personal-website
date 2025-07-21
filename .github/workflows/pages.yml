@@ -50,9 +50,7 @@ jobs:
       - name: Setup Python
         uses: ./.github/workflows/composite/setup-env    
       - name: Create page content
-        run: |
-          cd src
-          uv run pelican content -s core/settings.py -o ~/public
+        run: uv run pelican src/content -s src/core/settings.py -o ~/public
       - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:

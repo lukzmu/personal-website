@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>        
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>How to use FastAPI for microservices</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2021.11.18</h2>
+    <p>For the last couple of years, we could see a trend in the IT industry of moving away from monolith applications to microservices. Today we will describe the idea behind the movement, outline pros and cons of the approach and show how to work with microservices using the FastAPI Python framework.</p>
+<p>Ready? Let’s go then!</p>
+<h2>Microservices. How do they work?</h2>
+<p>The microservice architecture brings the idea of <strong>decoupling functional parts of software applications into lightweight, deployable solutions, each having its own goal in the general ecosystem</strong>. The approach has been adopted by many leading companies (e.g. Netflix, Amazon, Apple) and is well suited for any business that wants to adopt an Agile approach to software production.</p>
+<p>Let's describe some key features of the microservice architecture:</p>
+<ol>
+<li><strong>Multiple components</strong><ul>
+<li>Each service is a standalone component of its own,</li>
+<li>Components’ deployment, replacing and removal is possible without compromising other services,</li>
+<li>You have a relatively explicit component interface without tight data coupling.</li>
+</ul>
+</li>
+<li><strong>Business-oriented</strong><ul>
+<li>The services are built around business context and needs,</li>
+<li>Each microservice is a product of its own,</li>
+<li>Microservices necessitate having cross-functional teams that manage their respective products.</li>
+</ul>
+</li>
+<li><strong>Smart connection</strong><ul>
+<li>The services are usually connected by simple, ‘smart’ HTTP requests,</li>
+<li>The information flows through <a href="https://martinfowler.com/articles/microservices.html#SmartEndpointsAndDumbPipes">dumb pipelines</a>.</li>
+</ul>
+</li>
+<li><strong>Decentralize everything</strong><ul>
+<li>Each service has its own resources and data storages,</li>
+<li>Naming decisions can be different across the system,</li>
+<li>You need to implement <a href="https://martinfowler.com/eaaCatalog/dataTransferObject.html">Data Transfer Objects</a> (DTOs) for communication.</li>
+</ul>
+</li>
+<li><strong>Let it fail</strong><ul>
+<li>Microservices must acknowledge that other services may fail,</li>
+<li>Service failure is common due to availability issues triggered by, for example, connection problems, server downtime, and the like.</li>
+</ul>
+</li>
+</ol>
+<p>You can often use an additional architectural layer in the form of an API Gateway to simplify the connections that client applications need to make to gather data from the system.</p>
+<p>There are downsides to this approach. So, keep in mind, that API Gateways can:</p>
+<ul>
+<li>Increase response times for client requests,</li>
+<li>Become a bottleneck, if not scaled properly,</li>
+<li>Add another point of (possible) failure,</li>
+<li>Increase maintenance costs.</li>
+</ul>
+<h2>Should I implement microservices? Pros and Cons.</h2>
+<p>As we’ve already learned what <a href="https://www.merixstudio.com/blog/microservices-nodejs-moleculer/">microservices</a> are, we should  also discuss the positive and negative effects of choosing this type of <a href="https://content.merixstudio.com/insights/how-choose-right-cloud-architecture-your-business/?theme=how%20we%20work">architecture for your project</a>. You can treat the following table as a "cheat sheet" for selecting the right architectural setup for your next product.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Positives</strong></th>
+<th style="text-align: left;"><strong>Negatives</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Each service can run on its own</td>
+<td style="text-align: left;">Latency in communication between services to get an end response</td>
+</tr>
+<tr>
+<td style="text-align: left;">Less development time due to services modularity</td>
+<td style="text-align: left;">Testing between multiple microservices can be a challenge</td>
+</tr>
+<tr>
+<td style="text-align: left;">Infrastructure scaling depends on individual services</td>
+<td style="text-align: left;">The cost of supporting multiple instances can scale up quickly</td>
+</tr>
+<tr>
+<td style="text-align: left;">Easier to add new features or disable the existing ones</td>
+<td style="text-align: left;">Information barriers due to additional layer of data provisioning</td>
+</tr>
+<tr>
+<td style="text-align: left;">The code is organized by business logic</td>
+<td style="text-align: left;">Some use cases can span across multiple services</td>
+</tr>
+<tr>
+<td style="text-align: left;">Independence from the old code stack</td>
+<td style="text-align: left;">Support for multiple code stacks in one system</td>
+</tr>
+<tr>
+<td style="text-align: left;">Awesome failure isolation</td>
+<td style="text-align: left;">Additional work needed to create DTOs and failure mechanisms</td>
+</tr>
+</tbody>
+</table>
+<h2>The FastAPI implementation of microservices</h2>
+<p>Now that we know the theory behind microservices, we are ready to create an application that will use the architecture to provide some information to the user. We will use the aforementioned FastAPI to achieve this goal.</p>
+<h3>But wait&hellip; what is FastAPI?</h3>
+<p>I'm glad that you asked! Let's see what we can read about it on the framework’s official website:</p>
+<blockquote>
+<p>FastAPI is a modern, fast (high-performance), web framework for building APIs with Python 3.6+ based on standard Python type hints.</p>
+</blockquote>
+<p>The framework's official website mentions a number of pros of FastAPI. In my opinion, the most useful features from a microservice perspective are: the simplicity of code (easy to use and avoid boilerplate), high operational capacity thanks to <a href="https://www.starlette.io/">Starlette</a> and <a href="https://pydantic-docs.helpmanual.io/">Pydantic</a> and compatibility with industry standards - <a href="https://swagger.io/specification/">OpenAPI</a> and <a href="https://json-schema.org/">JSON Schema</a>.</p>
+<h3>Don't we have Flask for that?</h3>
+<p>While both frameworks are great for creating APIs, FastAPI has a few crucial advantages over <a href="https://www.merixstudio.com/blog/flask-vs-django-choosing-python-framework/">Flask</a>:</p>
+<ul>
+<li>Easier views declaration,</li>
+<li>Out-of-the-box data validation,</li>
+<li>FastAPI error messages are displayed in a JSON format by default,</li>
+<li>It supports asynchronous tasks through <a href="https://asgi.readthedocs.io/en/latest/">ASGI</a>.</li>
+</ul>
+<p>As FastAPI is a much younger framework, it implemented many today's standards for API creation, becoming the cool kid on the block in coding communities, and quickly growing in popularity.</p>
+<h3>Installing FastAPI</h3>
+<p>You can install FastAPI using the pip tool:</p>
+<div class="codehilite"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>fastapi
+</code></pre></div>
+
+<p>To run the server, you will also need to install <a href="https://www.uvicorn.org/">Uvicorn</a>:</p>
+<div class="codehilite"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;uvicorn[standard]&quot;</span>
+</code></pre></div>
+
+<p>And that is everything! We are ready to write our first microservice using FastAPI.</p>
+<h3>Problem definition</h3>
+<p>We will create two simple services:</p>
+<ul>
+<li>An <code>auth_service</code> that will check whether the provided token is correct,</li>
+<li>An <code>information_service</code> that will provide the answer to all your questions.</li>
+</ul>
+<p>Mind that both services will be super simplified, just to show the theory in practice. If you want to learn how to properly implement authentication in FastAPI, please refer to <a href="https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/">this tutorial</a>.</p>
+<h3>Creation of the auth service</h3>
+<p>Let's start by creating the <code>auth_service.py</code> file and adding imports needed for the code to work:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Header</span><span class="p">,</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">starlette.status</span> <span class="kn">import</span> <span class="n">HTTP_200_OK</span><span class="p">,</span> <span class="n">HTTP_401_UNAUTHORIZED</span>
+</code></pre></div>
+
+<p>Now create the FastAPI application:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+</code></pre></div>
+
+<p>All we need to code is the <strong>POST login</strong> view. The response of the view will depend on the <code>Authorization</code> value in the header. This will provide us with two possible outcomes:</p>
+<ul>
+<li><code>OK</code>, if the <code>Authorization</code> header has the value <code>"merixstudio"</code>,</li>
+<li><code>UNAUTHORIZED</code>, in any other case.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/login/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">login</span><span class="p">(</span>
+    <span class="n">authorization</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Header</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">authorization</span> <span class="o">==</span> <span class="s2">&quot;merixstudio&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="n">HTTP_200_OK</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Using Uvicorn, we can start our service on port 8001:</p>
+<div class="codehilite"><pre><span></span><code>uvicorn<span class="w"> </span>auth_service:app<span class="w"> </span>--reload<span class="w"> </span>--port<span class="w"> </span><span class="m">8001</span>
+</code></pre></div>
+
+<h3>Information service creation</h3>
+<p>Now that we have our auth service up and running, we can create the information service. Create <code>info_service.py</code> and add the following imports:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Header</span><span class="p">,</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">fastapi.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+</code></pre></div>
+
+<p>Again, we will create the FastAPI application.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+</code></pre></div>
+
+<p>We need to define the endpoint we will contact in the <code>auth_service</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">LOGIN_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;http://127.0.0.1:8001/login/&quot;</span>
+</code></pre></div>
+
+<p>Now, we will write a custom Python decorator, that will contact the <code>auth_service</code>, check whether the user can be authorized and throw an exception, if they can’t. When no error is present, the endpoint will run normally.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">auth_required</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">LOGIN_ENDPOINT</span><span class="p">,</span>
+                <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;authorization&quot;</span><span class="p">],</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="n">status_code</span><span class="o">=</span><span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
+</code></pre></div>
+
+<p>We can define the information endpoint right now, with all the answers you need. Mind the <code>@auth_required</code> decorator we created just a moment ago:</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/info/&quot;</span><span class="p">)</span>
+<span class="nd">@auth_required</span>
+<span class="k">def</span> <span class="nf">get_information</span><span class="p">(</span>
+    <span class="n">authorization</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Header</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="s2">&quot;The answer is 42.&quot;</span><span class="p">})</span>
+</code></pre></div>
+
+<p>We can start this service on port 8000, using Uvicorn again:</p>
+<div class="codehilite"><pre><span></span><code>uvicorn<span class="w"> </span>auth_service:app<span class="w"> </span>--reload<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span>
+</code></pre></div>
+
+<h3>Running the microservices together</h3>
+<p>We will use <code>curl</code> to make some requests to the API. Let's start with no headers at all:</p>
+<div class="codehilite"><pre><span></span><code>&gt;&gt;<span class="w"> </span>curl<span class="w"> </span>http://127.0.0.1:8000/info/<span class="w"> </span>-i
+HTTP/1.1<span class="w"> </span><span class="m">401</span><span class="w"> </span>Unauthorized
+</code></pre></div>
+
+<p>As you can see, we got the <strong>401 Unauthorized</strong> status, that was transferred from the <code>auth_service</code>. If we pass a correct header, we will get the following response:</p>
+<div class="codehilite"><pre><span></span><code>&gt;&gt;<span class="w"> </span>curl<span class="w"> </span>http://127.0.0.1:8000/info/<span class="w"> </span>-i<span class="w"> </span>--header<span class="w"> </span><span class="s2">&quot;Authorization: merixstudio&quot;</span>
+HTTP/1.1<span class="w"> </span><span class="m">200</span><span class="w"> </span>OK
+<span class="o">{</span><span class="s2">&quot;info&quot;</span>:<span class="s2">&quot;The answer is 42.&quot;</span><span class="o">}</span>
+</code></pre></div>
+
+<p>It works! Great!</p>
+<h2>Conclusions</h2>
+<p>In today's blog post we learned what microservices are. We talked about the pros and cons of using the microservices-based architecture in your projects. In recent years many big companies have used the microservice architecture in their products with success: Amazon, Netflix, Uber, Spotify&hellip; or OLX from the Polish playground. This trend will probably continue, as more companies move their infrastructure to the cloud. Serverless microservices can be a big deal for the future of backend software development.</p>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    &copy; 2025 zmudzinski.sh - from Poland with code.
+</footer>            </div>
+        </main>
+    </body>
+</html>

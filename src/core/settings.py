@@ -19,9 +19,16 @@ THEME = "src/themes/core"
 THEME_STATIC_DIR = "theme"
 DEFAULT_PAGINATION = False
 DELETE_OUTPUT_DIRECTORY = True
-STATIC_PATHS = ["images", "extra/CNAME"]
+STATIC_PATHS = ["images", "extra"]
 EXTRA_PATH_METADATA = {
     "extra/CNAME": {"path": "CNAME"},
+    "extra/android-chrome-192x192.png": {"path": "android-chrome-192x192.png"},
+    "extra/android-chrome-512x512.png": {"path": "android-chrome-512x512.png"},
+    "extra/apple-touch-icon.png": {"path": "apple-touch-icon.png"},
+    "extra/favicon-16x16.png": {"path": "favicon-16x16.png"},
+    "extra/favicon-32x32.png": {"path": "favicon-32x32.png"},
+    "extra/favicon.ico": {"path": "favicon.ico"},
+    "extra/site.webmanifest": {"path": "site.webmanifest"},
 }
 
 MARKDOWN = {
@@ -32,15 +39,6 @@ MARKDOWN = {
         }
     }
 }
-
-# --- Code highlightning ---
-# MARKDOWN = {
-#     'extension_configs': {
-#         'markdown.extensions.codehilite': {
-#             'css_class': 'codehilite',
-#         },
-#     },
-# }
 
 # --- Menu ---
 MENU = {

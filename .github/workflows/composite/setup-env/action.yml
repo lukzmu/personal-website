@@ -1,0 +1,16 @@
+name: "Build base project dependencies"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+    - name: Install dependencies
+      run: |
+        echo "PYTHONPATH=$PYTHONPATH:./src" >> $GITHUB_ENV
+        pip install uv
+      shell: bash

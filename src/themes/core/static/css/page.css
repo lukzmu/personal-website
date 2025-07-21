@@ -2,3 +2,10 @@
 .prose code::after {
   content: ''; /* removes the added backticks */
 }
+
+.prose-invert pre code {
+  background-color: transparent !important;
+  padding: 0 !important;
+  color: inherit !important;
+  font-size: inherit !important;
+}

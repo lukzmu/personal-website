@@ -3,8 +3,8 @@
 <ul class="mt-10">
   {% for article in articles_page.object_list %}
     <li>
-        <div class="flex">
-            <a class="grow" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
+        <div class="flex gap-4">
+            <a class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis block hover:underline" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
             <span class="text-neutral-500">{{ article.date.strftime('%Y.%m.%d') }}</span>
         </div>
     </li>

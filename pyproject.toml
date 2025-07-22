@@ -12,6 +12,7 @@ dependencies = [
     "pelican<5.0.0,>=4.11.0",
     "markdown>=3.8",
     "pygments>=2.18.0",
+    "httpx>=0.28.1",
 ]
 
 [tool.uv]
@@ -40,3 +41,10 @@ select = [
 
 [tool.poe.tasks]
 start = "uv run python -m pelican -lr src/content -s src/core/settings.py -o output -b 0.0.0.0 --ignore-cache"
+
+_ruff_check = "uv run python -m ruff check src"
+lint = ["_ruff_check"]
+
+_ruff_check_fix = "uv run python -m ruff check src --fix"
+_ruff_format_fix = "uv run python -m ruff format src"
+format = ["_ruff_check_fix", "_ruff_format_fix"]

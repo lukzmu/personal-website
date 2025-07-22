@@ -3,6 +3,8 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 
+from src.services.github import GitHubClient
+
 load_dotenv()
 
 # --- Site Data ---
@@ -12,6 +14,11 @@ AUTHOR = "Lukasz Zmudzinski"
 SITENAME = "zmudzinski.sh"
 TIMEZONE = "Europe/Warsaw"
 DEFAULT_LANG = "en"
+
+SITE_DATA: dict[str, dict | int] = {
+    "year": datetime.now().year,
+    "repositories": GitHubClient(token=os.getenv("GITHUB_TOKEN", default=None)).get_repositories(),
+}
 
 # --- Pelican Paths and Settings ---
 PATH = "src/content"
@@ -34,21 +41,10 @@ ARTICLE_URL = "posts/{slug}.html"
 ARTICLE_SAVE_AS = "posts/{slug}.html"
 
 MARKDOWN = {
-    'extensions': ['codehilite', 'extra', 'smarty'],
-    'extension_configs': {
-        'smarty': {
-            'smart_quotes': False,
+    "extensions": ["codehilite", "extra", "smarty"],
+    "extension_configs": {
+        "smarty": {
+            "smart_quotes": False,
         }
-    }
-}
-
-# --- Menu ---
-MENU = {
-    "Posts": "/",
-    "About": "/about",
-}
-
-# --- Site Data ---
-SITE_DATA: dict[str, dict | int] = {
-    "year": datetime.now().year,
+    },
 }

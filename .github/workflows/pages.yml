@@ -44,6 +44,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     env:
       SITEURL: ${{ secrets.SITEURL }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

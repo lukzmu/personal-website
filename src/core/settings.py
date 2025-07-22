@@ -17,7 +17,7 @@ DEFAULT_LANG = "en"
 
 SITE_DATA: dict[str, dict | int] = {
     "year": datetime.now().year,
-    "repositories": GitHubClient(token=os.getenv("GITHUB_TOKEN", default=None)).get_repositories(),
+    "repositories": GitHubClient(token=os.getenv("GH_TOKEN", default=None)).get_repositories(),
 }
 
 # --- Pelican Paths and Settings ---

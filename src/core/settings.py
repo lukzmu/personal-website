@@ -20,6 +20,12 @@ SITE_DATA: dict[str, dict | int] = {
     "repositories": GitHubClient(token=os.getenv("GH_TOKEN", default=None)).get_repositories(),
 }
 
+# --- Feed Settings ---
+FEED_ALL_ATOM = "feed.xml"
+CATEGORY_FEED_ATOM = None
+AUTHOR_FEED_ATOM = None
+AUTHOR_FEED_RSS = None
+
 # --- Pelican Paths and Settings ---
 PATH = "src/content"
 THEME = "src/themes/core"

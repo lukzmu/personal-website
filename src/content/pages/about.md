@@ -14,7 +14,6 @@ I am currently employed as a `Backend Team Lead` at [STX Next](https://stxnext.c
 
 - [LinkedIn](https://linkedin.com/in/lukzmu) - place where I keep my "up to date" resume,
 - [GitHub](https://github.com/lukzmu) - my public repositories,
-- [Bluesky](https://bsky.app/profile/zmudzinski.sh) - here I share my thoughts,
 - [Family Website](https://zmudzinski.me) - website hosted for my Family.
 
 <br/>

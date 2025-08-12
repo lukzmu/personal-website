@@ -1,13 +1,9 @@
 {% extends "base.html" %}
+
+{% set about = (pages | selectattr('slug', 'equalto', 'about') | list) | first %}
+
 {% block content %}
-<ul class="mt-20">
-  {% for article in articles_page.object_list %}
-    <li>
-        <div class="flex gap-4">
-            <a class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis block hover:underline" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
-            <span class="text-neutral-500">{{ article.date.strftime('%Y.%m.%d') }}</span>
-        </div>
-    </li>
-  {% endfor %}
-</ul>
+<article class="prose prose-invert font-mono max-w-4xl mt-20">
+    {{ about.content | safe }}
+</article>
 {% endblock %}

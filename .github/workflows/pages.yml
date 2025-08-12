@@ -33,6 +33,8 @@ jobs:
         uses: ./.github/workflows/composite/setup-env    
       - name: Create page content
         run: uv run poe build --output ~/public
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:

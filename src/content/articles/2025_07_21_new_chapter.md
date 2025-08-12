@@ -1,5 +1,6 @@
 Title: A new chapter for technical writing
 Date: 2025-07-21 10:00
+Status: draft
 
 Hello there!
 

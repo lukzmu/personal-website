@@ -1,5 +1,6 @@
 Title: How to use FastAPI for microservices
 Date: 2021-11-18 10:00
+Status: draft
 
 For the last couple of years, we could see a trend in the IT industry of moving away from monolith applications to microservices. Today we will describe the idea behind the movement, outline pros and cons of the approach and show how to work with microservices using the FastAPI Python framework.
 

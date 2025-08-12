@@ -23,9 +23,8 @@
 <h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
 
 <ul class="mt-5 flex space-x-4">
-    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
-    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
-    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>    
 </ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
     <h1>Discord bots in Python</h1>
     <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2021.05.20</h2>
@@ -69,7 +68,7 @@
 <h2>Getting started</h2>
 <p>We will start by creating a Discord Application. This step is needed to enable Discord to verify your bot with the servers through a token you will acquire in the process. As a bonus, you will get a chance to customize your bot's appearance.</p>
 <p>Go to your <a href="https://discord.com/login?redirect_to=%2Fdevelopers%2Fapplications">Discord Developer dashboard</a> and click <strong>New Application</strong>.</p>
-<p><img alt="Create an application" src="https://zmudzinski.sh/posts/creating-a-new-discord-application.png" /></p>
+<p><img alt="Create an application" src="https://zmudzinski.sh/drafts/creating-a-new-discord-application.png" /></p>
 <p>Congratulations! You created your first Discord Application 🥳. You will be welcomed by a screen that will allow you some customization. You can play around with the settings, but it isn't required for this tutorial.</p>
 <p>In the menu section, you should see a button named <strong>Bot</strong>, please navigate to that section, once there, press <strong>Add Bot</strong> and agree to the prompt.</p>
 <p>Turn on the following privileged gateway intents and click <strong>Save</strong>:</p>
@@ -84,7 +83,7 @@
 <li>Set the Administrator permission.</li>
 <li>Copy the Generated URL.</li>
 </ul>
-<p><img alt="Bot scope" src="https://zmudzinski.sh/posts/setting-the-bot-scope-and-administrator-permissions-in-discord.png" /></p>
+<p><img alt="Bot scope" src="https://zmudzinski.sh/drafts/setting-the-bot-scope-and-administrator-permissions-in-discord.png" /></p>
 <p>Follow the copied url in a browser and add the bot to your server. We are ready to build our own piece of software now!</p>
 <h2>And then there was code…</h2>
 <p>In this section, we will go through the steps of installing dependencies, configuring the project and writing the actual code. Please start your IDE of choice and create a new project.</p>
@@ -150,7 +149,7 @@ DISCORD_GUILD = your_server_name
 <li>We started our client using the run function.</li>
 </ul>
 <p>If you run the <code>main.py</code> file, you should see the bot online on your server.</p>
-<p><img alt="Bot online" src="https://zmudzinski.sh/posts/bot-on-the-server-upon-running-the-mainpy-file.png" /></p>
+<p><img alt="Bot online" src="https://zmudzinski.sh/drafts/bot-on-the-server-upon-running-the-mainpy-file.png" /></p>
 <h2>Gathering basic information</h2>
 <p>The <code>discord.py</code> package gives us quite a few possibilities out of the box. We will start by creating an action when the bot goes online. Let's create a new function in the <code>Client</code> class:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">on_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -159,7 +158,7 @@ DISCORD_GUILD = your_server_name
 </code></pre></div>
 
 <p>We used the discord utils to get the guild by the name and sent a message to the main text channel. The next time you start your Python file, you should get an output like this:</p>
-<p><img alt="Bot online" src="https://zmudzinski.sh/posts/python-file-output-message.png" /></p>
+<p><img alt="Bot online" src="https://zmudzinski.sh/drafts/python-file-output-message.png" /></p>
 <h2>Gathering information for the user</h2>
 <p>A command is a special message that the user can send to perform various bot tasks. We will start by creating a command that lists users that are currently online.</p>
 <p>If you want to gather information about the users, we need to update the <code>__init__</code> function a bit. Be sure to add the following intent to the <code>Client</code> constructor:</p>
@@ -211,7 +210,7 @@ DISCORD_GUILD = your_server_name
 </code></pre></div>
 
 <p>We contacted the <a href="https://swapi.dev/">Star Wars API</a> to gather information about Obi-Wan Kenobi, a Jedi Master and one of the greatest Jedi Generals during the Clone Wars. We also used another cool feature of Discord - Embeds. You can see the result of our operations below.</p>
-<p><img alt="Embed" src="https://zmudzinski.sh/posts/creating-embeds-in-discord.png" /></p>
+<p><img alt="Embed" src="https://zmudzinski.sh/drafts/creating-embeds-in-discord.png" /></p>
 <p>Embeds allow you to create rich objects that can contain media and data condensed in a structured fashion. Feel free to read more about Embeds in the <a href="https://discord.com/developers/docs/resources/channel#embed-object">official Discord documentation</a>.</p>
 <h2>Summary</h2>
 <p>With the increased usage of online communication  tools like bots can increase your productivity for small and large-scale communities, whether it is work, education or hobby-related. As you could see, building such applications is not hard and can power up your server for you and your users.</p>

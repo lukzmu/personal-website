@@ -3,7 +3,7 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 
-from src.services.github import GitHubClient
+from personal_website.services.github import GitHubClient
 
 load_dotenv()
 
@@ -15,7 +15,7 @@ SITENAME = "zmudzinski.sh"
 TIMEZONE = "Europe/Warsaw"
 DEFAULT_LANG = "en"
 
-SITE_DATA: dict[str, dict | int] = {
+SITE_DATA: dict[str, list[dict] | int] = {
     "year": datetime.now().year,
     "repositories": GitHubClient(token=os.getenv("GH_TOKEN", default=None)).get_repositories(),
 }
@@ -27,8 +27,8 @@ AUTHOR_FEED_ATOM = None
 AUTHOR_FEED_RSS = None
 
 # --- Pelican Paths and Settings ---
-PATH = "src/content"
-THEME = "src/themes/core"
+PATH = "personal_website/content"
+THEME = "personal_website/themes/core"
 THEME_STATIC_DIR = "theme"
 DEFAULT_PAGINATION = False
 DELETE_OUTPUT_DIRECTORY = True

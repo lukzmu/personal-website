@@ -10,7 +10,5 @@ runs:
       with:
         python-version: '3.13'
     - name: Install dependencies
-      run: |
-        echo "PYTHONPATH=$PYTHONPATH:./src" >> $GITHUB_ENV
-        pip install uv
+      run: pip install uv
       shell: bash

@@ -1,7 +1,7 @@
 [project]
-name = "blog"
+name = "zmudzinski-sh"
 version = "1.0.0"
-description = "My python blog"
+description = "Personal website written using Pelican."
 readme = "README.md"
 authors = [
     {name = "Lukasz Zmudzinski", email = "lukasz@zmudzinski.sh"},
@@ -20,11 +20,46 @@ package = false
 
 [dependency-groups]
 dev = [
+    "mypy>=1.17.1",
     "poethepoet>=0.36.0",
     "python-dotenv>=1.1.1",
     "ruff<1.0.0,>=0.9.1",
-    "ty>=0.0.1a15",
 ]
+
+[tool.poe]
+envfile = ".env"
+
+[tool.poe.tasks.serve]
+cmd = "uv run python -m pelican -lr $content -s $settings -o $output -b $host"
+args = [
+    { name = "content", default = "personal_website/content" },
+    { name = "settings", default = "personal_website/core/settings.py" },
+    { name = "output", default = "output" },
+    { name = "host", default="0.0.0.0" },
+]
+
+[tool.poe.tasks.build]
+cmd = "uv run pelican $content -s $settings -o $output"
+args = [
+    { name = "content", default = "personal_website/content" },
+    { name = "settings", default = "personal_website/core/settings.py" },
+    { name = "output", default = "output" },
+]
+env = { "PYTHONPATH" = "." }
+
+[tool.poe.tasks.test]
+cmd = "uv run pytest --cov=personal_website --cov-report=json --cov-report=term"
+env = { "PYTHONPATH" = "." }
+
+[tool.poe.tasks]
+_ruff_check = "uv run ruff check personal_website"
+_ruff_format_check = "uv run ruff format --check"
+_mypy_check = "uv run mypy personal_website"
+lint = ["_ruff_check", "_ruff_format_check", "_mypy_check"]
+
+_ruff_check_fix = "uv run ruff check personal_website --fix"
+_ruff_format_fix = "uv run ruff format"
+lint_fix = ["_ruff_check_fix", "_ruff_format_fix"]
 
 [tool.ruff]
 line-length = 120
@@ -37,14 +72,23 @@ select = [
     "C",  # flake8-comprehensions
     "I",  # isort errors
     "B",  # flake8-bugbear
+    "S",  # flake-bandit
 ]
 
-[tool.poe.tasks]
-start = "uv run python -m pelican -lr src/content -s src/core/settings.py -o output -b 0.0.0.0 --ignore-cache"
+[tool.mypy]
+ignore_missing_imports = true
+disallow_untyped_defs = true
 
-_ruff_check = "uv run python -m ruff check src"
-lint = ["_ruff_check"]
+[tool.coverage.run]
+branch = true
+omit = [
+    "personal_website/core/settings.py",
+    "*/dto.py",
+]
 
-_ruff_check_fix = "uv run python -m ruff check src --fix"
-_ruff_format_fix = "uv run python -m ruff format src"
-format = ["_ruff_check_fix", "_ruff_format_fix"]
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.coverage.html]
+directory = ".pytest_coverage"

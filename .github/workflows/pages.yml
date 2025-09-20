@@ -31,3 +31,5 @@ jobs:
         with:
           content: personal_website/content
           settings: personal_website/core/settings.py
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}

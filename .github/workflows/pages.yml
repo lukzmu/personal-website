@@ -23,7 +23,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs:
-      - lint
+      - code_quality
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: lukzmu/reusable-actions/setup-python@v1

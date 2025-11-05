@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 import httpx
@@ -31,4 +32,16 @@ class GitHubClient:
         response.raise_for_status()
         result = response.json()
 
-        return [repository for repository in result if repository["name"] not in self._IGNORED_REPOSITORIES]
+        return [
+            repository
+            for repository in sorted(
+                result,
+                key=lambda x: (self._parse_date(date_string=x["updated_at"]), x["archived"]),
+                reverse=True,
+            )
+            if repository["name"] not in self._IGNORED_REPOSITORIES
+        ]
+
+    @staticmethod
+    def _parse_date(date_string: str) -> datetime:
+        return datetime.fromisoformat(date_string)

@@ -36,8 +36,7 @@ class GitHubClient:
             repository
             for repository in sorted(
                 result,
-                key=lambda x: (self._parse_date(date_string=x["updated_at"]), x["archived"]),
-                reverse=True,
+                key=lambda x: (x["archived"], -self._parse_date(date_string=x["updated_at"]).timestamp()),
             )
             if repository["name"] not in self._IGNORED_REPOSITORIES
         ]

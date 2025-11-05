@@ -22,9 +22,9 @@ class TestGitHubService:
             captured["headers"] = headers
             captured["params"] = params
             data = [
-                {"name": "lukzmu", "id": 1},
-                {"name": "hello-there", "id": 2},
-                {"name": "general-kenobi", "id": 3},
+                {"name": "lukzmu", "id": 1, "updated_at": "2011-01-26T19:14:43Z", "archived": False},
+                {"name": "hello-there", "id": 2, "updated_at": "2011-01-26T19:14:43Z", "archived": False},
+                {"name": "general-kenobi", "id": 3, "updated_at": "2011-01-26T19:14:43Z", "archived": False},
             ]
             return stub_response(json_data=data)
 
@@ -55,7 +55,9 @@ class TestGitHubService:
 
     def test_get_repositories_returns_empty_when_all_ignored(self, monkeypatch, github_client, stub_response):
         def fake_get(*, url, headers, params):
-            return stub_response(json_data=[{"name": "lukzmu", "id": 1}])
+            return stub_response(
+                json_data=[{"name": "lukzmu", "id": 1, "updated_at": "2011-01-26T19:14:43Z", "archived": False}]
+            )
 
         monkeypatch.setattr(httpx, "get", fake_get)
 

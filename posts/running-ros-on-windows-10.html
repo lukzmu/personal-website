@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Blog</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>    
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Running ROS on Windows 10</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2017.10.23</h2>
+    <p>Robot Operating System is a flexible framework for writing robot software. It is widely used all around the world and has become the industry standard for robotics. With a vast collection of tools, libraries and task simplifying conventions you can build software under a wide variety of robotic platforms. And today, we will learn how to install this “linux only” thing on Windows 10.</p>
+<h2>Prequisites</h2>
+<p>You might have already heard about the Windows 10 creator update feature called Windows Subsystem for Linux. This is a new thing that allows you to run linux command-line tools from your PowerShell, while still using Windows desktop and apps. It is mostly a tool for developers, but since we want to play with robots, I guess this is who we are! Let’s start with checking, if you have what it takes to start developing linux applications.</p>
+<h3>Check your updates</h3>
+<p>First we need to check, if we are eligible to install WSL:</p>
+<ul>
+<li>Go to Settings -&gt; System -&gt; About</li>
+<li>You need to have creators update installed (version 1703),</li>
+<li>You must run a 64-bit distribution.</li>
+</ul>
+<h3>Enable developer mode</h3>
+<p>Steps you must take:</p>
+<ul>
+<li>Go to Settings -&gt; Update &amp; security -&gt; For developers</li>
+<li>Check the “Developer mode” radio button.</li>
+<li>Allow the system to download whatever is needed.</li>
+</ul>
+<h3>Install the Linux subsystem</h3>
+<ul>
+<li>Run Powershell as Administrator (this is important),</li>
+<li>Paste the following command:<ul>
+<li><code>Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux</code></li>
+</ul>
+</li>
+<li>Reboot when prompted.</li>
+<li>Open Powershell again and type in:<ul>
+<li><code>bash</code></li>
+</ul>
+</li>
+<li>Accept everything you must and here you go. You have the WSL installed.</li>
+</ul>
+<p>Now we are ready to install the Robot Operating System on our Windows PC.</p>
+<h2>Installing ROS</h2>
+<p>We will be installing ROS Lunar. For more information about distributions visit the ROS Distributions wiki page. For a good start, let’s update our sources:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;echo &quot;deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main&quot; &gt; /etc/apt/sources.list.d/ros-latest.list&#39;</span>
+</code></pre></div>
+
+<p>Add keys:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>apt-key<span class="w"> </span>adv<span class="w"> </span>--keyserver<span class="w"> </span>hkp://ha.pool.sks-keyservers.net:80<span class="w"> </span>--recv-key<span class="w"> </span>421C365BD9FF1F717815A3895523BAEEB01FA116
+</code></pre></div>
+
+<p>Update your apt-get:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>apt-get<span class="w"> </span>update
+</code></pre></div>
+
+<p>Download the full desktop package of ROS Lunar:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>ros-lunar-desktop-full
+</code></pre></div>
+
+<p>Initialize <code>rosdep</code>:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>rosdep<span class="w"> </span>init
+rosdep<span class="w"> </span>update
+</code></pre></div>
+
+<p>Add your ROS variables to source:</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;source /opt/ros/lunar/setup.bash&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+<span class="nb">source</span><span class="w"> </span>~/.bashrc
+</code></pre></div>
+
+<p>And… you are ready to go! Have fun working with robotics on Windows 10!</p>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    &copy; 2025 zmudzinski.sh - from Poland with code.
+</footer>            </div>
+        </main>
+    </body>
+</html>

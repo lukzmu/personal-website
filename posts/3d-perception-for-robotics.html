@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Blog</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>    
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>3D perception for robotics</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2018.02.15</h2>
+    <p>Hello everyone! Today I would like to go with you through the steps of filtering a camera image, clustering for segmentation and doing object recognition, all that for the famous PR2 robot. We will use the Point Cloud Library (PCL) to help us with that along with <code>Gazebo</code>, <code>RViz</code> and <code>Python</code>.</p>
+<p>In the following sections, I will introduce each mention aspect in detail.</p>
+<h2>The PR2 robot</h2>
+<p>The PR2 is an open and robust robot platform designed from the ground up for software developers and researchers. By eliminating the need to first build a hardware system and then re-implement code, the PR2 allows software experts to immediately create new functionality on the robot.</p>
+<p>The PR2 Robot is fully integrated with ROS, providing the power of all the ROS developer tools and out-of-the-box functionality for everything from full system calibration to manipulation.</p>
+<p>To allow development without a physical PR2, we provide a simulator, with tutorials to get you started. The ROS interfaces to the simulator and to the real robot are the same, so code written for one will generally run on the other.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Robust enough that you can develop and test code on the robot itself,</li>
+<li>Ready for development out-of-the-box,</li>
+<li>Wireless Bluetooth Joystick,</li>
+<li>Wireless Run/Stop,</li>
+<li>Speaker</li>
+</ul>
+<h2>Calibration, filtering and segmentation</h2>
+<p>The first step was to create a <code>Point Cloud</code> from the RGBD camera mounted on the PR2 robot. The data was received from the <code>/pr2/world/points</code> topic in ROS, which contained noise (the data wasn’t clear). I had to calibrate and filter the data, to get a satisfying result.</p>
+<p>Here are the techniques I used:</p>
+<h3>Statistical Outlier Filtering</h3>
+<p>The Statistical Outlier Filter performs a statistical analysis in the neighborhood of each point, and remove those points which do not meet a certain criteria. By assuming a Gaussian distribution, all points whose mean distances are outside of an interval defined by the global distances mean+standard deviation are considered to be outliers and removed from the point cloud.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">statistical_outlier_filtering</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+    <span class="n">sof</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">make_statistical_outlier_filter</span><span class="p">()</span>
+    <span class="n">sof</span><span class="o">.</span><span class="n">set_mean_k</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">sof</span><span class="o">.</span><span class="n">set_std_dev_mul_thresh</span><span class="p">(</span><span class="n">thresh</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sof</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
+</code></pre></div>
+
+<h3>Voxel Grid Downsampling</h3>
+<p>A voxel grid filter allows you to downsample the data by taking a spatial average of the points in the cloud confined by each voxel. You can adjust the sampling size by setting the voxel size along each dimension. The set of points which lie within the bounds of a voxel are assigned to that voxel and statistically combined into one output point. The resulting Point Cloud is smaller.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">voxel_grid_downsampling</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">leaf_size</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="n">vox</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">make_voxel_grid_filter</span><span class="p">()</span>
+    <span class="n">vox</span><span class="o">.</span><span class="n">set_leaf_size</span><span class="p">(</span><span class="n">leaf_size</span><span class="p">,</span> <span class="n">leaf_size</span><span class="p">,</span> <span class="n">leaf_size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vox</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
+</code></pre></div>
+
+<h3>Pass Through Filtering</h3>
+<p>The Pass Through Filter works much like a cropping tool, which allows you to crop any given 3D point cloud by specifying an axis with cut-off values along that axis. The region you allow to pass through, is often referred to as region of interest.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">passthrough_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">):</span>
+    <span class="n">passthrough</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">make_passthrough_filter</span><span class="p">()</span>
+    <span class="n">passthrough</span><span class="o">.</span><span class="n">set_filter_field_name</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+    <span class="n">passthrough_z</span><span class="o">.</span><span class="n">set_filter_limits</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">passthrough</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
+</code></pre></div>
+
+<p>In the project, the passthrough filter was used twice. First in the z axis, and next in the x axis (to take care of the place boxes).</p>
+<div class="codehilite"><pre><span></span><code><span class="n">pcl_data</span> <span class="o">=</span> <span class="n">passthrough_filter</span><span class="p">(</span><span class="n">pcl_data</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">)</span>
+<span class="n">pcl_data</span> <span class="o">=</span> <span class="n">passthrough_filter</span><span class="p">(</span><span class="n">pcl_data</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="c1"># Remove boxes</span>
+</code></pre></div>
+
+<h3>RANSAC algorithm</h3>
+<p>The RANSAC algorithm assumes that all of the data in a dataset is composed of both inliers and outliers, where inliers can be defined by a particular model with a specific set of parameters, while outliers do not fit that model and hence can be discarded. Like in the example below, we can extract the outliners that are not good fits for the model.</p>
+<p>In our case <code>inliners</code> are the objects placed on the table, while <code>outliners</code> include the table and everything else.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">ransac_segmentation</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="n">ransac</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">make_segmenter</span><span class="p">()</span>
+    <span class="n">ransac</span><span class="o">.</span><span class="n">set_model_type</span><span class="p">(</span><span class="n">pcl</span><span class="o">.</span><span class="n">SACMODEL_PLANE</span><span class="p">)</span>
+    <span class="n">ransac</span><span class="o">.</span><span class="n">set_method_type</span><span class="p">(</span><span class="n">pcl</span><span class="o">.</span><span class="n">SAC_RANSAC</span><span class="p">)</span>
+    <span class="n">ransac</span><span class="o">.</span><span class="n">set_distance_threshold</span><span class="p">(</span><span class="n">max_distance</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ransac</span><span class="o">.</span><span class="n">segment</span><span class="p">()</span>
+
+<span class="c1"># Getting the objects and table example</span>
+<span class="n">inliners</span><span class="p">,</span> <span class="n">coefficients</span> <span class="o">=</span> <span class="n">ransac_segmentation</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">objects</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">inliners</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># Please notice the negative value</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">inliners</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># And here... :)</span>
+</code></pre></div>
+
+<h2>Clustering for segmentation</h2>
+<p>Once we get the Point Clouds associated with objects, we can begin the clustering and segmentation process. We need this, to be able to recognize objects placed on the table.</p>
+<p>The <code>k-d tree</code> data structure is used in the Euclidian Clustering algorithm to decrease the computational burden of searching for neighboring points. While other efficient algorithms/data structures for nearest neighbor search exist, PCL’s Euclidian Clustering algorithm only supports k-d trees.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">euclidean_clustering</span><span class="p">(</span><span class="n">white_cloud</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">white_cloud</span><span class="o">.</span><span class="n">make_kdtree</span><span class="p">()</span>
+    <span class="n">ec</span> <span class="o">=</span> <span class="n">white_cloud</span><span class="o">.</span><span class="n">make_EuclideanClusterExtraction</span><span class="p">()</span>
+    <span class="n">ec</span><span class="o">.</span><span class="n">set_ClusterTolerance</span><span class="p">(</span><span class="n">tolerance</span><span class="p">)</span>
+    <span class="n">ec</span><span class="o">.</span><span class="n">set_MinClusterSize</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span>
+    <span class="n">ec</span><span class="o">.</span><span class="n">set_MaxClusterSize</span><span class="p">(</span><span class="nb">max</span><span class="p">)</span>
+    <span class="n">ec</span><span class="o">.</span><span class="n">set_SearchMethod</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ec</span><span class="o">.</span><span class="n">Extract</span><span class="p">()</span>
+</code></pre></div>
+
+<p>I found out that using the above values presented good results for clustering even the smallest objects (for example <code>glue</code> in the 3rd world scene).</p>
+<p>Once we have that going, we can visualize the cluster in a way, that is readable to the human eye:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_cluster_cloud</span><span class="p">(</span><span class="n">cluster_indices</span><span class="p">,</span> <span class="n">white_cloud</span><span class="p">):</span>
+    <span class="n">cluster_color</span> <span class="o">=</span> <span class="n">get_color_list</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cluster_indices</span><span class="p">))</span>
+    <span class="n">color_cluster_point_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cluster_indices</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">indice</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+            <span class="n">color_cluster_point_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">white_cloud</span><span class="p">[</span><span class="n">indice</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                             <span class="n">white_cloud</span><span class="p">[</span><span class="n">indice</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                             <span class="n">white_cloud</span><span class="p">[</span><span class="n">indice</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
+                                             <span class="n">rgb_to_float</span><span class="p">(</span><span class="n">cluster_color</span><span class="p">[</span><span class="n">j</span><span class="p">])])</span>
+    <span class="n">cluster_cloud</span> <span class="o">=</span> <span class="n">pcl</span><span class="o">.</span><span class="n">PointCloud_PointXYZRGB</span><span class="p">()</span>
+    <span class="n">cluster_cloud</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="n">color_cluster_point_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cluster_cloud</span>
+</code></pre></div>
+
+<h2>Object recognition</h2>
+<p>Before doing any actual object recognition, I had to create a labeled dataset first. I have used the <code>capture_features.py</code> script with 100 iterations for each object to get a good feature list. The result was saved into <code>training_set.sav</code>.</p>
+<div class="codehilite"><pre><span></span><code>Features in Training Set: 800
+Invalid Features in Training set: 0
+Scores: [ 0.96875  0.9875   0.975    0.98125  0.96875]
+Accuracy: 0.98 (+/- 0.01)
+accuracy score: 0.97625
+</code></pre></div>
+
+<p>Next I have run the <code>train_svm.py</code> script. SVMs work by applying an iterative method to a training dataset, where each item in the training set is characterized by a feature vector and a label. In the image above, each point is characterized by just two features, A and B. The color of each point corresponds to its label, or which class of object it represents in the dataset. Below you can see the Confusion Matrix with and without normalization.</p>
+<h2>Sending the yaml file</h2>
+<p>To communicate with the robot, we will generate yaml files, that contain the following:</p>
+<ul>
+<li>Test scene number, depending on what world we are currently in,</li>
+<li>Cluster name from the <code>rospy.get_param('/object_list')</code>,</li>
+<li>Arm name from the <code>rospy.get_param('/dropbox')</code>,</li>
+<li>Pickup pose position taken from the cloud centroid,</li>
+<li>Place pose position of the dropbox.</li>
+</ul>
+<p>Here is the code needed for creating the <code>yaml</code> file responsible for robot movement:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># These variables will be used by all objects</span>
+<span class="n">test_scene_num</span> <span class="o">=</span> <span class="n">Int32</span><span class="p">()</span>
+<span class="n">test_scene_num</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">SCENE_NUMBER</span>
+<span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Get object list and dropbox parameters from config files</span>
+<span class="n">object_list_param</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s1">&#39;/object_list&#39;</span><span class="p">)</span>
+<span class="n">dropbox_list_param</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s1">&#39;/dropbox&#39;</span><span class="p">)</span>
+
+<span class="c1"># Loop through all the objects we detected previously</span>
+<span class="k">for</span> <span class="nb">object</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">:</span>
+
+    <span class="c1"># Create response parameters</span>
+    <span class="n">object_name</span> <span class="o">=</span> <span class="n">String</span><span class="p">()</span>
+    <span class="n">arm</span> <span class="o">=</span> <span class="n">String</span><span class="p">()</span>
+    <span class="n">pick_pose</span> <span class="o">=</span> <span class="n">Pose</span><span class="p">()</span>
+    <span class="n">place_pose</span> <span class="o">=</span> <span class="n">Pose</span><span class="p">()</span>
+
+    <span class="c1"># Get object name</span>
+    <span class="n">object_name</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+    <span class="c1"># Get the centroid of the object cloud using numpy</span>
+    <span class="n">cloud</span> <span class="o">=</span> <span class="n">ros_to_pcl</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">cloud</span><span class="p">)</span><span class="o">.</span><span class="n">to_array</span><span class="p">()</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">cloud</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">pick_pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">pick_pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">pick_pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+    <span class="c1"># Get to what group the item belongs</span>
+    <span class="n">target_group</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">object_list_param</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">object_name</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">target_group</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span>
+            <span class="k">break</span>
+
+    <span class="c1"># Check for box information</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">dropbox_list_param</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">target_group</span><span class="p">:</span>
+            <span class="n">arm</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">]</span>
+            <span class="n">place_pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">place_pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">place_pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+            <span class="k">break</span>
+
+    <span class="c1"># Create yaml for object using helper method</span>
+    <span class="nb">dict</span> <span class="o">=</span> <span class="n">make_yaml_dict</span><span class="p">(</span><span class="n">test_scene_num</span><span class="p">,</span> <span class="n">arm</span><span class="p">,</span> <span class="n">object_name</span><span class="p">,</span> <span class="n">pick_pose</span><span class="p">,</span> <span class="n">place_pose</span><span class="p">)</span>
+
+    <span class="c1"># Add yaml to output</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="c1"># Send data to the PR2 robot</span>
+    <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="s1">&#39;pick_place_routine&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pick_place_routine</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="s1">&#39;pick_place_routine&#39;</span><span class="p">,</span> <span class="n">PickPlace</span><span class="p">)</span>
+        <span class="c1"># Pass the data to the response</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">pick_place_routine</span><span class="p">(</span>
+          <span class="n">test_scene_num</span><span class="p">,</span>
+          <span class="n">object_name</span><span class="p">,</span>
+          <span class="n">arm</span><span class="p">,</span>
+          <span class="n">pick_pose</span><span class="p">,</span>
+          <span class="n">place_pose</span><span class="p">)</span>
+
+        <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Response: &quot;</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">success</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceException</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;Service call failed: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span>
+</code></pre></div>
+
+<h2>Discussion</h2>
+<p>The presented methods allowed me to successfully recognize the objects in 3 test worlds. I had to change the calibration values for filters from the exercises, because they weren’t giving me satisfying results - mostly because of the noise present in the PR2 <code>/pr2/world/points</code> topic.</p>
+<p>It amazed me, that I had to do so many feature runs (100 iterations), before I got good results that allowed recognition of items. With previous try, which was 50 iterations, some items weren’t recognized at all.</p>
+<p>Also <code>Test World 1</code> required a higher value for the Euclidean Clustering minimum cluster size - 100 instead of 30 - compared to <code>Test World 2 and 3</code>.</p>
+<p>What can be improved in future work:</p>
+<ul>
+<li>The way the <code>passthrough</code> filter is handled, won’t fit other camera settings,</li>
+<li>When the objects would be closer, there would be problems with creation of clusters,</li>
+<li>Adding new (not learned) objects would require running the SVM again,</li>
+<li>The initial point cloud is quite big, reducing the speed of the algorithm.</li>
+</ul>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    &copy; 2025 zmudzinski.sh - from Poland with code.
+</footer>            </div>
+        </main>
+    </body>
+</html>

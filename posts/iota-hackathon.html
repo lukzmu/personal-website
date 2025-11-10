@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Blog</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>    
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>IOTA Hackathon</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2017.11.20</h2>
+    <p>This weekend was an adventure! I went to Gdańsk to participate in the <code>IOTA Hackathon</code> – 2 days of intense Internet of Things + Blockchain (but not really) hacking action with a team of great and creative people from all over Europe. The event was sponsored by a couple of companies: IOTA, Baltic Data Science, Datarella, Crowdstart Capital and Bright Inventions. But what is IOTA and how it actually works? How did the event go? What we created? Let’s find out!</p>
+<p>If you want more news about the event, check the <code>#iotahack</code> on social media.</p>
+<h2>So do tell me… what is IOTA?</h2>
+<blockquote>
+<p>As the Internet-of-Things keep expanding, the need for interoperability and sharing of resources become a necessity. IOTA enables companies to explore new business-2-business models by making every technological resource a potential service to be traded on an open market in real time, with no fees.</p>
+</blockquote>
+<p>~ Taken from IOTA website</p>
+<p>IOTA is taking the blockchain technology to the next level with introducing the Tangle. In theory it allows you to send fast micro-transactions between users, while keeping a secure environment. Allowing value 0 transactions makes it perfect for P2P messaging and makes it a great way to communicate between IoT devices.  I’m not an expert on the subject, so I won’t go into technical details, but here are some main features of IOTA:</p>
+<ul>
+<li>Micro-transactions</li>
+<li>Data transfer</li>
+<li>Voting</li>
+<li>Masked messaging</li>
+<li>Everything as a Service</li>
+<li>Scalable Ledger</li>
+</ul>
+<h2>PlugInBaby – Hackathon first place</h2>
+<p>I was part of the PlugInBaby team that won the Hackathon. After 24h we provided a working solution for a distributed electric car charging system using the IOTA tangle. My main task was to connect our system with the python IOTA APIs, which worked out quite well thanks to the great support of IOTA people on Slack (that were there for us for the whole weekend).</p>
+<p>PlugInBaby allows vendors to add their charging stations to our system with a specified name, location and charging cost. The payments they receive are done by IOTA tangle transactions and depend on how long the client was charging their car.</p>
+<p>The client on the other hand gets a mobile app, that shows him the positions of nearby charging stations. Each station is marked green or orange, depending on their curent status: Free or Occupied. Once he selects which price fits him the best, he moves to the charging station and plugs the car in. Once he approves the charging request, the action begins and goes until canceled or battery is fully charged. Then the payment is issued and he can move on.</p>
+<h2>How it works?</h2>
+<p>As I said before, I was responsible for the backend. I’ll show you how accessing the tangle works and some of the methods that were used to create this application. You can view the full <a href="https://github.com/bds-iota-hackathon/car-agents">code on Github</a>. We were doing everything on the test network, so if you want to get your adress, seed and test IOTA tokens, please go visit the <a href="https://seeedy.tangle.works/">generator site</a>. You can also use the <a href="https://testnet.thetangle.org/">Tangle Explorer</a> to see, if your transactions are actually working. The code I post here will be simplified, so you need to catch exceptions and stick it into functions yourself (or check our Github repo).</p>
+<p>On how to install IOTA lib for python go to the <a href="https://github.com/iotaledger-archive/iota.py">official IOTA python repo</a>.</p>
+<p><strong>Testnet nodes:</strong></p>
+<ul>
+<li>http://p103.iotaledger.net:14700</li>
+<li>https://testnet140.tangle.works:443</li>
+<li>http://p101.iotaledger.net:14700</li>
+</ul>
+<p><strong>Testing the connection:</strong></p>
+<p>First of all, we need to create an Iota object and pass it one of the Testnet nodes and our generated seed. Then we can use the <code>get_node_info()</code> function to read some data about the node we connected to – hash, neighbours etc.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">api</span> <span class="o">=</span> <span class="n">Iota</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+<span class="n">node_info</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">get_node_info</span><span class="p">()</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Node information: </span><span class="si">{info}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">node_info</span><span class="p">))</span>
+</code></pre></div>
+
+<p><strong>Transactions:</strong></p>
+<p>To send a transaction (doesn’t matter if it will be free or paid), we need to use the <code>send_transfer()</code> function. Here is a short description of the variables:</p>
+<ul>
+<li><code>depth</code> –  how deep to go in the Tangle</li>
+<li><code>transfers</code> – the transactions you want to send:<ul>
+<li><code>address</code> – address of your recepient,</li>
+<li><code>value</code> – how many IOTAs you want to send,</li>
+<li><code>message</code> – message you want to attach,</li>
+<li><code>tag</code> – well… a tag. Helps you find your transactions.</li>
+</ul>
+</li>
+<li><code>inputs</code> – your data and options:<ul>
+<li><code>key_index</code> – we actually couldn’t figure that out, but 0 always worked,</li>
+<li><code>security_level</code> – at least 2 if you want to send value &gt; 0.</li>
+</ul>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">api</span><span class="o">.</span><span class="n">send_transfer</span><span class="p">(</span>
+    <span class="n">depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">min_weight_magnitude</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">transfers</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">ProposedTransaction</span><span class="p">(</span>
+            <span class="n">address</span><span class="o">=</span><span class="n">Address</span><span class="p">(</span><span class="s2">&quot;RECEPIENTSADDRESS&quot;</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="n">TryteString</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;Hello world!&quot;</span><span class="p">),</span>
+            <span class="n">tag</span><span class="o">=</span><span class="n">TryteString</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;MyTag&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">Address</span><span class="p">(</span><span class="s2">&quot;YOURADDRESS&quot;</span><span class="p">,</span> <span class="n">key_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">security_level</span><span class="o">=</span><span class="mi">2</span><span class="p">)],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Get your balance:</strong></p>
+<p>To display the wallet we used the <code>get_balances()</code> function. You just need to pass the address.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__api</span><span class="o">.</span><span class="n">get_balances</span><span class="p">([</span><span class="n">Address</span><span class="p">(</span><span class="n">address</span><span class="p">)])</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+   <span class="s2">&quot;Wallet balance: </span><span class="si">{balance}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">balance</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;balances&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="p">)</span>
+</code></pre></div>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    &copy; 2025 zmudzinski.sh - from Poland with code.
+</footer>            </div>
+        </main>
+    </body>
+</html>

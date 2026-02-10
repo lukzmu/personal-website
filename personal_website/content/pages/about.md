@@ -13,7 +13,7 @@ I am currently employed as a `Backend Team Lead` at [STX Next](https://stxnext.c
 ## Contact
 
 - [LinkedIn](https://linkedin.com/in/lukzmu) - place where I keep my "up to date" resume,
-- [GitHub](https://github.com/lukzmu) - my public repositories,
+- [Codeberg](https://codeberg.org/lukzmu) - my public repositories,
 - [Family Website](https://zmudzinski.me) - website hosted for my Family.
 
 <br/>

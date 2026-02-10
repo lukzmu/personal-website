@@ -3,8 +3,6 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 
-from personal_website.services.github import GitHubClient
-
 load_dotenv()
 
 # --- Site Data ---
@@ -17,7 +15,6 @@ DEFAULT_LANG = "en"
 
 SITE_DATA: dict[str, list[dict] | int] = {
     "year": datetime.now().year,
-    "repositories": GitHubClient(token=os.getenv("GH_TOKEN", default=None)).get_repositories(),
 }
 
 # --- Feed Settings ---

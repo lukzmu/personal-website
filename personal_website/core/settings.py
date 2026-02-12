@@ -3,6 +3,10 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 
+from personal_website.animal.repository import animal_repository
+from personal_website.event.repository import event_repository
+from personal_website.person.repository import person_repository
+
 load_dotenv()
 
 # --- Site Data ---
@@ -13,8 +17,13 @@ SITENAME = "zmudzinski.sh"
 TIMEZONE = "Europe/Warsaw"
 DEFAULT_LANG = "en"
 
-SITE_DATA: dict[str, list[dict] | int] = {
+SITE_DATA: dict[str, object] = {
     "year": datetime.now().year,
+    "family": {
+        "people": person_repository.get_items(),
+        "animals": animal_repository.get_items(),
+        "events": event_repository.get_items(),
+    },
 }
 
 # --- Feed Settings ---

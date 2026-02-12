@@ -1,0 +1,40 @@
+items:
+  - name: Geralt
+    avatar: geralt.png
+    alive: true
+  - name: Vader
+    avatar: vader.png
+    alive: true
+  - name: Simba
+    avatar: simba.png
+    alive: false
+  - name: Rey
+    avatar: rey.png
+    alive: false
+  - name: Asajj
+    avatar: asajj.png
+    alive: false
+  - name: Kotek
+    avatar: kotek.png
+    alive: true
+  - name: Wifi
+    avatar: wifi.png
+    alive: false
+  - name: Fifi
+    avatar: fifi.png
+    alive: false
+  - name: Stefa Jr.
+    avatar: stefajr.png
+    alive: false
+  - name: Garfield
+    avatar: garfield.png
+    alive: false
+  - name: Luna
+    avatar: luna.png
+    alive: false
+  - name: Stefa
+    avatar: stefa.png
+    alive: false
+  - name: Bingo
+    avatar: bingo.png
+    alive: false

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="max-w-4xl mt-20">
+    <section class="mt-12">
+        <h2 class="text-xl">Family Members</h2>
+        <p class="text-sm text-neutral-500 mt-1">$ SELECT name, title, avatar FROM family.members;</p>
+        <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for person in SITE_DATA.family.people %}
+            <li class="border border-neutral-800 rounded p-3 bg-neutral-900/30">
+                <img
+                    class="w-full aspect-square object-cover rounded"
+                    src="{{ SITEURL }}/images/family/people/{{ person.avatar }}"
+                    alt="{{ person.name }}"
+                >
+                <p class="mt-3">{{ person.name }}</p>
+                <p class="text-sm text-neutral-500">{{ person.title }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="mt-12">
+        <h2 class="text-xl">Animals</h2>
+        <p class="text-sm text-neutral-500 mt-1">$ SELECT name, avatar FROM family.animals ORDER BY is_alive DESC, name;</p>
+        <ul class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {% for animal in SITE_DATA.family.animals %}
+            <li class="text-center border border-neutral-800 rounded p-3 bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover {% if not animal.alive %}grayscale opacity-60{% endif %}"
+                    src="{{ SITEURL }}/images/family/animals/{{ animal.avatar }}"
+                    alt="{{ animal.name }}"
+                >
+                <p class="mt-2 text-sm {% if animal.alive %}text-neutral-200{% else %}text-neutral-500{% endif %}">
+                    {{ animal.name }}
+                </p>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="mt-12">
+        <h2 class="text-xl">Events</h2>
+        <p class="text-sm text-neutral-500 mt-1">$ SELECT title, icon, occured_at, is_important FROM family.events ORDER BY occured_at DESC;</p>
+        <ul class="mt-4 border border-neutral-800 rounded divide-y divide-neutral-800 bg-neutral-900/30">
+            {% for event in SITE_DATA.family.events %}
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">{{ event.icon }}</span>
+                <span class="{% if event.important %}text-neutral-200{% else %}text-neutral-400{% endif %}">
+                    {{ event.title }}
+                </span>
+                <time class="text-neutral-500 whitespace-nowrap">{{ event.date }}</time>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+</article>
+{% endblock %}

@@ -1,6 +1,6 @@
 Title: About
 
-Hello there! My name is **Łukasz Żmudziński** and I'm a `Python` engineer from Poland.
+Hello there! My name is **Łukasz Żmudziński** and I'm a `Python Engineer` from Poland.
 
 I am currently employed as a `Backend Team Lead` at [STX Next](https://stxnext.com).
 
@@ -8,13 +8,13 @@ I am currently employed as a `Backend Team Lead` at [STX Next](https://stxnext.c
 
 - Writing code for your Python project,
 - Leading technical teams,
-- Consulting architecture and cloud solutions.
+- Consulting architecture and cloud solutions,
+- Performing data engineering tasks.
 
 ## Contact
 
 - [LinkedIn](https://linkedin.com/in/lukzmu) - place where I keep my "up to date" resume,
-- [Codeberg](https://codeberg.org/lukzmu) - my public repositories,
-- [Family Website](https://zmudzinski.me) - website hosted for my Family.
+- [Codeberg](https://codeberg.org/lukzmu) - my public repositories.
 
 <br/>
 

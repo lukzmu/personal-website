@@ -24,6 +24,10 @@ SITE_DATA: dict[str, object] = {
         "animals": animal_repository.get_items(),
         "events": event_repository.get_items(),
     },
+    "repository": {
+        "pelican": "https://getpelican.com/",
+        "link": "https://codeberg.org/lukzmu/personal-website",
+    },
 }
 
 # --- Feed Settings ---

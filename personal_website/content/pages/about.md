@@ -13,8 +13,9 @@ I am currently employed as a `Backend Team Lead` at [STX Next](https://stxnext.c
 
 ## Contact
 
-- [LinkedIn](https://linkedin.com/in/lukzmu) - place where I keep my "up to date" resume,
-- [Codeberg](https://codeberg.org/lukzmu) - my public repositories.
+- [Email](mailto:lukasz@zmudzinski.sh) - here you can send an email to me,
+- [Resume](resume) - here you can preview my "up to date" resume,
+- [Codeberg](https://codeberg.org/lukzmu) - here you can find my public repositories.
 
 <br/>
 

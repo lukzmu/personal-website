@@ -227,6 +227,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pelican-render-math"
+version = "1.0.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pelican" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/39/ce/b7ca0f603d78811b944951ad2f83f28ad3018ef1b3653221deef81e068c5/pelican_render_math-1.0.5.tar.gz", hash = "sha256:dfb36fb5cb62f40ee05d747f47207ec15511f8d77635def8c22a00846cca742b", size = 29453, upload-time = "2025-10-22T09:13:58.185Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/0e/368abb67e18c4ce965ce88cf96aa67c6cb8be2f8e0b2ed1ec1f306be5dad/pelican_render_math-1.0.5-py3-none-any.whl", hash = "sha256:6383b798aba721ed033a67bbc71c8f555b72c7d35e22a32477c958286f719eca", size = 28788, upload-time = "2025-10-22T09:13:56.792Z" },
+]
+
+[[package]]
 name = "poethepoet"
 version = "0.36.0"
 source = { registry = "https://pypi.org/simple" }
@@ -397,6 +409,7 @@ dependencies = [
     { name = "httpx" },
     { name = "markdown" },
     { name = "pelican" },
+    { name = "pelican-render-math" },
     { name = "pygments" },
 ]
 
@@ -413,6 +426,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "markdown", specifier = ">=3.8" },
     { name = "pelican", specifier = ">=4.11.0,<5.0.0" },
+    { name = "pelican-render-math", specifier = ">=1.0.5" },
     { name = "pygments", specifier = ">=2.18.0" },
 ]
 

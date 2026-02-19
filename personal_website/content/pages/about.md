@@ -4,7 +4,7 @@ Title: About
 
 lukzmu — python engineer, data builder, infrastructure tinkerer.
 
-Building software since 2014. Focused on python, data platforms, linux and cloud architecture. Known to design systems, automate everything, and spend unreasonable time refining developer configurations.
+Building software since 2010. Focused on python, data platforms, linux and cloud architecture. Known to design systems, automate everything, and spend unreasonable time refining developer configurations.
 
 Public artifacts: [https://codeberg.org/lukzmu](https://codeberg.org/lukzmu)
 
@@ -14,5 +14,5 @@ Husband, father of two, Warcraft veteran, Star Wars enthusiast.
 
 <p class="text-sm text-neutral-500">$ grep -i contact ~/.profile</p>
 
-[https://www.linkedin.com/in/lukzmu/](https://www.linkedin.com/in/lukzmu/)
+[https://linkedin.com/in/lukzmu/](https://linkedin.com/in/lukzmu/)
 

@@ -1,22 +1,18 @@
 Title: About
 
-Hello there! My name is **Łukasz Żmudziński** and I'm a `Python Engineer` from Poland.
+<p class="text-sm text-neutral-500">$ whoami</p>
 
-I am currently employed as a `Backend Team Lead` at [STX Next](https://stxnext.com).
+lukzmu — python engineer, data builder, infrastructure tinkerer.
 
-## Things I can help you with
+Building software since 2014. Focused on python, data platforms, linux and cloud architecture. Known to design systems, automate everything, and spend unreasonable time refining developer configurations.
 
-- Writing code for your Python project,
-- Leading technical teams,
-- Consulting architecture and cloud solutions,
-- Performing data engineering tasks.
+Public artifacts: [https://codeberg.org/lukzmu](https://codeberg.org/lukzmu)
 
-## Contact
+<p class="text-sm text-neutral-500">$ cat /proc/identity</p>
 
-- [Email](mailto:lukasz@zmudzinski.sh) - here you can send an email to me,
-- [Resume](resume) - here you can preview my "up to date" resume,
-- [Codeberg](https://codeberg.org/lukzmu) - here you can find my public repositories.
+Husband, father of two, Warcraft veteran, Star Wars enthusiast.
 
-<br/>
+<p class="text-sm text-neutral-500">$ grep -i contact ~/.profile</p>
 
-May the Force be with you.
+[https://www.linkedin.com/in/lukzmu/](https://www.linkedin.com/in/lukzmu/)
+

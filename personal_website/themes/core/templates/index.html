@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<ul class="mt-20">
+<p class="text-sm text-neutral-500 mt-20">$ journalctl -r</p>
+<ul class="mt-6">
   {% for article in articles_page.object_list %}
     <li>
         <div class="flex gap-4">

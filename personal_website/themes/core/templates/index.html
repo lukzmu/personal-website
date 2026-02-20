@@ -5,8 +5,8 @@
   {% for article in articles_page.object_list %}
     <li>
         <div class="flex gap-4">
-            <a class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis block hover:underline" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
-            <span class="text-neutral-500">{{ article.date.strftime('%Y-%m-%d') }}</span>
+            <a class="block min-w-0 flex-grow overflow-hidden text-ellipsis whitespace-nowrap hover:underline" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
+            <span class="shrink-0 whitespace-nowrap text-neutral-500">{{ article.date.strftime('%Y-%m-%d') }}</span>
         </div>
     </li>
   {% endfor %}

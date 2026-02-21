@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Data gathering service using Flask: Structure and Data</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2019.11.18</h2>
+    <p>As a big fan of World of Warcraft, I always wanted to do a little side-project about auction house price predictions. When searching the web for data, I didn’t find any useful data source tho, so I decided to create one myself. With the help of TradeSkillMaster API and some Flask code, I started gathering the data I need in a MySQL database… and today I will show you how to do something similar for your own needs.</p>
+<p>This blog post, due to the amount of information, comes in a series:</p>
+<ul>
+<li>Data gathering service using Flask: Structure and Data</li>
+<li><a href="https://zmudzinski.sh/posts/data-gathering-service-using-flask-services-and-scheduling.html">Data gathering service using Flask: Services and Scheduling</a></li>
+<li><a href="https://zmudzinski.sh/posts/data-gathering-service-using-flask-heroku-deployment.html">Data gathering service using Flask: Heroku deployment</a></li>
+</ul>
+<h2>Why Flask?</h2>
+<p>First of all, I don’t need anything fancy here. A service that will run a function that connects to a remote API, collects the data and stores it in a database. This is supposed to be light-weight, so selecting other frameworks like eg. Django, would be an overkill. Secondly, I wanted to build it fast and make it maintenance free. As you will soon see, there is little to no code required to run.</p>
+<h3>And what exactly is Flask?</h3>
+<p>As taken from the official website:</p>
+<blockquote>
+<p>Flask is a lightweight WSGI web application framework. It is designed to make getting started quick and easy, with the ability to scale up to complex applications. It began as a simple wrapper around Werkzeug and Jinja and has become one of the most popular Python web application frameworks. Flask offers suggestions, but doesn’t enforce any dependencies or project layout. It is up to the developer to choose the tools and libraries they want to use. There are many extensions provided by the community that make adding new functionality easy.</p>
+</blockquote>
+<p>Seems like the ideal description of what we need!</p>
+<h2>Building our Services</h2>
+<p>We will be using <code>Python 3.7</code>, and you need to install the following dependencies:</p>
+<ul>
+<li><code>Flask</code> - doesn’t really need a description, does it?</li>
+<li><code>Flask-SQLAlchemy</code> - for database related stuff,</li>
+<li><code>gunicorn</code> - running the server,</li>
+<li><code>mysqlclient</code> - required, if you are using a MySQL db like me,</li>
+<li><code>requests</code> - running external API calls,</li>
+<li><code>pyflakes</code> (optional) - linter making your code keep pretty standards.</li>
+</ul>
+<p><strong>Moreover, you need a MySQL database, we will be able to connect to.</strong></p>
+<p>We will start simple. Create a file <code>main.py</code> in your project directory. This file will be the server start point for our service (the <code># noqa</code> is only there for flake to shut up).</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># main.py</span>
+<span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">app</span>  <span class="c1"># noqa</span>
+</code></pre></div>
+
+<h3>Main app</h3>
+<p>Now that we have our great import, it would be cool to actually add the app to our project. Create a new directory <code>app/</code> and add an <code>__init__.py</code> file. We will start by adding some imports:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># app/__init__.py</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_sqlalchemy</span> <span class="kn">import</span> <span class="n">SQLAlchemy</span>
+<span class="kn">from</span> <span class="nn">flask_migrate</span> <span class="kn">import</span> <span class="n">Migrate</span>
+<span class="kn">from</span> <span class="nn">apscheduler.schedulers.background</span> <span class="kn">import</span> <span class="n">BackgroundScheduler</span>
+
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">config</span>
+</code></pre></div>
+
+<p>As we have our imports done, we can create the application, mind that we still don’t have the <code>Config</code> created, so you will get errors. We will do that in a moment.</p>
+<p>Below the imports, add the following code. It will create a Flask application, configure it, create a database connection and add model migration for our database. Quite a lot, isn’t it?</p>
+<div class="codehilite"><pre><span></span><code><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="n">Config</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">SQLAlchemy</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<span class="n">migrate</span> <span class="o">=</span> <span class="n">Migrate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Moreover, add this line at the end of the file, so that our app knows about our code structure. We will implement these soon!</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">routes</span><span class="p">,</span> <span class="n">models</span>  <span class="c1"># noqa</span>
+</code></pre></div>
+
+<h3>Configuration</h3>
+<p>Create a <code>config.py</code> file in the app directory. We will create a class that will gather the ENV values for our project configuration and some initial settings for the Warcraft TSM API.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># app/config.py</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">SQLALCHEMY_DATABASE_URI</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SQLALCHEMY_DATABASE_URI&#39;</span><span class="p">]</span>
+    <span class="n">SQLALCHEMY_TRACK_MODIFICATIONS</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">TSM_API</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;TSM_API&#39;</span><span class="p">]</span>
+    <span class="n">SQLALCHEMY_POOL_RECYCLE</span> <span class="o">=</span> <span class="mi">299</span>
+    <span class="n">SQLALCHEMY_POOL_TIMEOUT</span> <span class="o">=</span> <span class="mi">20</span>
+
+    <span class="n">ITEMS_FILTER</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="mi">168651</span><span class="p">,</span>  <span class="c1"># Greater Flask of the Currents</span>
+        <span class="mi">168652</span><span class="p">,</span>  <span class="c1"># Greater Flask of Endless Fathoms</span>
+        <span class="mi">168653</span><span class="p">,</span>  <span class="c1"># Greater Flask of the Vast Horizon</span>
+        <span class="c1"># ... and any other</span>
+    <span class="p">]</span>
+</code></pre></div>
+
+<p>As you can see we are using <code>os.environ</code> to gather the environment variables for our project. When hosting on Heroku, we will add those to the application. When running on your computer you need to add those by typing in bash terminal:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">export</span> <span class="n">TSM_API</span><span class="o">=</span><span class="n">YOUR_API_KEY</span>
+<span class="n">export</span> <span class="n">SQLALCHEMY_DATABASE_URI</span><span class="o">=</span><span class="n">mysql</span><span class="p">:</span><span class="o">//</span><span class="n">user</span><span class="p">:</span><span class="k">pass</span><span class="nd">@host</span><span class="o">/</span><span class="n">db</span>
+</code></pre></div>
+
+<p>But what exactly are those settings, you might ask?</p>
+<ul>
+<li><code>SQLALCHEMY_DATABASE_URI</code> is the database connection string needed for SQLAlchemy,</li>
+<li><code>SQLALCHEMY_TRACK_MODIFICATIONS</code> tells SQLAlchemy not to print out transaction logs,</li>
+<li><code>TSM_API</code> is your TSM api key. You can get that in My Account section of TSM website,</li>
+<li><code>SQLALCHEMY_POOL_RECYCLE</code> and <code>SQLALCHEMY_POOL_TIMEOUT</code> are there to keep our MySQL connection available, because it tends to shut down on idle,</li>
+<li><code>ITEMS_FILTER</code> is there for me, to filter out only the WoW items I’m interested in.</li>
+</ul>
+<p>Remember that the external API you will use, might need different configurations. The config.py file will be the best place to store that information.</p>
+<h3>Routing</h3>
+<p>We don’t really plan on sharing the service link anywhere, because we aren’t displaying any information. This is just a gathering service after all. Nevertheless, it is good to create a simple start page, if someone lands on our page in any way (can’t imagine how). Let’s create a simple <code>routes.py</code> file to have that dealt with:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># app/routes.py</span>
+<span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">app</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s1">&#39;Warcraft data gathering service by &#39;</span>
+        <span class="s1">&#39;&lt;a href=&quot;https://zmudzinski.me&quot;&gt;Lukasz Zmudzinski&lt;/a&gt;. &#39;</span>
+        <span class="s1">&#39;&lt;br/&gt; Nothing to see here. Move along 👋.&#39;</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<p>This will ensure that every time someone goes to our service website directly, he will be greeted by the above message, returned by the <code>hello()</code> function.</p>
+<h3>Building our model</h3>
+<p>We need to tell SQLAlchemy how we want to store our data. To do this, we need to create a database model. Create a <code>models.py</code> file and add all the models in a similar fashion to mine, depending on the data you will be gathering.</p>
+<p>You can preview other data types in the <a href="https://docs.sqlalchemy.org/en/13/core/type_basics.html#generic-types">SQLAlchemy Documentation</a>.</p>
+<p>The <code>__repr__</code> function is there only to make printing the model for debug purposes meaningful.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># app/models.py</span>
+<span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">db</span>
+
+
+<span class="k">class</span> <span class="nc">TSMData</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>    
+    <span class="n">item_name</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">item_subclass</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">item_vendor_buy</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">item_vendor_sell</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">item_market_value</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">item_min_buyout</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">item_quantity</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">item_num_auctions</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">created_at</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">DateTime</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">item_name</span><span class="si">}</span><span class="s1"> at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">created_at</span><span class="si">}</span><span class="s1">.&#39;</span>
+</code></pre></div>
+
+<p>Right now it would be cool to launch our app, to see how we are doing. Do the following steps in a bash terminal to push your models to the database and launch our awesome service!</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Set the flask app env</span>
+<span class="n">export</span> <span class="n">FLASK_APP</span><span class="o">=</span><span class="n">main</span><span class="o">.</span><span class="n">py</span>
+
+<span class="c1"># Create a migration repository</span>
+<span class="n">flask</span> <span class="n">db</span> <span class="n">init</span>
+
+<span class="c1"># Generate initial migration</span>
+<span class="n">flask</span> <span class="n">db</span> <span class="n">migrate</span>
+
+<span class="c1"># Apply the migration to the database</span>
+<span class="n">flask</span> <span class="n">db</span> <span class="n">upgrade</span>
+
+<span class="c1"># Run the server!</span>
+<span class="n">flask</span> <span class="n">run</span>
+</code></pre></div>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

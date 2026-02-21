@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>P-Controller for robot control</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2019.03.22</h2>
+    <p>Below I present a simple implementation of the P-Controller in python. The presented function can be used in a loop and will allow the movement of the robot from the start position to the goal. You can chain the whole path and input the goal of next path points, when one is reached.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">math</span>
+
+<span class="k">def</span> <span class="nf">run_p_controller</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">heading</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">ksi</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">80</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function for running robot motors using P-controller</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pos: float tuple</span>
+<span class="sd">        The current position of the robot</span>
+<span class="sd">    goal: float tuple</span>
+<span class="sd">        The goal position</span>
+<span class="sd">    heading: float</span>
+<span class="sd">        The current heading of the robot</span>
+<span class="sd">    speed: int</span>
+<span class="sd">        The initial speed at which wheels should be turned</span>
+<span class="sd">    ksi: float</span>
+<span class="sd">        The value of the steering scalar</span>
+<span class="sd">    precision: int</span>
+<span class="sd">        The precision of the P-controller orientation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Direction estimation based on robot and goal positions</span>
+    <span class="n">delta_x</span> <span class="o">=</span> <span class="n">goal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">delta_y</span> <span class="o">=</span> <span class="n">goal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">direction</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">delta_x</span><span class="p">,</span> <span class="n">delta_y</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">180</span>
+
+    <span class="c1"># Orientation conversion into the interval [0...179;-180,...,-1]</span>
+    <span class="n">orient</span> <span class="o">=</span> <span class="n">heading</span> <span class="o">-</span> <span class="n">direction</span>
+    <span class="k">if</span> <span class="n">orient</span> <span class="o">&gt;</span> <span class="mi">180</span><span class="p">:</span>
+        <span class="n">orient</span> <span class="o">-=</span> <span class="mi">360</span>
+    <span class="k">if</span> <span class="n">orient</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">180</span><span class="p">:</span>
+        <span class="n">orient</span> <span class="o">+=</span> <span class="mi">360</span>
+
+    <span class="c1"># P-controller</span>
+    <span class="n">left_wheel</span> <span class="o">=</span> <span class="n">speed</span>
+    <span class="n">right_wheel</span> <span class="o">=</span> <span class="n">speed</span>
+    <span class="k">if</span> <span class="n">orient</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">orient</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">precision</span><span class="p">:</span>
+            <span class="n">left_wheel</span> <span class="o">=</span> <span class="o">-</span><span class="n">right_wheel</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">left_wheel</span> <span class="o">=</span> <span class="n">right_wheel</span> <span class="o">+</span> <span class="p">(</span><span class="n">ksi</span> <span class="o">*</span> <span class="n">orient</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">orient</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">orient</span> <span class="o">&gt;</span> <span class="n">precision</span><span class="p">:</span>
+            <span class="n">right_wheel</span> <span class="o">=</span> <span class="o">-</span><span class="n">left_wheel</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">right_wheel</span> <span class="o">=</span> <span class="n">left_wheel</span> <span class="o">-</span> <span class="p">(</span><span class="n">ksi</span> <span class="o">*</span> <span class="n">orient</span><span class="p">)</span>
+
+    <span class="c1"># Return wheel power values</span>
+    <span class="k">return</span> <span class="n">left_wheel</span><span class="p">,</span> <span class="n">right_wheel</span>
+</code></pre></div>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

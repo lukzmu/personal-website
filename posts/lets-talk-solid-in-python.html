@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Let's talk SOLID in Python</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2020.07.10</h2>
+    <p>You might have heard the term SOLID once or twice in your programming life. You probably even implemented the principles of SOLID in your projects without knowing it! Today we will learn what SOLID is, and why is it so important to make your projects great. Let's start what the acronym:</p>
+<ul>
+<li><code>S</code>: Single-responsiblity principle</li>
+<li><code>O</code>: Open-closed principle</li>
+<li><code>L</code>: Liskov substitution principle</li>
+<li><code>I</code>: Interface segregation principle</li>
+<li><code>D</code>: Dependency Inversion principle</li>
+</ul>
+<h2>Single-responsiblity principle (SRP)</h2>
+<blockquote>
+<p>A class should have one and only one reason to change,
+meaning that a class should have only one job.</p>
+</blockquote>
+<p>Think of a class as a functionality in our system. As systems grow these functionalities can change (depending on customer needs). If you have more than one functionality per class, you get more reasons to change, since the functionalities are coupled in that class. This is a bad thing, because changing one functionality can break the other. We don't want that.</p>
+<p>Below you have an example class that doesn't conform to SRP:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Student</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">avg_grades</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">sum_missed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+</code></pre></div>
+
+<p>As you can see, this class does three different things based on business logic:</p>
+<ul>
+<li><code>avg_grades</code> takes the average of grades received by the student,</li>
+<li><code>sum_missed</code> references absence during lessons,</li>
+<li><code>save</code> is a technical database operation.</li>
+</ul>
+<p>To conform to the SRP, we need to divide those, so that a class has only one responsibility.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">StudentGradesReport</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">avg_grades</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">student</span><span class="p">):</span>
+        <span class="o">...</span>
+
+
+<span class="k">class</span> <span class="nc">StudentAbsenceReport</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">sum_missed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">student</span><span class="p">):</span>
+        <span class="o">...</span>
+
+
+<span class="k">class</span> <span class="nc">StudentDb</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">student</span><span class="p">):</span>
+        <span class="o">...</span>
+</code></pre></div>
+
+<h2>Open-closed principle (OCP)</h2>
+<blockquote>
+<p>Objects or entities should be open for extension, but closed for modification.</p>
+</blockquote>
+<p>You write code that implements some functionalities. After some time, the client requests some new functionalities. If you need to change existing code to make it work - you probably broke the Open-closed principle. Ideally new functionalities should mean new code. This principle was added, because each change of existing code is prone to bugs and can break already working things.</p>
+<p>To show an example - we have an application that calculates tax for specific market products. We could implement it like this:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ProductType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">APPLE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">SUGAR</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">ALCOHOL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Product</span><span class="p">:</span>
+    <span class="n">product_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">price</span><span class="p">:</span> <span class="nb">float</span>
+
+
+<span class="k">def</span> <span class="nf">calculate_tax_price</span><span class="p">(</span><span class="n">product</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">product_type</span> <span class="o">==</span> <span class="n">ProductType</span><span class="o">.</span><span class="n">APPLE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">product</span><span class="o">.</span><span class="n">price</span> <span class="o">+</span> <span class="n">product</span><span class="o">.</span><span class="n">price</span> <span class="o">*</span> <span class="mf">0.05</span>
+    <span class="k">elif</span> <span class="n">product</span><span class="o">.</span><span class="n">product_type</span> <span class="o">==</span> <span class="n">ProductType</span><span class="o">.</span><span class="n">SUGAR</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">product</span><span class="o">.</span><span class="n">price</span> <span class="o">+</span> <span class="n">product</span><span class="o">.</span><span class="n">price</span> <span class="o">*</span> <span class="mf">0.08</span>
+    <span class="k">elif</span> <span class="n">product</span><span class="o">.</span><span class="n">product_type</span> <span class="o">==</span> <span class="n">ProductType</span><span class="o">.</span><span class="n">ALCOHOL</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">product</span><span class="o">.</span><span class="n">price</span> <span class="o">+</span> <span class="n">product</span><span class="o">.</span><span class="n">price</span> <span class="o">*</span> <span class="mf">0.23</span>
+</code></pre></div>
+
+<p>Not only this looks ugly, but also adding new products would mean that we need to change existing code - hence breaking the OCP. We can fix this by adding some abstraction to our code, and allowing easy extension:</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Product</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="n">price</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">calculate_tax_price</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">Apple</span><span class="p">(</span><span class="n">Product</span><span class="p">):</span>
+    <span class="n">product_type</span> <span class="o">=</span> <span class="n">ProducType</span><span class="o">.</span><span class="n">APPLE</span>
+
+    <span class="k">def</span> <span class="nf">calculate_tax_price</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">price</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">price</span> <span class="o">*</span> <span class="mf">0.05</span>
+
+
+<span class="k">class</span> <span class="nc">Sugar</span><span class="p">(</span><span class="n">Product</span><span class="p">):</span>
+    <span class="n">product_type</span> <span class="o">=</span> <span class="n">ProducType</span><span class="o">.</span><span class="n">SUGAR</span>
+
+    <span class="k">def</span> <span class="nf">calculate_tax_price</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">price</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">price</span> <span class="o">*</span> <span class="mf">0.08</span>
+
+
+<span class="k">class</span> <span class="nc">Alcohol</span><span class="p">(</span><span class="n">Product</span><span class="p">):</span>
+    <span class="n">product_type</span> <span class="o">=</span> <span class="n">ProducType</span><span class="o">.</span><span class="n">ALCOHOL</span>
+
+    <span class="k">def</span> <span class="nf">calculate_tax_price</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">price</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">price</span> <span class="o">*</span> <span class="mf">0.23</span>
+</code></pre></div>
+
+<p>Now, when a new product appears, we won't need to change any existing code, so the OCP is OK.</p>
+<h2>Liskov substitution principle (LSP)</h2>
+<blockquote>
+<p>Let q(x) be a property provable about objects of x of type T. Then q(y) should be provable for objects y of type S where S is a subtype of T.</p>
+</blockquote>
+<p>Scary sounding definition, for an easy principle. In practice, this principle states that whenever we inherit from a class, we should also be able to inherit from classes that inherit from that class.</p>
+<p>Best way to see it, is through this great example I found on the web. First a bad example (not LSP):</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">NormalFile</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading from regular file&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_text</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Writing to regular file&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ReadonlyFile</span><span class="p">(</span><span class="n">NormalFile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading from readonly file&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t write to readonly file&#39;</span><span class="p">)</span>
+
+
+<span class="n">normal_file</span> <span class="o">=</span> <span class="n">NormalFile</span><span class="p">()</span>
+<span class="n">readonly_file</span> <span class="o">=</span> <span class="n">ReadonlyFile</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">make_file_operations</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">input_text</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">ReadonlyFile</span><span class="p">):</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">input_text</span><span class="p">)</span>
+    <span class="n">fil</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">make_file_operations</span><span class="p">(</span><span class="n">normal_file</span><span class="p">,</span> <span class="s1">&#39;Bananas are great&#39;</span><span class="p">)</span>
+<span class="n">make_file_operations</span><span class="p">(</span><span class="n">readonly_file</span><span class="p">,</span> <span class="s1">&#39;Bananas are great&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>OUTPUT:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">Writing</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">regular</span><span class="w"> </span><span class="n">file</span>
+<span class="n">Reading</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">regular</span><span class="w"> </span><span class="n">file</span>
+<span class="n">Reading</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">readonly</span><span class="w"> </span><span class="n">file</span>
+</code></pre></div>
+
+<p>This works but doesn't conform to LSP. Not only the write function has different parameters, but also it behaves in a different way. We need to fix this to conform with LSP, and we can do it this way:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ReadableFile</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="o">...</span>
+
+
+<span class="k">class</span> <span class="nc">WritableFile</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="o">...</span>
+
+
+<span class="k">class</span> <span class="nc">NormalFile</span><span class="p">(</span><span class="n">ReadableFile</span><span class="p">,</span> <span class="n">WritableFile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="o">...</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading from file&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="o">...</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Writing to file&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ReadonlyFile</span><span class="p">(</span><span class="n">ReadableFile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="o">...</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading from readonly file&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>This way we conform to LSP, while keeping the code clean. Moreover we get some clean code, so it's easier to read through. Moreover we exactly know what to expect from parameters and what the return type should be.</p>
+<h2>Interface segregation principle (ISP)</h2>
+<blockquote>
+<p>A client should never be forced to implement an interface that it doesn't use or clients shouldn't be forced to depend on methods they do not use.</p>
+</blockquote>
+<p>Although Python doesn't have an interface structure like other programming languages, we can still implement this principle using abstract methods (kind of). Still, it is good to understand ISP, so let's get to it (even if we don't use it).</p>
+<p>So what is an interface? An interface defines what methods NEED to be implemented in a class that inherits from it, but doesn't describe how - this should be done by the class. So the Interface segreagation principle tells us that when a class inherits from an interface, but doesn't need all of its methods, we shouldn't use that interface for that class. Don't force classes to implement methods they don't need. Pretty simple.</p>
+<h2>Dependency Inversion Principle (DIP)</h2>
+<blockquote>
+<p>Entities must depend on abstractions not on concretions. It states that the high level module must not depend on the low level module, but they should depend on abstractions.</p>
+</blockquote>
+<p>Dependency Inversion Principle helps us create more elastic code. When working with badly written projects we can approach problems like:</p>
+<ul>
+<li><code>Rigidity</code> - when it's hard to change any piece of code, because it is connected to multiple other places - changing one thing, requires changing multiple source files/classes. This also means it is harder to predict time needed to change the code.</li>
+<li><code>Fragility</code> - Even simple changes can break the whole application or its functionalities. Every change in code produces multiple bugs, so we need to spend time on fixes.</li>
+<li><code>Immobility</code> - When you can't use the code for other applications, because it's written only for one problem, instead of doing it more universal.</li>
+</ul>
+<p>To understand this problem, we can think of a message sending problem:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Task</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="o">...</span>
+        <span class="n">email_sender</span> <span class="o">=</span> <span class="n">EmailSender</span><span class="p">()</span>
+        <span class="n">email_sender</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;some nice message&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">EmailSender</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="o">...</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Sending email with message: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>As you can see above, we have a Task class that is dependant on the EmailSender class. One of the problems we can encounter, is the amount of changes that we would need to make, if we wanted to change the type of the sender (use a different service). To avoid this problem, we can add a layer of abstraction, that will handle what service should be used.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">MessageSender</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="o">...</span>
+
+
+<span class="k">class</span> <span class="nc">EmailSender</span><span class="p">(</span><span class="n">MessageSender</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="o">...</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Sending email with message: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Task</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_sender</span><span class="p">:</span> <span class="n">MessageSender</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_sender</span> <span class="o">=</span> <span class="n">message_sender</span>
+
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_sender</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;some nice message&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Now, the Task doesn't care what sender is used, as it accepts anything that is based on the MessageSender abstract class. Now we give the class what it needs, instead of the class deciding on that matter. That is the purpose of the dependency inversion. We need to understand where the dependency should be, not to create code that is hard to change.</p>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

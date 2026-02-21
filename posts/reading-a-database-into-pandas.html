@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Reading a database into Pandas</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2019.09.16</h2>
+    <p>Lately I had to connect to a Windows Server database quickly to perform some fast data analysis. I don’t know any faster way to do that but in Python and run it through Pandas. Today I will share how to connect to a database (in my case using <code>pymssql</code>) and read the data you want into a Pandas DataFrame. Enjoy!</p>
+<p>First of all, we need to install <code>pymssql</code>. This can be done as easily as <code>pip install pymssql</code> when using pip or <code>conda install pymssql</code> when using Anaconda Python packages. If you want to use any other database package, you must know that Pandas supports SQLAlchemy connectable and DBAPI2 connections.</p>
+<p>Once we imported our module, we can now use it in code!</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Import data</span>
+<span class="kn">import</span> <span class="nn">pymssql</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</code></pre></div>
+
+<p>We can throw our database strings into variables. Mind that the best way would be to read those from <code>ENV</code> variables, but for the purpose of this blog post, that would be an overkill.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Database access</span>
+<span class="n">DB_HOST</span>       <span class="o">=</span> <span class="s1">&#39;Input database location&#39;</span>
+<span class="n">DB_PASSWORD</span>   <span class="o">=</span> <span class="s1">&#39;Input user password&#39;</span>
+<span class="n">DB_USER</span>       <span class="o">=</span> <span class="s1">&#39;Input user name&#39;</span>
+</code></pre></div>
+
+<p>Now, let’s create a connection to our database using the variables:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">conn</span> <span class="o">=</span> <span class="n">pymssql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+    <span class="n">DB_HOST</span><span class="p">,</span>
+    <span class="n">DB_USER</span><span class="p">,</span>
+    <span class="n">DB_PASSWORD</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Now its the time to do some <code>SQL</code> work. You need to write whatever you want to get out of the database. In my case I’ll do a lazy example on getting all info about a <code>Note</code> from the database (Don’t try that at home… actually anywhere).</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sql</span> <span class="o">=</span> <span class="s1">&#39;SELECT * FROM Notes&#39;</span>
+</code></pre></div>
+
+<p>Last step! Getting the data into a Pandas DataFrame. This is as simple as:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">sql</span> <span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+</code></pre></div>
+
+<p>And voilla! You have your data exactly where you want it. But wait… there is more! What if you have a shitty server and you can’t just get a couple of million records in one go? Let’s try breaking this into chunks!</p>
+<div class="codehilite"><pre><span></span><code><span class="n">chunksize</span> <span class="o">=</span> <span class="mi">500</span>  <span class="c1"># Make it as big as you want</span>
+<span class="n">chunks</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># A list to store chunk DataFrames</span>
+
+<span class="c1"># Mind the chunksize parameter</span>
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">sql</span> <span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">):</span>
+    <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+
+<span class="c1"># Connect the chunks</span>
+<span class="n">full_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Good job, now you know how to connect to a database and read the data straight into Pandas!</p>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

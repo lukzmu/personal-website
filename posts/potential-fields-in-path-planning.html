@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Potential fields in path planning</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2020.09.15</h2>
+    <p>While Bug algorithms work well (without constructing a configuration space) in two-dimensional spaces, they are limited to that. To move into a multidimensional, non-Euclidean space, potential functions were introduced. We can describe the potential function as a differentiable real-valued function <span class="math">\(U: \mathbb{R}^m \to \mathbb{R}\)</span>, which value can be seen as energy. Therefore the gradient of the potential can be seen as force, and its vector can be described as follows:</p>
+<div class="math">$$
+\bigtriangledown U(q) = DU(q)^T = [\frac{\partial U}{\partial q_1}(q), ..., \frac{\partial U}{\partial q_m}(q)]^T
+$$</div>
+<p>which points in the direction where locally maximally increases <span class="math">\(U\)</span>. This gradient is used to define a vector field, assigning vectors to each point in the map.</p>
+<p>An example output of a potential function is shown in the image below. The potential function treats the robot as a particle moving through the gradient vector field. Such gradient can be treated as a force field, that acts on a positively charged robot and moves it into the direction of a negative charge, that is the goal <span class="math">\(q_{goal}\)</span>. Each obstacle is also positively charged, so it repulses the robot away from itself. The combination of those two techniques: attraction and repulsion, navigates the robot from its starting point <span class="math">\(q_{start}\)</span> to the goal <span class="math">\(q_{goal}\)</span>.</p>
+<p>The potential function, is calculated by the sum of all effects that attract the robot and repel it. With describing the attractive potential field for a point <span class="math">\(q\)</span> as <span class="math">\(U_{att}(q)\)</span> and the repulsive potential field as <span class="math">\(U_{rep}(q)\)</span>, we get the following equation:</p>
+<div class="math">$$
+U(q) = U_{att}(q) + U_{rep}(q)
+$$</div>
+<p>The attraction from the potential field <span class="math">\(U_{att}\)</span> should monotonically increase with the distance from the goal. Using the conic potential, we can measure the distance to the goal as <span class="math">\(U(q) = \zeta d(q, q_{goal})\)</span>, where <span class="math">\(\zeta\)</span> is a scaling parameter. As the attractive gradient vector points away from the goal with a magnitude of <span class="math">\(\zeta\)</span> to all points (excluding the goal), giving a negated gradient as described:</p>
+<div class="math">$$
+\bigtriangledown U(q) = \frac{\zeta}{d(q, q_{goal})}(q - q_{goal})
+$$</div>
+<p>This imposes some “chattering” problems due to the discontinuity in the attactive gradient at the origin. To tackle that problem, a potential function that is continuously differentiable is needed. With a simple potential function, that grows quadratically with the distance to the goal, we can get:</p>
+<div class="math">$$
+U_{att}(q) = \frac{1}{2}\zeta d_2(q, q_{goal})
+$$</div>
+<p>and with the gradient:</p>
+<div class="math">$$
+\bigtriangledown U_{att}(q) = \bigtriangledown \left(\frac{1}{2}\zeta d^2(q, q_{goal})\right) = \frac{1}{2}\zeta \bigtriangledown d^2(q, q_{goal}) = \zeta(q - q_{goal})
+$$</div>
+<p>A problem we encounter is that while <span class="math">\(\bigtriangledown U_{att}(q)\)</span> converges linealy to zero as it approaches the goal, it grows significantly when the robot moves away from the goal <span class="math">\(q_{goal}\)</span>. When the start and goal are away by a significant distance, the produced velocity is too large. A good solution is to combine the quadratic and conic potentials, in order to produce the following switching behavior:</p>
+<ul>
+<li>If the robot is very distant from <span class="math">\(q_{goal}\)</span> use the conic potential,</li>
+<li>If the robot is close to the <span class="math">\(q_{goal}\)</span> use quadratic potential.</li>
+</ul>
+<p>We can define this behavior in the following way:</p>
+<div class="math">$$
+U_{att}(q) = \begin{cases} \frac{1}{2} \zeta d^2(q, q_{goal}), &amp; d(q, q_{goal}) \leq d_{goal}^*,\\ d_{goal}^* \zeta d(q, q_{goal}) - \frac{1}{2} \zeta (d_{goal}^*)^2, &amp; d(q, q_{goal}) \gt d_{goal}^*.\\ \end{cases}
+$$</div>
+<p>and with the gradient:</p>
+<div class="math">$$
+\bigtriangledown U_{att}(q) = \begin{cases} \zeta (q - q_{goal}), &amp; d(q, q_{goal}) \leq d_{goal}^*,\\ \frac{d_{goal}^* \zeta(q - q_{goal})}{d(q, q_{goal})}, &amp; d(q, q_{goal}) \gt d_{goal}^*.\\ \end{cases}
+$$</div>
+<p>On the other hand, the repulsive potential of a field keeps the robot away from environment obstacles. The closer the robot is to an obstacle, the higher the applied repulsive force should be - this value should monotonically decrease with the distance from the obstacle. This behavior, for the closest obstacle <span class="math">\(D(q)\)</span> is usually defined as:</p>
+<div class="math">$$
+U_{rep}(q) = \begin{cases} \frac{1}{2} \eta (\frac{1}{D(q)} - \frac{1}{Q^*})^2, &amp; D(q) \leq Q^*, \\ 0, &amp; D(q) \gt Q^*.\\ \end{cases}
+$$</div>
+<p>and with the gradient:</p>
+<div class="math">$$
+\bigtriangledown U_{rep}(q) = \begin{cases} \eta (\frac{1}{Q^*} - \frac{1}{D(q)}) \frac{1}{D^2(q)} \bigtriangledown D(q), &amp; D(q) \leq Q^*,\\ 0, &amp; D(q) \gt Q^*.\\ \end{cases}
+$$</div>
+<p>where <span class="math">\(\eta\)</span> is the gain of the gradient, and is determined empirically. Similarly to the attraction gradient, this is prone to error due to oscillations between obstacles. To avoid this, the repulsive potential function should be defined in terms of dinstances to individual obstacles (as opposed to the closest obstacle), where <span class="math">\(d_i(q)\)</span> is the distance to obstacle <span class="math">\(QO_i\)</span> for all points <span class="math">\(c\)</span> in the environment:</p>
+<div class="math">$$
+d_i(q) = \underset{c \in QO_i}{min} d(q, c)
+$$</div>
+<p>giving each obstacle its own potential function:</p>
+<div class="math">$$
+U_{rep_i} = \begin{cases} \frac{1}{2} \eta ( \frac{1}{d_i(q)} - \frac{1}{Q_i^*})^2, &amp; \text{if } d_i(q) \leq Q_i^*, \\ 0, &amp; \text{if } d_i(q) \gt Q_i^*.\\ \end{cases}
+$$</div>
+<p>Potential fields can be treated as landscapes, where the robot moves from high to low valued states, minimizing the value of the local potential function. The idea is to navigate from the robot starting point <span class="math">\(q_{start}\)</span> to the local minima, preferably at the goal position. Such path is created using a method called gradient descent.</p>
+<p>One of the crucial problems of gradient descent techniques with robotic path planning is the local minima problem. It is generally guaranteed, that the gradient descent will converge to a minimum field, but without guarantee that this field will be a global minimum (our goal point <span class="math">\(q_{goal}\)</span>). This can happen when the obstacles are placed in a certain way - as an example horseshoe shaped objects or obstacles placed close to each other (counteracting the goal attraction), repulsing the robot away. A proposed solution to this problem is the <strong>Randomized Path Planner (RPP)</strong>. RPP worked as described, until it reached a local minima point. Then it initiated a series of random walks, that resulted in escaping the local minimum and allowed following the negative gradient again to reach the goal.</p>
+<p>Another interesting solution to the local minimum problem is the <strong>Wave-Front Planner</strong>. The downside of this algorithm is that it can only be implemented in spaces represented as grids. The planner is initialized with a grid that depicts free space as 0 and obstacles as 1, as well as start and goal coordinations (goal marked as 2). The algorithm iterates around the neighbours increasing the assigned number to the grid field. As an example:</p>
+<ul>
+<li>The goal is labeled with a value of 2,</li>
+<li>All zero-valued neighbours of the goal field are labeled with a value of 3,</li>
+<li>All zero-valued neighbours of fields with value of 3 are labeled with a value of 4,</li>
+<li>Continue the above behavior, increasing the number.</li>
+<li>This behavior continues until the wave front reaches the start point cell.</li>
+</ul>
+<p>Once the wave front field is created, the planner begins the behavior of path creation. The path is created using the previously described gradient descent technique. Due to the fact, how the wave front field was constructed, there will always be a smaller number in each of the steps, which guarantees the path creation to reach the global minimum, which is the <span class="math">\(q_{goal}\)</span> of our algorithm. Although the examples are presented in two-dimensions, this algorithm can be applied without issues to multi-dimensional problems.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

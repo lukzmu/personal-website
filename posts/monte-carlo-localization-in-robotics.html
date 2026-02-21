@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Monte Carlo Localization in robotics</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2020.07.13</h2>
+    <p>A succesful example of classical robot localization in low dimensional spaces is theParticle Filter. The term Particle Filter was proposed by Del Moral (1996), followed by the Sequential Monte Carlo (SMC) naming in Liu and Chen (1998). The theory compromises ofa broad family of sequential Monte Carlo algorithms that approximate inference in partially observable Markov chains and is well described in Pitt and Shephard (1999) and Thrun(2002). For robotics, the algorithm input data is usually gathered from sensors mounted onthe mobile platform. The Particle Filters have solved two problems, that were previously unsolvable for other localization algorithms:</p>
+<ul>
+<li>Global localization problem - Borenstein et al. (1996),</li>
+<li>Kidnapped robot problem - Engelson and McDermott (1992).</li>
+</ul>
+<p>While the Particle Filter algorithm is often used in modern robotic localization (usually complimentary), it is not without fault. Two major issues about the algorithm limitations are shown:</p>
+<ul>
+<li>While performing well in low dimensional spaces, it has poor performance in highdimensional spaces. The particles need to cover a vast space and their number increases exponentially making it computationally heavy.</li>
+<li>The algorithm isn’t suited for simultaneous localization and mapping (SLAM) problems. Without an initial map of the area, Monte Carlo Localization cannot be run successfully.</li>
+</ul>
+<p>The issues were partially solved by so-called Rao-Blackwellized particle filters, seeMurphy (1999), Doucet et al. (2001), Montemerlo et al. (2002a) and Montemerlo et al.(2002b). These particle filters lead to solutions for SLAM problems that are more efficient than the Extended Kalman Filter methods. These particle filters require time</p>
+<div class="math">$$
+O(MlogN)
+$$</div>
+<p>instead of</p>
+<div class="math">$$
+O(N_2)
+$$</div>
+<p>, where <span class="math">\(M\)</span> is the number of particles. Thrun (2002) suggests that empirical evidence shows that <span class="math">\(M\)</span> can be a constant in situations with bounded uncertainty - which includes all SLAM problems that can be solved via Extended Kalman Filters. Moreover experimental results suggest that particle filters provide a better solution to the data association problem than currently available with the EKF.</p>
+<p>Monte Carlo Localization, also called the recursive Bayes Filter, takes sensor data and estimates the posterior intelligent agent position. Bayes Filtering help in estimation of thestatexin a dynamic system (partially observable Markov chains). The main assumption of Bayes Filters is that the current state of the robot in a Markov environment is conditionally independent to the past and future states. The idea behind Bayes Filtering is to estimate aprobability density over the state space based on the gathered data - this is usually called the Belief. The initial Belief describes the knowledge about the initial state of the system. When the initial state is unknown, the initial Belief is initialized by an uniform distribution over the state space (for mobile robotics, this refers to the global localization problem).</p>
+<p>The implementation of the recursive Belief equation in a continuous space, is not asimple matter according to Thrun et al. (2000b), when computational efficiency is involved. The idea shared by particle algorithms (including MCL), is to represent the belief by a set of <span class="math">\(m\)</span> weighted samples with according to the belief.</p>
+<p>The recursive update of the robot localization is realized as enumerated below (the MCL pseudocode). The sampling routine is repeated <span class="math">\(m\)</span> times, producing a set of <span class="math">\(m\)</span> weighted samples. Lastly the importance factors are normalized, so that they sum up to 1, defining a discrete probability distribution.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">def</span><span class="w"> </span><span class="nf">particle_filter</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">)</span><span class="o">:</span>
+<span class="w">    </span><span class="n">X</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">empty</span><span class="w"> </span><span class="n">array</span>
+<span class="w">    </span><span class="n">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="nf">range</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">)</span><span class="o">:</span>
+<span class="w">        </span><span class="nf">random</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="n">according</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">w_1</span><span class="p">,</span><span class="w"> </span><span class="kc">...</span><span class="p">,</span><span class="w"> </span><span class="n">w_m</span>
+<span class="w">        </span><span class="nf">random</span><span class="p">(</span><span class="n">x</span><span class="s">&#39;) ~ p(x&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">)</span>
+<span class="w">        </span><span class="n">X</span><span class="s">&#39;.append(&lt;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="s">&#39;&gt;)</span>
+<span class="s">    Normalize importance factors w in X&#39;</span>
+<span class="w">    </span><span class="n">return</span><span class="w"> </span><span class="n">X</span><span class="s">&#39;</span>
+</code></pre></div>
+
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Simultaneous Localization and Mapping for robotic problems</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2020.10.10</h2>
+    <blockquote>
+<p>”SLAM is a process by which a mobile robot can build a map of an environment and at the same time use this map to deduce its location. In SLAM, both the trajectory of the platform and the location of all landmarks are estimated online without the need for any a priori knowledge of location.”</p>
+</blockquote>
+<p>~ Durrant-Whyte and Bailey (2006).</p>
+<p>Simultaneous Localization and Mapping tackles the problem where a mobile intelligent agent is placed in an unknown environment and its goal is to build a map of the location, based on the knowledge it gains while performing exploration. The idea behind this problem is the basic building block of modern robotics, where agents are capable of moving when left alone, meaning that it gives foundation for building truly autonomous robotic systems. Nowadays there are many variations of the initial SLAM algorithm and many of them were tested both in laboratory conditions and in real world applications. Right now such systems are implemented not only in indoor problems (Chong and Kleeman (1999),Davison et al. (2004)), but also outdoor (Folkesson and Christensen (2004)), underwater (Newman and Leonard (2003), Eustice et al. (2005)) and airborne projects (Kim and Sukkarieh (2003)). As a theoretical problem SLAM can be considered a solved problem, but according to Durrant-Whyte and Bailey (2006), there are still practical solutions that need revisiting to build more generally rich maps as part of the SLAM portfolio. The initial considerations for SLAM algorithms for a mobile robot moving in an unknown environment and taking relative observations of landmarks at timekcan be seen in the following table:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Notation</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><span class="math">\(x_k\)</span></td>
+<td style="text-align: left;">State vector of robot location and orientation</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="math">\(v_k\)</span></td>
+<td style="text-align: left;">Control vector to move robot to state <span class="math">\(x_k\)</span> at time <span class="math">\(k\)</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="math">\(m\)</span></td>
+<td style="text-align: left;">All landmarks</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="math">\(m_i\)</span></td>
+<td style="text-align: left;">Location of the ith landmark</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="math">\(z_{ik}\)</span></td>
+<td style="text-align: left;">Observation taken from robot of ith landmark location at time <span class="math">\(k\)</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="math">\(X_{0:k}\)</span></td>
+<td style="text-align: left;">History of robot locations</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="math">\(U_{0:k}\)</span></td>
+<td style="text-align: left;">History of control inputs</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="math">\(Z_{0:k}\)</span></td>
+<td style="text-align: left;">All landmark observations</td>
+</tr>
+</tbody>
+</table>
+<p>First time SLAM was mentioned was during the 1986 IEEE Robotics and Automation Conference, San Francisco, California, with first key scientific research papers by Smith and Cheesman (1987) or Durrant-Whyte (1988) appearing soon after. The paper being a fundamental to SLAM research by Smith et al. (1990) was built upon research by Chatila and Laumond (1985), Ayache and Faugeras (1988) and Crowley (1989). A full consistent solution was formulated when Leonard and Durrant-Whyte (1991) proposed a mobile robot moving through unknown territory while taking relative observation of nearby landmarks. The estimates of those landmarks were necessarily corelated with each other based on the common error in the estimated vehicle location, creating a joint state between the vehicle pose and every landmark position observation. Further work on landmark filtering was done by Leonard and Durrant-Whyte (1992) and Renken (1993). The SLAM acronym was first presented by Durrant-Whyte et al. (1996), along with the realization that the combined mapping and localization problem was convergent, so correlation between landmarks was crucial to achieve a good outcome of the algorithm. The convergence was further researched by multiple scientific groups eg. Csorba and Durrant-Whyte (1996), Csorba (1997), Leonardand Feder (2000), Castellanos et al. (1997), Deans and Hebert (2000) and more. Further research regarding computational efficiency and data associations was described by Thrunet al. (1998) and Hollerbach and Koditscheck (2000) in the following years.</p>
+<h2>Probabilistic SLAM</h2>
+<p>Simultaneous Localization and Mapping in its probabilistic form requires that at all times <span class="math">\(k\)</span> a probability distribution is calculated.</p>
+<div class="math">$$
+P(X_k, m | Z_{0:k}, U_{0:k}, x_0)
+$$</div>
+<p>This distribution describes the joint posterior density of landmark locations and robot state, considering recorded observations and control inputs in regard to the initial state of the intelligent agent. The goal is to promote a recursive solution to the SLAM problem, building on the estimate distribution at time <span class="math">\(k-1\)</span>:</p>
+<div class="math">$$
+P(X_{k-1}, m | Z_{0:k-1}, U_{0:k-1})
+$$</div>
+<p>which follows a control <span class="math">\(u_k\)</span> and observation <span class="math">\(z_k\)</span> computed using the Bayes theorem, requiring a state transition and observation models defined by describing the effect of control inputs and observations. The observation model and motion model can be defined as follows:</p>
+<p>Motion model:</p>
+<div class="math">$$
+P(x_k| x_{k-1}, y_k)
+$$</div>
+<p>Observation model:</p>
+<div class="math">$$
+P(z_k|x_k, m)
+$$</div>
+<p>This brings the calculations to a standard two-step sequential prediction corection.</p>
+<h2>FastSLAM</h2>
+<p>FastSLAM, which was introduced by Montemerlo et al. (2002a), is another fundamental SLAM method, influenced by Murphy (1999) and Thrun et al. (2000a). This method was the first attempt to use Monte Carlo sampling (particle filtering) to represent the non-Gaussian pose distribution and the nonlinear process model. It is worth mentioning, that FastSLAM still linearizes the observation model, but is typically a reasonable approximation for range-bearing measurements when the vehicle pose is known (Durrant-Whyte and Bailey(2006)). A sample realization of a robot trajectory in FastSLAM can be seen in the image below.</p>
+<p>Due to the high dimensional space of the SLAM problem, applying particle filters directly makes it computationally infeasible. Therefore the sample space is reduced by applying Rao-Blackwellization (R-B), so that the join state is partitioned.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

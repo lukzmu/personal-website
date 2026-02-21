@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Commit your code they said</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2016.08.27</h2>
+    <p>There are so many situations when you get access to a new repository on GitHub, Bitbucket or any other place. And what are you welcomed with? If the repo isn’t managed corectly, you usually get crappy messages that don’t say you a thing. Today I will try to show you, from my experience, what is the best course of action when writing commit messages, so that everyone understands them (and by everyone I mean you as well, try going back to a project after one year… this can be a really bad experience).</p>
+<p>But before we begin, let’s see what bad commit messages look like. This is sample stuff I came across lately while browsing public repositories or checking new programmers for work (don’t try this at… anywhere actually):</p>
+<ul>
+<li>“Everything works, but nope”</li>
+<li>“Dick” <em>(this seems to be quite common, why is beyond my comprehension)</em></li>
+<li>“No one will read this anyway”</li>
+<li>“I made changes”</li>
+<li>“It’s a trap” <em>(my inner nerd giggled here a bit)</em></li>
+</ul>
+<h2>Make it readable fool!</h2>
+<p>So what can we do to actually make our work and others simpler and without problems?</p>
+<p>Let’s do a little experiment. Which commit message would you prefer to read?</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">I</span><span class="w"> </span><span class="nx">implemented</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">method</span><span class="w"> </span><span class="nx">FeedChicken</span><span class="p">(</span><span class="nx">chickenId</span><span class="p">,</span><span class="w"> </span><span class="nx">feedId</span><span class="p">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">ChickenFarm</span><span class="p">.</span><span class="nx">cs</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">allow</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="nx">chickens</span><span class="w"> </span><span class="nx">eat</span><span class="w"> </span><span class="nx">specific</span><span class="w"> </span><span class="nx">feeds</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nx">order</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">survive</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">harsh</span><span class="w"> </span><span class="nx">enviroments</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">Chicken</span><span class="w"> </span><span class="nx">Farm</span><span class="w"> </span><span class="nx">World</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>Add method to feed chickens
+</code></pre></div>
+
+<p>While the first one tells you exactly what has been done, try going through hundreds of such commits in search of something you actually need. You should keep the messages short, easy to read and telling precisely what the commit is about. All the internet or book sources will tell you about the 50/72 rule (which is really handy if you need to write something more about the commit than just the summary). Look at this short description taken from <a href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">Tim Pope’s Blog</a>:</p>
+<blockquote>
+<p>Capitalized, short (50 chars or less) summary</p>
+<p>More detailed explanatory text, if necessary. Wrap it to about 72
+characters or so. In some contexts, the first line is treated as the
+subject of an email and the rest of the text as the body. The blank
+line separating the summary from the body is critical (unless you omit
+the body entirely); tools like rebase can get confused if you run the
+two together.</p>
+<p>Write your commit message in the imperative: “Fix bug” and not “Fixed bug”
+or “Fixes bug.” This convention matches up with commit messages generated
+by commands like git merge and git revert.</p>
+<p>Further paragraphs come after blank lines.</p>
+<p>– Bullet points are okay, too
+– Typically a hyphen or asterisk is used for the bullet, followed by a single space, with blank lines in between, but conventions vary here</p>
+<p>– Use a hanging indent</p>
+</blockquote>
+<h2>Reference the system</h2>
+<p>Most projects you are working on are managed by project managements systems like Jira, Trello or whatever your PM chooses. One of the key features presented on assigned tasks is the task reference ID. I would ask all my programmers to add a reference to the task at the start of each commit. I didn’t see this anywhere on the internet, but I found it really helpful when dealing with junior programmers or systems with lots of people involved. And this is how such a commit would look like:</p>
+<div class="codehilite"><pre><span></span><code>[CFW-1] Release ChickenCoop 1.0.0
+</code></pre></div>
+
+<p>This becomes really helpful when you have tasks that don’t require branching or just want to see what is worked on and how is that achieved, especially if you need to go through with code reviews for beginner developers.</p>
+<h2>Use keywords</h2>
+<p>Keywords at the start of every commit make it easier to read what were you actually doing. Try using those keywords instead of verbs:</p>
+<ul>
+<li>Add <em>(e.g.  “add chicken digestion system”)</em></li>
+<li>Remove <em>(e.g. “remove deprecated chicken”)</em></li>
+<li>Refactor <em>(e.g. “refactor chicken brain”)</em></li>
+<li>Update <em>(e.g. “update chicken skynet data”)</em></li>
+<li>Merge <em>(e.g. “merge chicken/coop branch”)</em></li>
+<li>Release <em>(e.g. “release the chickens”)</em></li>
+<li>Fix <em>(e.g. “fix chicken egg production”)</em></li>
+</ul>
+<p>Of course you can use your own keywords that will be useful for your project, but I think you get the general idea. I gave you the most used ones, for general purposes.</p>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

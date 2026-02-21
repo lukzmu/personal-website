@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Data gathering service using Flask: Heroku deployment</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2019.11.22</h2>
+    <p>As a big fan of World of Warcraft, I always wanted to do a little side-project about auction house price predictions. When searching the web for data, I didn't find any useful data source tho, so I decided to create one myself. With the help of TradeSkillMaster API and some Flask code, I started gathering the data I need in a MySQL database&hellip; and today I will show you how to do something similar for your own needs.</p>
+<p>This blog post, due to the amount of information, comes in a series:</p>
+<ul>
+<li><a href="https://zmudzinski.sh/posts/data-gathering-service-using-flask-structure-and-data.html">Data gathering service using Flask: Structure and Data</a></li>
+<li><a href="https://zmudzinski.sh/posts/data-gathering-service-using-flask-services-and-scheduling.html">Data gathering service using Flask: Services and Scheduling</a></li>
+<li>Data gathering service using Flask: Heroku deployment</li>
+</ul>
+<h2>Deploying on Heroku</h2>
+<p>Log into Heroku and press <code>Create New App</code>. You will see the below screen. Name your app the way you want and select a region that is closer to you (US and Europe are available). Additionally you can add a pipeline (although for a simple project like this, it isn't required).</p>
+<p>You will be moved to the Application Dashboard. There select the <code>Settings tab</code>. Now look for the header Config Vars and press the corresponding button - <code>Reveal Config Vars</code>.</p>
+<p>We need to add the following keys:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>SQLALCHEMY_DATABASE_URI</code></td>
+<td style="text-align: left;">In format: mysql://user:pass@host/db</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>TSM_API</code></td>
+<td style="text-align: left;">Your TSM API key, or any other API you are using</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>WEB_CONCURRENCY</code></td>
+<td style="text-align: left;">1</td>
+</tr>
+</tbody>
+</table>
+<p>The first two are obvious&hellip; but what the hell is <code>WEB_CONCURRENCY</code>? Well this is a solution to a problem that came on the way, while developing this flask service. Without this setting, the application was run twice, so we had twice the schedulers, so also duplicated database rows.</p>
+<p>Once this is done, we can push our service to Heroku. We need to take the following steps:</p>
+<ol>
+<li>Download and install Heroku CLI for your system,</li>
+<li>Go into the root directory of your project,</li>
+<li>Do one of the following:</li>
+</ol>
+<p>If you didn't push your code to git yet:</p>
+<div class="codehilite"><pre><span></span><code>git init
+heroku git:remote -a your-awesome-app
+git add .
+git commit -am &quot;add my awesome data gathering service&quot;
+git push heroku master
+</code></pre></div>
+
+<p>If you already pushed your code to git:</p>
+<div class="codehilite"><pre><span></span><code>heroku git:remote -a your-awesome-app
+</code></pre></div>
+
+<p>So, we pushed our server and it is deployed, so basically we are done! But what, if we wanted to check the logs of our service to see whether everything is all right? Use the following command:</p>
+<div class="codehilite"><pre><span></span><code>heroku logs --app your-awesome-app --tail
+</code></pre></div>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

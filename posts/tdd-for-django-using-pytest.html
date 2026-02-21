@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>TDD for Django using pytest</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2020.01.07</h2>
+    <p>When applying to any IT company, you are often asked, if you know the magic term TDD. What is this? Let's find out! TDD stands for Test Driven Development and is one of the fundamental philosophies of sofware creation. Let's see what wikipedia tells about it:</p>
+<blockquote>
+<p>Test-driven development (TDD) is a software development process that relies on the repetition of a very short development cycle: requirements are turned into very specific test cases, then the software is improved so that the tests pass. This is opposed to software development that allows software to be added that is not proven to meet requirements.</p>
+</blockquote>
+<p>That sounds cool, so basically we get a working application, with features working as requested&hellip; already when we finish writing the code! That's pretty awesome. So, what steps do we need to take, to write a TDD project?</p>
+<ol>
+<li>Get the requirements for your new feature - they need to be described very well (preferably using user stories), so that you exactly know what your function/endpoint/process should do.</li>
+<li>Write tests that will check everything described in the feature (what it should return, how values are calculated, etc).</li>
+<li>Run the tests, if all new tests failed, you are on a good road to be a TDD master.</li>
+<li>Write your awesome code, that will implement the feature.</li>
+<li>Run tests again. If they fail, go to point 4, otherwise good job! You have implemented your feature and are considered a top programmer in your team.</li>
+<li>Refactoring is always a good idea, no one writes perfect code on their first try. So go through your code and see, what can be improved. It's always good to run tests again after this step to see, if you didn't crash your code on the way.</li>
+</ol>
+<h2>Why pytest?</h2>
+<p><code>pytest</code> provides a new approach for writing tests, giving you a couple of neat things and helpers:</p>
+<ul>
+<li>Assert statements (you don't need to use <code>self.assert</code> anymore),</li>
+<li>Great information why exactly your test failed,</li>
+<li>You have more control over Fixtures,</li>
+<li>Test modules are auto-discovered,</li>
+<li>Parametrizing, so you can run multiple tests at once,</li>
+<li>Less boilerplate,</li>
+<li>A lot&hellip; and I mean a lot&hellip; of pytest external plugins,</li>
+<li>And many more.</li>
+</ul>
+<h2>Installing pytest</h2>
+<p>To install pytest, we will use the pip command tool. Notice that we aren't installing the base module <code>pytest</code>, but rather the wrapper for django called <code>pytest-django</code> (the base module will be installed alongside). The only thing you need to write the following line in your desired environment:</p>
+<div class="codehilite"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>pytest-django
+</code></pre></div>
+
+<p>You can optionally check, if you installed the correct version:</p>
+<div class="codehilite"><pre><span></span><code>pytest<span class="w"> </span>--version
+</code></pre></div>
+
+<h2>Using pytest in your django project</h2>
+<p>First of all, we need to tell Django, that we will use pytest in our project. To do that, create a <code>pytest.ini</code> file inside the root directory. Fill it in with the following code (of course replace <code>project_name</code> with your project name):</p>
+<div class="codehilite"><pre><span></span><code><span class="k">[pytest]</span>
+<span class="na">DJANGO_SETTINGS_MODULE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">project_name.settings</span>
+</code></pre></div>
+
+<p>You can also specify the settings file as an environment variable, which is considered a good practice and allows easy setting switching. Moreover, if you are using non-standard test file names (specific files or wildcard), you can add the following line:</p>
+<div class="codehilite"><pre><span></span><code>python_files = test.py test_*.py *_test.py
+</code></pre></div>
+
+<p>To run your tests, you won't use <code>manage.py</code> as you did with the <code>unittest</code> library. Now it's a bit more simple, the default command is: <code>pytest</code>.</p>
+<p>If you want to run a specific directory, file or function, you can do that as well! Just run one of the following, replacing names with what you got:</p>
+<div class="codehilite"><pre><span></span><code>pytest some_directory
+pytest some_file.py
+pytest some_file.py::your_function
+</code></pre></div>
+
+<h2>Where to place tests?</h2>
+<p>In theory&hellip; anywhere you want. In practice, it is good to place them inside the <code>tests</code> directory of your Django Application. This way, each application has their own project space to keep tests in. Moreover, you can (and should) divide tests into files, depending what they are testing, as an exampe:</p>
+<ul>
+<li><code>test_api.py</code> - to test endpoints, and what is returned,</li>
+<li><code>test_services.py</code> - to test external services or bigger things in your project,</li>
+<li><code>test_models.py</code> - to test models,</li>
+<li>and so on.</li>
+</ul>
+<p>This is really up to your preference, but it is good to keep one pattern over the entire project.</p>
+<h2>Writing great API tests</h2>
+<p>I think we can start building our test suite for a project we are doing. Consider having a model <code>Animal</code> that is part of the application <code>zoo</code>, the model has two fields <code>name</code> and <code>age</code>. I'm going to write a test for a function that checks, whether the model is saved correctly, when we run the endpoint on our django API.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># First, let&#39;s import pytest</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="c1"># Import a model (you need to import yours)</span>
+<span class="kn">from</span> <span class="nn">zoo.models</span> <span class="kn">import</span> <span class="n">Animal</span>
+
+<span class="c1"># Write a cool test function</span>
+<span class="c1"># We will use an authorized client fixture for that</span>
+<span class="k">def</span> <span class="nf">test__add_animal</span><span class="p">(</span><span class="n">authorized_client</span><span class="p">):</span>
+    <span class="c1"># This is the data we want to save in the model</span>
+    <span class="n">data_to_save</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Wifi&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Let&#39;s assume our endpoint looks like this:</span>
+    <span class="c1"># POST localhost:8080/api/animals</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;api:animals&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Time to send the data</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">authorized_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+        <span class="n">url</span><span class="p">,</span>
+        <span class="n">data_to_save</span><span class="p">,</span>
+        <span class="n">content_type</span><span class="o">=</span><span class="s1">&#39;application/json&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Let&#39;s check if the request was successful</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+
+    <span class="c1"># Does the response json match what we posted?</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span> <span class="o">==</span> <span class="n">data_to_save</span>
+
+    <span class="c1"># Let&#39;s see if the object was added</span>
+    <span class="n">all_animals</span> <span class="o">=</span> <span class="n">Animal</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">all_animals</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="c1"># Check, if the object is exactly like the one we wanted to save</span>
+    <span class="n">saved_animal</span> <span class="o">=</span> <span class="n">all_animals</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">saved_animal</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Wifi&#39;</span>
+    <span class="k">assert</span> <span class="n">saved_animal</span><span class="o">.</span><span class="n">age</span> <span class="o">==</span> <span class="mi">4</span>
+</code></pre></div>
+
+<h2>Writing great unit tests</h2>
+<p>ut sometimes you have a more complicated endpoint than this, and you create additional service functions, that calculate things, gather data from external sources or anything else. It would be good to separate those tests for structure. Let's assume we have a really cool function that gathers animal quantity over land from an external API. We have a function <code>get_quantity_from_external</code> that takes the response, and returns a value for <code>quantity</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Again, let&#39;s import pytest</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="c1"># Import our function</span>
+<span class="kn">from</span> <span class="nn">zoo.services</span> <span class="kn">import</span> <span class="n">get_quantity_from_external</span>
+
+<span class="c1"># Notice that here we are patching the external data</span>
+<span class="c1"># We are doing this to mock the external service</span>
+<span class="c1"># So it&#39;s not called each time we test</span>
+
+<span class="nd">@patch</span><span class="p">(</span><span class="s1">&#39;zoo.services.external_function&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test__get_quantity_from_function</span><span class="p">(</span>
+    <span class="n">external_function</span><span class="p">,</span>  
+<span class="p">):</span>
+    <span class="c1"># First let&#39;s mock the response from external sources</span>
+    <span class="c1"># The data is taken from National Geographic</span>
+    <span class="n">external_function</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;animal&#39;</span><span class="p">:</span> <span class="s1">&#39;Great Elephant&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;quantity&#39;</span><span class="p">:</span> <span class="mi">352271</span><span class="p">,</span>
+            <span class="s1">&#39;region&#39;</span><span class="p">:</span> <span class="s1">&#39;Africa&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;specie_range&#39;</span><span class="p">:</span> <span class="mf">0.93</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Time to call and assert our function!</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">get_quantity_from_external</span><span class="p">(</span><span class="s1">&#39;Great Elephant&#39;</span><span class="p">,</span> <span class="s1">&#39;Africa&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="mi">352271</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Let&#39;s check, if the function returns None when not in db</span>
+    <span class="c1"># Thanks C.S.Lewis for this</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">get_quantity_from_external</span><span class="p">(</span><span class="s1">&#39;Hnakra&#39;</span><span class="p">,</span> <span class="s1">&#39;Mars&#39;</span><span class="p">)</span> 
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="kc">None</span>
+</code></pre></div>
+
+<h2>Summary</h2>
+<p>Today we learned a few things. How to install pytest (and why it is so awesome), how to setup your django project and run it, how to structure your project regarding tests and how to write integration and unit tests with examples. Of course this isn't the whole topic, but gives you a nice introduction to what is to come. For more information, you should really check the official website for pytest Documentation.</p>
+<p>Happy testing!</p>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

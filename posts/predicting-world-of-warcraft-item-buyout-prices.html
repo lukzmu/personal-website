@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Predicting World of Warcraft item buyout prices</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2020.06.17</h2>
+    <p>Not long ago I posted a blog entry about analyzing World of Warcraft auction house data. Today I will focus on predicting prices for various raid consumables using PyTorch and Sklearn.</p>
+<h2>Importing packages</h2>
+<p>We will start by importing a couple packages that we will use in the prediction process:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span> 
+<span class="kn">import</span> <span class="nn">torch.autograd</span> <span class="k">as</span> <span class="nn">autograd</span> 
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">preprocessing</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+</code></pre></div>
+
+<h2>Creating features and target</h2>
+<p>Let's recap what columns we had in our World of Warcraft dataframe:</p>
+<div class="codehilite"><pre><span></span><code>&lt;class<span class="w"> </span><span class="s1">&#39;pandas.core.frame.DataFrame&#39;</span>&gt;
+Int64Index:<span class="w"> </span><span class="m">44702</span><span class="w"> </span>entries,<span class="w"> </span><span class="m">305</span><span class="w"> </span>to<span class="w"> </span><span class="m">45163</span>
+Data<span class="w"> </span>columns<span class="w"> </span><span class="o">(</span>total<span class="w"> </span><span class="m">7</span><span class="w"> </span>columns<span class="o">)</span>:
+<span class="w"> </span><span class="c1"># Column Non-Null Count Dtype         </span>
+--------<span class="w"> </span>------<span class="w"> </span>--------------<span class="w"> </span>-----<span class="w">         </span>
+<span class="w"> </span><span class="m">0</span><span class="w"> </span>item_name<span class="w"> </span><span class="m">44702</span><span class="w"> </span>non-null<span class="w"> </span>category<span class="w">      </span>
+<span class="w"> </span><span class="m">1</span><span class="w"> </span>item_subclass<span class="w"> </span><span class="m">44702</span><span class="w"> </span>non-null<span class="w"> </span>category<span class="w">      </span>
+<span class="w"> </span><span class="m">2</span><span class="w"> </span>item_min_buyout<span class="w"> </span><span class="m">44702</span><span class="w"> </span>non-null<span class="w"> </span>float64<span class="w">       </span>
+<span class="w"> </span><span class="m">3</span><span class="w"> </span>item_quantity<span class="w"> </span><span class="m">44702</span><span class="w"> </span>non-null<span class="w"> </span>int64<span class="w">         </span>
+<span class="w"> </span><span class="m">4</span><span class="w"> </span>item_num_auctions<span class="w"> </span><span class="m">44702</span><span class="w"> </span>non-null<span class="w"> </span>int64<span class="w">         </span>
+<span class="w"> </span><span class="m">5</span><span class="w"> </span>created_at<span class="w"> </span><span class="m">44702</span><span class="w"> </span>non-null<span class="w"> </span>datetime64<span class="o">[</span>ns<span class="o">]</span>
+<span class="w"> </span><span class="m">6</span><span class="w"> </span>days_after_new_raid<span class="w"> </span><span class="m">44702</span><span class="w"> </span>non-null<span class="w"> </span>int64<span class="w">         </span>
+dtypes:<span class="w"> </span>category<span class="o">(</span><span class="m">2</span><span class="o">)</span>,<span class="w"> </span>datetime64<span class="o">[</span>ns<span class="o">](</span><span class="m">1</span><span class="o">)</span>,<span class="w"> </span>float64<span class="o">(</span><span class="m">1</span><span class="o">)</span>,<span class="w"> </span>int64<span class="o">(</span><span class="m">3</span><span class="o">)</span>
+memory<span class="w"> </span>usage:<span class="w"> </span><span class="m">2</span>.1<span class="w"> </span>MB
+</code></pre></div>
+
+<p>The following columns will be our features:</p>
+<ul>
+<li><code>item_name</code></li>
+<li><code>item_subclass</code></li>
+<li><code>item_num_auctions</code></li>
+<li><code>days_after_new_raid</code></li>
+</ul>
+<p>And we want to predict the buyout price of an item:</p>
+<ul>
+<li><code>item_min_buyout</code></li>
+</ul>
+<p>Let's create the features and target variables then:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;item_name&#39;</span><span class="p">,</span> <span class="s1">&#39;item_subclass&#39;</span><span class="p">,</span> <span class="s1">&#39;item_num_auctions&#39;</span><span class="p">,</span> <span class="s1">&#39;days_after_new_raid&#39;</span><span class="p">]</span>
+<span class="n">wow_features</span> <span class="o">=</span> <span class="n">wow_other</span><span class="p">[</span><span class="n">features</span><span class="p">]</span>
+
+<span class="n">wow_target</span> <span class="o">=</span> <span class="n">wow_other</span><span class="p">[[</span><span class="s1">&#39;item_min_buyout&#39;</span><span class="p">]]</span>
+</code></pre></div>
+
+<p>We will perform one hot encoding on the string columns:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">wow_features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span>
+    <span class="n">wow_features</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;item_name&#39;</span><span class="p">,</span> <span class="s1">&#39;item_subclass&#39;</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>And scale the continuous values to make the prediction better:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">wow_features</span><span class="p">[[</span><span class="s1">&#39;item_num_auctions&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">preprocessing</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span>
+    <span class="n">wow_features</span><span class="p">[[</span><span class="s1">&#39;item_num_auctions&#39;</span><span class="p">]]</span>
+<span class="p">)</span>
+<span class="n">wow_features</span><span class="p">[[</span><span class="s1">&#39;days_after_new_raid&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">preprocessing</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span>
+    <span class="n">wow_features</span><span class="p">[[</span><span class="s1">&#39;days_after_new_raid&#39;</span><span class="p">]]</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h2>Create training and test data</h2>
+<p>Using sklearn function <code>train_test_split</code> we will divide our dataset into training and test subsets. The dataset will be divided into <code>80%</code> training data and <code>20%</code> test data. We will also set a random state of <code>42</code> for reproductability.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">X_train</span><span class="p">,</span> <span class="n">x_test</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">wow_features</span><span class="p">,</span>
+    <span class="n">wow_target</span><span class="p">,</span>
+    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>To make use of the data, we need to convert it into torch tensors.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">X_train_tr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">X_train</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+<span class="n">x_test_tr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x_test</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+<span class="n">Y_train_tr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">Y_train</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+<span class="n">y_test_tr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+<span class="c1"># And we can display the sizes</span>
+<span class="n">display</span><span class="p">(</span><span class="s1">&#39;X train size:&#39;</span><span class="p">,</span> <span class="n">X_train_tr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="s1">&#39;Y train size:&#39;</span><span class="p">,</span> <span class="n">Y_train_tr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+
+<span class="n">OUTPUT</span>
+<span class="o">-----------</span>
+<span class="s1">&#39;X train size:&#39;</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">33880</span><span class="p">,</span> <span class="mi">24</span><span class="p">])</span>
+<span class="s1">&#39;Y train size:&#39;</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">33880</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</code></pre></div>
+
+<h2>Defining the model</h2>
+<p>We will start by creating some initial variables that will store the model parameters. We want to set the input and output sizes, number of hidden layers, what loss function we will use and the learning rate.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">input_size</span> <span class="o">=</span> <span class="n">X_train_tr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">output_size</span> <span class="o">=</span> <span class="n">Y_train_tr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">hidden_layers</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">loss_function</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.0001</span>
+</code></pre></div>
+
+<p>Using the parameters we can create a Sequential torch model. We will run it with Linear transformations and a sigmoid activation function.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_layers</span><span class="p">),</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">(),</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_layers</span><span class="p">,</span> <span class="n">output_size</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h2>Training the model</h2>
+<p>The training of the model was done in 10k epochs. You can preview the code below:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">X_train_tr</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_function</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">Y_train_tr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+            <span class="n">param</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">param</span><span class="o">.</span><span class="n">grad</span>
+</code></pre></div>
+
+<h2>Using the model for predictions</h2>
+<p>Now that our model is trained we can predict some things. Let's start with a single sample item. I took the <code>1410th</code> item of the test set. Why 1410? It's the first number that came into my head as it is the well known in Poland date of Battle of Grunwald.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sample</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1410</span><span class="p">]</span>
+
+<span class="c1"># Convert to tensor</span>
+<span class="n">sample_tr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+<span class="c1"># Do predictions</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">sample_tr</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Predicted price of item is: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">item</span><span class="p">())</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Actual price of item is: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1410</span><span class="p">])</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<span class="n">OUTPUT</span>
+<span class="o">-----------</span>
+
+<span class="n">Predicted</span> <span class="n">price</span> <span class="n">of</span> <span class="n">item</span> <span class="ow">is</span><span class="p">:</span> <span class="mi">13</span>
+<span class="n">Actual</span> <span class="n">price</span> <span class="n">of</span> <span class="n">item</span> <span class="ow">is</span><span class="p">:</span> <span class="mi">24</span>
+</code></pre></div>
+
+<p>We can also do predictions for the entire dataset and display it nicely on a graph!</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Predict prices for entire dataset</span>
+<span class="n">y_pred_tr</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x_test_tr</span><span class="p">)</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">y_pred_tr</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+<span class="c1"># Show the result on a graph</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">y_test</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Actual Price&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Predicted price&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Predicted prices vs Actual prices&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p>As we can see, most predictions are close to what we expected with a couple of variations. With such a dynamic environment and constant price changing due to undercutting, reselling and price bumping, this is quite a nice outcome!</p>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

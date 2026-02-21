@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Scraping dynamic pages with Python, Playwright and AWS Lambda</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2026.02.19</h2>
+    <p>If you have ever pointed <code>BeautifulSoup</code> at a modern job board and then wondered why you got only a fraction of the visible listings, welcome to the club. Many of these pages behave like mini frontends: data appears in chunks, the DOM keeps changing, and scrolling is effectively part of the API contract. For this walkthrough, I used the <a href="https://devitjobs.uk/">Dev IT Jobs</a> portal as a practical example.</p>
+<p>This post breaks down a Lambda scraper that survives that behavior. The idea is simple but battle-tested: use Playwright + headless Chromium to trigger dynamic loading, extract records while scrolling, shape the result with Polars, and store snapshots as parquet in S3 partitions. It is serverless, schedule-friendly, and ready for downstream analytics without extra cleanup.</p>
+<h2>Imports and runtime setup</h2>
+<p>Packages used in the Lambda:</p>
+<ul>
+<li><code>playwright</code>: runs a Chromium browser so JavaScript-rendered cards can be collected,</li>
+<li><code>boto3</code>: uploads the final parquet artifact to S3,</li>
+<li><code>polars</code>: converts raw records into a dataframe and writes parquet efficiently,</li>
+<li><code>pendulum</code>: provides cleaner timestamp handling for metadata and S3 partition keys,</li>
+<li><code>aws_lambda_typing</code>: adds explicit types for the Lambda handler contract <em>(optional)</em>.</li>
+</ul>
+<p>Standard-library helpers:</p>
+<ul>
+<li><code>logging</code>: emits structured runtime logs for CloudWatch,</li>
+<li><code>os</code>: reads environment configuration such as <code>BUCKET_URL</code>,</li>
+<li><code>tempfile</code>: writes temporary files to Lambda's <code>/tmp</code> storage,</li>
+<li><code>time</code>: adds short pauses so lazy-loaded DOM elements can render,</li>
+<li><code>urllib.parse</code>: parses the bucket name from URL-like configuration values.</li>
+</ul>
+<h2>Opening the page and targeting the scrollable list</h2>
+<p>The first step is launching Chromium in headless mode and identifying the actual element that reacts to scroll events. On this page, <code>.joblist-container</code> is where new cards are appended, so scrolling the whole page does not reliably pull in the full dataset.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">with</span> <span class="n">sync_playwright</span><span class="p">()</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="n">browser</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">chromium</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span>
+        <span class="n">headless</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;--disable-gpu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--disable-dev-shm-usage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--disable-setuid-sandbox&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--no-sandbox&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--single-process&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">browser</span><span class="o">.</span><span class="n">new_page</span><span class="p">()</span>
+    <span class="n">page</span><span class="o">.</span><span class="n">goto</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">wait_until</span><span class="o">=</span><span class="s2">&quot;networkidle&quot;</span><span class="p">)</span>
+
+    <span class="n">container</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">locator</span><span class="p">(</span><span class="s2">&quot;.joblist-container&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span>
+</code></pre></div>
+
+<p>Those Chromium flags are not "nice-to-have tuning", but rather we need to set them so that playwright works correctly in AWS Lambda:</p>
+<ul>
+<li><code>--disable-gpu</code> avoids hardware acceleration paths that do not help here,</li>
+<li><code>--disable-dev-shm-usage</code> steers Chromium away from shared-memory assumptions that can be too tight in serverless containers,</li>
+<li><code>--disable-setuid-sandbox</code> and <code>--no-sandbox</code> help when sandbox initialization fails in restricted environments,</li>
+<li><code>--single-process</code> also reduced startup flakiness. Without this set, the function was far more likely to fail before scraping anything useful.</li>
+</ul>
+<h2>Scraping records while the page reveals more items</h2>
+<p>The extraction loop does one boring but powerful thing on repeat: wait a moment, read visible <code>li</code> cards, save what matters, scroll, and repeat. Dynamic pages frequently repaint old nodes, so <code>handled_jobs</code> is a must-have to avoid collecting duplicates when the same listing shows up again after a re-render.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">postings</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">found_last</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">handled_jobs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="ow">not</span> <span class="n">found_last</span><span class="p">:</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># Allow site to load new data after scroll</span>
+    <span class="n">li_items</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">locator</span><span class="p">(</span><span class="s2">&quot;li&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">li_items</span><span class="o">.</span><span class="n">count</span><span class="p">()):</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">li_items</span><span class="o">.</span><span class="n">nth</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="c1"># Sentinel block that appears at the end of the list</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">locator</span><span class="p">(</span><span class="s2">&quot;.jobteaser-name-header&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">text_content</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">title</span> <span class="o">==</span> <span class="s2">&quot;Haven&#39;t found your dream Data job yet?&quot;</span><span class="p">:</span>
+            <span class="n">found_last</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">break</span>
+
+        <span class="c1"># Gather any fields you care about.</span>
+
+        <span class="n">postings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+        <span class="n">handled_jobs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># Usually the job URL or another stable identifier</span>
+
+    <span class="n">page</span><span class="o">.</span><span class="n">eval_on_selector</span><span class="p">(</span>
+        <span class="s2">&quot;div.joblist-container div div&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;el =&gt; { el.scrollTop += 288 }&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<p>The sentinel title (<code>Haven't found your dream Data job yet?</code>) gives a deterministic exit and avoids guesswork like "scroll exactly N times and hope for the best."</p>
+<h2>One extra guardrail worth adding</h2>
+<p>I also recommend a hard cap on scroll iterations. If the markup changes and the sentinel disappears, the function still exits cleanly instead of looping until timeout.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">max_scrolls</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">scrolls</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">while</span> <span class="ow">not</span> <span class="n">found_last</span> <span class="ow">and</span> <span class="n">scrolls</span> <span class="o">&lt;</span> <span class="n">max_scrolls</span><span class="p">:</span>
+    <span class="o">...</span>
+    <span class="n">page</span><span class="o">.</span><span class="n">eval_on_selector</span><span class="p">(</span><span class="s2">&quot;div.joblist-container div div&quot;</span><span class="p">,</span> <span class="s2">&quot;el =&gt; { el.scrollTop += 288 }&quot;</span><span class="p">)</span>
+    <span class="n">scrolls</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="k">if</span> <span class="n">scrolls</span> <span class="o">==</span> <span class="n">max_scrolls</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Max scroll limit reached before sentinel. Site layout may have changed.&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h2>Writing parquet and uploading to S3</h2>
+<p>After scraping, the handler converts the payload into a Polars dataframe, normalizes column types as strings, writes parquet to <code>/tmp</code>, and uploads the file to a partitioned S3 key. This makes downstream ingestion easier, since each Lambda run produces a compact file in a predictable location.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">lambda_handler</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">EventBridgeEvent</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">site_data</span> <span class="o">=</span> <span class="n">_parse_site</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://devitjobs.uk/jobs/Data/all&quot;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">site_data</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">String</span><span class="p">))</span>  <span class="c1"># Casting to string for simplicity</span>
+
+    <span class="n">date</span> <span class="o">=</span> <span class="n">pendulum</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">date</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">()</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">_BUCKET_URL</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Each directory creates a partition when you use Glue Crawler. </span>
+    <span class="c1"># You can go even deeper, if you want.</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;dev_it_jobs/postings/year=</span><span class="si">{</span><span class="n">date</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">/month=</span><span class="si">{</span><span class="n">date</span><span class="o">.</span><span class="n">month</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">client</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="n">Filename</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">Bucket</span><span class="o">=</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;statusCode&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Dev IT Jobs handled correctly&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+<p>Parquet keeps storage efficient and query-friendly, and the date partitioning keeps recurring snapshots tidy for Athena, Spark, or any ETL flow you throw at it.</p>
+<h2>Practical notes for dynamic pages in Lambda</h2>
+<p>If I had to compress this whole post into one sentence, it would be this: dynamic scraping in Lambda is mostly about controlling browser behavior, not parsing HTML faster. Once the browser is stable, the rest becomes a clean data-engineering loop.</p>
+<p>What to take out of this post is a practical blueprint you can reuse on similar pages. First, identify the actual scrollable container that triggers lazy loading. Second, keep the extraction loop stateful and deterministic (<code>handled_jobs</code>, <code>found_last</code>, and ideally a max-scroll guardrail). Third, write the output in an analytics-friendly format (parquet) and store it in partitioned S3 paths so downstream jobs can read incrementally. It is a simple pattern, but it scales surprisingly well for scheduled ingestion and is easy to debug when the target site changes.</p>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Data gathering service using Flask: Services and Scheduling</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2019.11.20</h2>
+    <p>As a big fan of World of Warcraft, I always wanted to do a little side-project about auction house price predictions. When searching the web for data, I didn’t find any useful data source tho, so I decided to create one myself. With the help of TradeSkillMaster API and some Flask code, I started gathering the data I need in a MySQL database… and today I will show you how to do something similar for your own needs.</p>
+<p>This blog post, due to the amount of information, comes in a series:</p>
+<ul>
+<li><a href="https://zmudzinski.sh/posts/data-gathering-service-using-flask-structure-and-data.html">Data gathering service using Flask: Structure and Data</a></li>
+<li>Data gathering service using Flask: Services and Scheduling</li>
+<li><a href="https://zmudzinski.sh/posts/data-gathering-service-using-flask-heroku-deployment.html">Data gathering service using Flask: Heroku deployment</a></li>
+</ul>
+<h2>Building our services</h2>
+<p>Now that we have our application structure and database model created, we can jump into the core functionality of our data gathering service. Let’s start by updating the following line in our <code>__init__.py</code> file to import some services in:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Was like this</span>
+<span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">routes</span><span class="p">,</span> <span class="n">models</span>  <span class="c1"># noqa</span>
+
+<span class="c1"># Change to this</span>
+<span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">routes</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">services</span>  <span class="c1"># noqa</span>
+</code></pre></div>
+
+<p>Ok great. So the next obvious step is to actually create the service! Create a new file called <code>services.py</code> and add the following imports:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">TSMData</span>  <span class="c1"># or whatever you called this</span>
+</code></pre></div>
+
+<p>Let’s create a new function called <code>gather_tsm_data(app, db)</code>. We want to pass our Flask app and the database connection as parameters, to make things easier. This function will do three things step by step:</p>
+<ul>
+<li>Gather data from the TSM API,</li>
+<li>Filter the data based on our <code>ITEMS_FILTER</code> (check previous blog post),</li>
+<li>Save the data into our database.</li>
+</ul>
+<h3>Gathering the data</h3>
+<p>We are using the <code>requests</code> library for getting data over http. This is one of the most popular pieces of code out there, so you might already be familiar with it. We will get our API key from the config file (by accessing <code>app.config</code>), send a GET request to the API, while passing two parameters (<code>format</code> and <code>apiKey</code>) and then get the data into json format. Moreover, you can notice the <code>raise_for_status()</code> function - this will give us the option to throw exceptions when the status code isn’t <code>200</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">api_key</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;TSM_API&#39;</span><span class="p">]</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;http://api.tradeskillmaster.com/v1/item/EU/Tarren-Mill&#39;</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;apiKey&#39;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</code></pre></div>
+
+<h3>Filtering</h3>
+<p>As for filtering, in my case the step is quite simple. You can do more complicated things, depending on your models and your API, but for gathering Warcraft information this will suffice:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">item_ids</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;ITEMS_FILTER&#39;</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;Id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">item_ids</span><span class="p">]</span>
+</code></pre></div>
+
+<h3>Saving data</h3>
+<p>For each item we want to save, we want to add this to the session - will always be better to save them in bulk. To do this, we use the <code>db.sessions.add</code> function in a for loop, adding the created database object as a parameter. Then, once we added everything we want to the session, we can just run <code>db.session.commit()</code> to save everything in one go.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="n">tsm_object</span> <span class="o">=</span> <span class="n">TSMData</span><span class="p">(</span>
+        <span class="n">item_name</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">],</span>
+        <span class="n">item_subclass</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;SubClass&#39;</span><span class="p">],</span>
+        <span class="n">item_vendor_buy</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;VendorBuy&#39;</span><span class="p">],</span>
+        <span class="n">item_vendor_sell</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;VendorSell&#39;</span><span class="p">],</span>
+        <span class="n">item_market_value</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;MarketValue&#39;</span><span class="p">],</span>
+        <span class="n">item_min_buyout</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;MinBuyout&#39;</span><span class="p">],</span>
+        <span class="n">item_quantity</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;Quantity&#39;</span><span class="p">],</span>
+        <span class="n">item_num_auctions</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;NumAuctions&#39;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tsm_object</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</code></pre></div>
+
+<h3>Final saving service</h3>
+<p>The code for the service should look somewhat like this:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">save_tsm_data</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Get data from TSM</span>
+        <span class="n">api_key</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;TSM_API&#39;</span><span class="p">]</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;http://api.tradeskillmaster.com/v1/item/EU/Tarren-Mill&#39;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;apiKey&#39;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+        <span class="c1"># Filter for items of interest</span>
+        <span class="n">item_ids</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;ITEMS_FILTER&#39;</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;Id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">item_ids</span><span class="p">]</span>
+
+        <span class="c1"># Save items to the database</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">tsm_object</span> <span class="o">=</span> <span class="n">TSMData</span><span class="p">(</span>
+                <span class="n">item_name</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">],</span>
+                <span class="n">item_subclass</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;SubClass&#39;</span><span class="p">],</span>
+                <span class="n">item_vendor_buy</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;VendorBuy&#39;</span><span class="p">],</span>
+                <span class="n">item_vendor_sell</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;VendorSell&#39;</span><span class="p">],</span>
+                <span class="n">item_market_value</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;MarketValue&#39;</span><span class="p">],</span>
+                <span class="n">item_min_buyout</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;MinBuyout&#39;</span><span class="p">],</span>
+                <span class="n">item_quantity</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;Quantity&#39;</span><span class="p">],</span>
+                <span class="n">item_num_auctions</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;NumAuctions&#39;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tsm_object</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;🤩  Added TSM data at </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;🤬  Error occured: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Small hacky function for Heroku</h3>
+<p>We want to build one more function in <code>services.py</code>, just because we want to host our app on a free Heroku dyno. The purpose of this request, will be to ping our service, to keep Heroku from shutting down, for being idle. Just copy-paste this, and enter the host of your Heroku service:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">self_ping</span><span class="p">():</span>
+    <span class="c1"># To prevent Heroku for going idle</span>
+    <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s1">&#39;https://wow-data-gather.herokuapp.com/&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<h2>Scheduling requests</h2>
+<p>To make scheduling happen, we will use the well-known library <code>APScheduler</code>. To implement the functions we need to go back to the <code>__init__.py</code> file of our service. We already imported the <code>BackgroundScheduler</code>, so we can create the functionality (add it at the end of the file):</p>
+<div class="codehilite"><pre><span></span><code><span class="n">scheduler</span> <span class="o">=</span> <span class="n">BackgroundScheduler</span><span class="p">({</span>
+    <span class="s1">&#39;apscheduler.timezone&#39;</span><span class="p">:</span> <span class="s1">&#39;UTC&#39;</span><span class="p">,</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<p>It is good practice to use <code>UTC</code> time for anything date related for such projects, to be localization invariant. Now that we have our scheduler, we only need to start the jobs!</p>
+<div class="codehilite"><pre><span></span><code><span class="n">scheduler</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span>
+    <span class="n">services</span><span class="o">.</span><span class="n">save_tsm_data</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">app</span><span class="p">,</span> <span class="n">db</span><span class="p">],</span>
+    <span class="n">trigger</span><span class="o">=</span><span class="s1">&#39;interval&#39;</span><span class="p">,</span>
+    <span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;save_tsm_data&#39;</span><span class="p">,</span>
+    <span class="n">replace_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>There are a few things worth noticing. We need to pass a <code>trigger</code> for it to run every hour. This also means that the first time it runs will be 1 hour (becasue <code>hours=1</code>) from when you start the server. We also need to add both the <code>id</code> and <code>replace_existing=True</code>, so that you won’t get duplicate schedules.</p>
+<p>Let’s add the scheduler for the <em>“Heroku problem”</em> as well:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">scheduler</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span>
+    <span class="n">services</span><span class="o">.</span><span class="n">self_ping</span><span class="p">,</span>
+    <span class="n">trigger</span><span class="o">=</span><span class="s1">&#39;interval&#39;</span><span class="p">,</span>
+    <span class="n">minutes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;self_ping&#39;</span><span class="p">,</span>
+    <span class="n">replace_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Once we have that done, we can start the scheduler as follows:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">scheduler</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</code></pre></div>
+
+<p>When having this in <code>__init__.py</code> this will start every time the server is run. That’s really neat.</p>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

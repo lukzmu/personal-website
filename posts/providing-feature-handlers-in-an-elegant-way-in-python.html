@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.sh</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.sh/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-950 text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.sh">zmudzinski.sh</a></h1>
+<h2 class="text-sm text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.sh">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.sh/pages/family">Family</a></li>
+</ul><article class="prose prose-invert font-mono max-w-4xl mt-20">
+    <h1>Providing feature handlers in an elegant way in Python</h1>
+    <h2 class="text-sm text-neutral-500 -mt-6 mb-10">Created on: 2021.05.17</h2>
+    <p>Lately one of my colleagues has shown me a neat way of providing functional handlers, instead of working with an <strong>if-elif-else</strong> structure. I liked it so much that not only did I implement it with some pieces of my code, but also decided to share the method with you in this blog post!</p>
+<p>Today we will create handlers and a provider that will take care of email sending in a data import process based on two custom model fields:</p>
+<ul>
+<li><code>ImportConfiguration.notifications</code>,</li>
+<li><code>ImportStatus.status</code>.</li>
+</ul>
+<p>You can preview how the fields are defined in the models below:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ImportConfiguration</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">ImportNotification</span><span class="p">(</span><span class="n">TextChoices</span><span class="p">):</span>
+        <span class="n">NONE</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Don&#39;t notify me&quot;</span><span class="p">)</span>
+        <span class="n">FINISHED</span> <span class="o">=</span> <span class="s2">&quot;finished&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Notify me when finished&quot;</span><span class="p">)</span>
+        <span class="n">ERRORS</span> <span class="o">=</span> <span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Notify me when errors detected&quot;</span><span class="p">)</span>
+
+    <span class="n">notifications</span> <span class="o">=</span> <span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">ERRORS</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ImportStatus</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Status</span><span class="p">(</span><span class="n">TextChoices</span><span class="p">):</span>
+        <span class="n">AWAITING</span> <span class="o">=</span> <span class="s2">&quot;awaiting&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Awaiting&quot;</span><span class="p">)</span>
+        <span class="n">IN_PROGRESS</span> <span class="o">=</span> <span class="s2">&quot;in_progress&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;In progress&quot;</span><span class="p">)</span>
+        <span class="n">COMPLETE</span> <span class="o">=</span> <span class="s2">&quot;complete&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Complete&quot;</span><span class="p">)</span>
+        <span class="n">COMPLETE_WITH_ERRORS</span> <span class="o">=</span> <span class="s2">&quot;complete_with_errors&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Complete with errors&quot;</span><span class="p">)</span>
+        <span class="n">FAILED</span> <span class="o">=</span> <span class="s2">&quot;failed&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Failed&quot;</span><span class="p">)</span>
+
+    <span class="n">status</span> <span class="o">=</span> <span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">Status</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Status</span><span class="o">.</span><span class="n">AWAITING</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">import_configuration</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">ImportConfiguration</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">PROTECT</span><span class="p">)</span>
+</code></pre></div>
+
+<p>The user can set 3 notification settings in the import configuration:</p>
+<ul>
+<li><code>NONE</code>, which won't send emails at all for this import,</li>
+<li><code>FINISHED</code>, which will send an email when the import has been finished,</li>
+<li><code>ERRORS</code>, which will send an email when import errors occur.</li>
+</ul>
+<p>After the import has been finished, you might end up with 3 possible statuses:</p>
+<ul>
+<li><code>COMPLETE</code>, when everything goes as planned, with no errors occurring during the import.</li>
+<li><code>COMPLETE_WITH_ERRORS</code>, when the import is fine, just some items are corrupted,</li>
+<li><code>FAILED</code>, when everything blows up.</li>
+</ul>
+<h2>Creating the handler</h2>
+<p>Let's start by declaring an abstract class that will describe our email handlers. I will call it <code>ImportEmailHandler</code> (notice the use of <code>ABC</code> from the <code>abc</code> package). We will also declare the following constant values:</p>
+<ul>
+<li><code>_SENDER</code> is the value that will be used as the email sender,</li>
+<li><code>_SUBJECT</code> will be the value for the email topic,</li>
+<li><code>_TEMPLATE</code> will be the template file for the email,</li>
+<li><code>_TEMPLATE_TXT</code> the template for text emails (when someone doesn't support HTML messages).</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ImportEmailHandler</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="n">_SENDER</span> <span class="o">=</span> <span class="s2">&quot;contact@merixstudio.com&quot;</span>
+    <span class="n">_SUBJECT</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_TEMPLATE</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_TEMPLATE_TXT</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+
+<p>The handler will provide one public function - <code>send</code>. The goal of this function is to prepare an email message based on the <code>ImportStatus</code> context and then send it to the user.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ImportEmailHandler</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">import_status</span><span class="p">:</span> <span class="n">ImportStatus</span><span class="p">):</span>
+        <span class="n">message</span><span class="p">,</span> <span class="n">html_message</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_prepare_messages</span><span class="p">(</span><span class="n">import_status</span><span class="o">=</span><span class="n">import_status</span><span class="p">)</span>
+        <span class="n">recipients</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_recipients</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">import_status</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">recipients</span><span class="p">:</span>
+            <span class="n">send_mail</span><span class="p">(</span>
+                <span class="n">subject</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_SUBJECT</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+                <span class="n">html_message</span><span class="o">=</span><span class="n">html_message</span><span class="p">,</span>
+                <span class="n">from_email</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_SENDER</span><span class="p">,</span>
+                <span class="n">recipient_list</span><span class="o">=</span><span class="n">recipients</span><span class="p">,</span>
+                <span class="n">fail_silently</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+</code></pre></div>
+
+<p>As you can see, the <code>send</code> function uses two class methods:</p>
+<ul>
+<li><code>_prepare_messages</code> will build the messages from the provided template and import context,</li>
+<li><code>_get_recipients</code> which will gather a list of emails, to which the message should be delivered.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ImportEmailHandler</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_prepare_message</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">import_status</span><span class="p">:</span> <span class="n">ImportStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_TEMPLATE</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_TEMPLATE_TXT</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_SUBJECT</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">template</span> <span class="o">=</span> <span class="n">get_template</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_TEMPLATE_TXT</span><span class="p">)</span>
+        <span class="n">html_template</span> <span class="o">=</span> <span class="n">get_template</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_TEMPLATE</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_context</span><span class="p">(</span><span class="n">import_status</span><span class="o">=</span><span class="n">import_status</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">),</span> <span class="n">html_template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_get_recipients</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">CustomUser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="c1"># Write your logic to gather email list</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;l.zmudzinski@merixstudio.com&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<p>We also have one more crucial function in the class - the <code>_get_context</code>. This is an abstract method that should be used in any derivative class of the <code>ImportEmailHandler</code>. Its function is to provide context for email templates.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ImportEmailHandler</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_get_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">import_status</span><span class="p">:</span> <span class="n">ImportStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">pass</span>
+</code></pre></div>
+
+<h3>Example of implementation</h3>
+<p>Let's implement a <code>CompletedEmailHandler</code> to be used when the notifications are set to <code>FINISHED</code> and the status is <code>COMPLETE</code>. Let’s see how easy it is to define the handler for this specific case.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CompletedEmailHandler</span><span class="p">(</span><span class="n">ImportEmailHandler</span><span class="p">):</span>
+    <span class="n">_SUBJECT</span> <span class="o">=</span> <span class="s2">&quot;The import has completed&quot;</span>
+    <span class="n">_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;email/completed.html&quot;</span>
+    <span class="n">_TEMPLATE_TXT</span> <span class="o">=</span> <span class="s2">&quot;email/completed.txt&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_get_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">import_status</span><span class="p">:</span> <span class="n">ImportStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="c1"># The dictionary keys depend on your template</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Your import has completed!&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">import_status</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+        <span class="p">}</span>
+</code></pre></div>
+
+<h2>Provider creation</h2>
+<p>Now that we have a way to define handlers, we need a provision method suitable to our situation. Let's create an <code>ImportEmailHandlerProvider</code> class! It will have one private variable field called <code>_handlers</code>, as is shown below:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ImportEmailHandlerProvider</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span>
+            <span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="p">,</span>
+            <span class="n">Dict</span><span class="p">[</span><span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">ImportEmailHandler</span><span class="p">]],</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+</code></pre></div>
+
+<p>To register new handlers based on notification and status values, we will create a new public function register, which basically adds handlers to the dictionary.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ImportEmailHandlerProvider</span><span class="p">:</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">notification</span><span class="p">:</span> <span class="n">TextChoices</span><span class="p">,</span>
+        <span class="n">status</span><span class="p">:</span> <span class="n">TextChoices</span><span class="p">,</span>
+        <span class="n">handler</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">ImportEmailHandler</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImportEmailHandlerProvider</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">notification</span><span class="p">][</span><span class="n">status</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div>
+
+<p>And another one to retrieve the registered handlers:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ImportEmailHandlerProvider</span><span class="p">:</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">notification</span><span class="p">:</span> <span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="p">,</span>
+        <span class="n">status</span><span class="p">:</span> <span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">ImportEmailHandler</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">notification</span><span class="p">][</span><span class="n">status</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">cause</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ImportEmailHandlerNotFoundError</span><span class="p">(</span>
+                <span class="n">notification</span><span class="o">=</span><span class="n">notification</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">cause</span>
+</code></pre></div>
+
+<p>However, as you can see, we should raise <code>ImportEmailHandlerNotFoundError</code> when we are not able to provide a handler. This is a custom exception defined in the <code>exceptions.py</code> file that should be handled in your code in some way (depending on what you want to do with this fact).</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ImportEmailHandlerNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">notification</span><span class="p">:</span> <span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="p">,</span>
+        <span class="n">status</span><span class="p">:</span> <span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Email import handler for notification &#39;</span><span class="si">{</span><span class="n">notification</span><span class="si">}</span><span class="s2"> and &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;status &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39; not found.&quot;</span>
+        <span class="p">)</span>
+</code></pre></div>
+
+<h3>Registering email handlers</h3>
+<p>Now that we have a class that will store and provide handlers for us - we just need to define which handler should be returned depending on the field parameters. Take a look below - this is how we can do it:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">import_email_provider</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">ImportEmailHandlerProvider</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">register</span><span class="p">(</span>
+        <span class="n">notification</span><span class="o">=</span><span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">FINISHED</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">COMPLETE</span><span class="p">,</span>
+        <span class="n">handler</span><span class="o">=</span><span class="n">CompletedEmailHandler</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">register</span><span class="p">(</span>
+        <span class="n">notification</span><span class="o">=</span><span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">FINISHED</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">COMPLETE_WITH_ERRORS</span><span class="p">,</span>
+        <span class="n">handler</span><span class="o">=</span><span class="n">ErrorEmailHandler</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">register</span><span class="p">(</span>
+        <span class="n">notification</span><span class="o">=</span><span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">FINISHED</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
+        <span class="n">handler</span><span class="o">=</span><span class="n">FailedEmailHandler</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">register</span><span class="p">(</span>
+        <span class="n">notification</span><span class="o">=</span><span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">ERRORS</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">COMPLETE_WITH_ERRORS</span><span class="p">,</span>
+        <span class="n">handler</span><span class="o">=</span><span class="n">ErrorEmailHandler</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">register</span><span class="p">(</span>
+        <span class="n">notification</span><span class="o">=</span><span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">ERRORS</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
+        <span class="n">handler</span><span class="o">=</span><span class="n">FailedEmailHandler</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>The only thing left is to send the email at the end of the import process:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">send_email</span><span class="p">(</span><span class="n">import_status</span><span class="p">:</span> <span class="n">ImportStatus</span><span class="p">):</span>
+    <span class="c1"># We will start by retrieving the handler</span>
+    <span class="n">handler</span> <span class="o">=</span> <span class="n">import_email_provider</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">notification</span><span class="o">=</span><span class="n">import_status</span><span class="o">.</span><span class="n">import_configuration</span><span class="o">.</span><span class="n">notifications</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">import_status</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># And now we can send the message!</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">import_status</span><span class="o">=</span><span class="n">import_status</span><span class="p">)</span>
+</code></pre></div>
+
+<p>After doing it yourself, I am sure you will be inclined to say that using the described handler-provider method is a great (much more readable) alternative to the standard use of <strong>if-elif-else</strong> structure, which you can see below:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">send_email</span><span class="p">(</span><span class="n">import_status</span><span class="p">:</span> <span class="n">ImportStatus</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">import_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">COMPLETE</span>
+        <span class="ow">and</span> <span class="n">import_status</span><span class="o">.</span><span class="n">import_configuration</span><span class="o">.</span><span class="n">notifications</span>
+        <span class="o">==</span> <span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">FINISHED</span>
+    <span class="p">):</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">CompletedEmailHandler</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">import_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">COMPLETE</span>
+        <span class="ow">and</span> <span class="n">import_status</span><span class="o">.</span><span class="n">import_configuration</span><span class="o">.</span><span class="n">notifications</span>
+        <span class="o">==</span> <span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">FINISHED</span>
+    <span class="p">):</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">ErrorEmailHandler</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">import_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">COMPLETE</span>
+        <span class="ow">and</span> <span class="n">import_status</span><span class="o">.</span><span class="n">import_configuration</span><span class="o">.</span><span class="n">notifications</span>
+        <span class="o">==</span> <span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">FINISHED</span>
+    <span class="p">):</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">FailedEmailHandler</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">import_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">COMPLETE</span>
+        <span class="ow">and</span> <span class="n">import_status</span><span class="o">.</span><span class="n">import_configuration</span><span class="o">.</span><span class="n">notifications</span>
+        <span class="o">==</span> <span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">FINISHED</span>
+    <span class="p">):</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">ErrorEmailHandler</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">import_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">ImportStatus</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">COMPLETE</span>
+        <span class="ow">and</span> <span class="n">import_status</span><span class="o">.</span><span class="n">import_configuration</span><span class="o">.</span><span class="n">notifications</span>
+        <span class="o">==</span> <span class="n">ImportConfiguration</span><span class="o">.</span><span class="n">ImportNotification</span><span class="o">.</span><span class="n">FINISHED</span>
+    <span class="p">):</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">FailedEmailHandler</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ImportEmailHandlerNotFoundError</span>
+
+    <span class="n">handler</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">import_status</span><span class="o">=</span><span class="n">import_status</span><span class="p">)</span>
+</code></pre></div>
+
+<p>That's all Folks!</p>
+<h2>Up to try it yourself?</h2>
+<p>Summing up, in this article we showed you a viable alternative to using the if-elif-else structure for providing functional handlers in your Python-based projects. The handler-provider method that we explained here ensures better code intelligibility, making handler and provider creation easier. A way to go, isn’t it?</p>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.sh - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

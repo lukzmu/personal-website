@@ -6,7 +6,7 @@ lukzmu — python engineer, data builder, infrastructure tinkerer.
 
 Building software since 2010. Focused on python, data platforms, linux and cloud architecture. Known to design systems, automate everything, and spend unreasonable time refining developer configurations.
 
-Public artifacts: [https://codeberg.org/lukzmu](https://codeberg.org/lukzmu)
+Public artifacts: [https://github.com/lukzmu](https://github.com/lukzmu)
 
 <p class="text-sm text-neutral-500">$ cat /proc/identity</p>
 

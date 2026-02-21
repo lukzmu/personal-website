@@ -26,7 +26,7 @@ SITE_DATA: dict[str, object] = {
     },
     "repository": {
         "pelican": "https://getpelican.com/",
-        "link": "https://codeberg.org/lukzmu/personal-website",
+        "link": "https://github.com/lukzmu/personal-website",
     },
 }
 

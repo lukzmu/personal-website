@@ -473,7 +473,7 @@ wheels = [
 ]
 
 [[package]]
-name = "zmudzinski-sh"
+name = "zmudzinski-me"
 version = "1.0.0"
 source = { virtual = "." }
 dependencies = [

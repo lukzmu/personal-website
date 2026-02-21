@@ -1,10 +1,10 @@
 [project]
-name = "zmudzinski-sh"
+name = "zmudzinski-me"
 version = "1.0.0"
 description = "Personal website written using Pelican."
 readme = "README.md"
 authors = [
-    {name = "Lukasz Zmudzinski", email = "lukasz@zmudzinski.sh"},
+    {name = "Lukasz Zmudzinski", email = "lukasz@zmudzinski.me"},
 ]
 
 requires-python = "<4.0,>=3.13"

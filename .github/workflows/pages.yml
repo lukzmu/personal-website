@@ -1,4 +1,4 @@
-name: 'Publish family website to Github Pages'
+name: 'Publish website to Github Pages'
 
 on:
   push:

@@ -10,10 +10,10 @@ from personal_website.person.repository import person_repository
 load_dotenv()
 
 # --- Site Data ---
-SITEURL = os.getenv("SITEURL", default="https://zmudzinski.sh")
+SITEURL = os.getenv("SITEURL", default="https://zmudzinski.me")
 DESCRIPTION = os.getenv("DESCRIPTION", default="I write Python code and do nerdy things.")
 AUTHOR = "Lukasz Zmudzinski"
-SITENAME = "zmudzinski.sh"
+SITENAME = "zmudzinski.me"
 TIMEZONE = "Europe/Warsaw"
 DEFAULT_LANG = "en"
 

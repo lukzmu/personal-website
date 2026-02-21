@@ -10,8 +10,7 @@ The deployment is done through Github Actions and posted on GitHub Pages.
 
 ## Requirements
 
-- Python 3.13
-- [uv package](https://github.com/astral-sh/uv)
+- [mise](https://github.com/jdx/mise)
 
 ## Environment Variables
 
@@ -24,8 +23,9 @@ The deployment is done through Github Actions and posted on GitHub Pages.
 
 | **Action** | **Command** |
 | :--- | :--- |
-| Build the project | `uv run poe build` |
-| Run the project | `uv run poe serve` |
-| Format project | `uv run poe lint_fix` |
-| Lint project | `uv run poe lint` |
-| Test project | `uv run poe test` |
+| Install dependencies and hooks | `mise run bootstrap` |
+| Build the project | `mise run build` |
+| Run the project | `mise run serve` |
+| Format project | `mise run lint_fix` |
+| Lint project | `mise run lint` |
+| Test project | `mise run test` |

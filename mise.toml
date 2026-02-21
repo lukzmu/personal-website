@@ -1,0 +1,67 @@
+[tools]
+python = "3.14"
+uv = "latest"
+
+[env]
+_.file = ".env"
+PYTHONPATH = "."
+
+# --- Configuration ---
+[tasks.install]
+description = "Install project dependencies with uv"
+run = "uv sync --all-groups"
+
+[tasks.hooks_install]
+description = "Install prek git hooks"
+run = "uv run prek install --install-hooks"
+
+[tasks.bootstrap]
+description = "Install dependencies and git hooks"
+depends = ["install", "hooks_install"]
+
+# --- Site Commands ---
+[tasks.serve]
+description = "Run Pelican in autoreload mode"
+run = "uv run python -m pelican -lr personal_website/content -s personal_website/core/settings.py -o output -b ${HOST:-0.0.0.0}"
+
+[tasks.build]
+description = "Build the static site"
+run = "uv run pelican personal_website/content -s personal_website/core/settings.py -o output"
+
+# --- Lint and Test ---
+[tasks.test]
+description = "Run tests with coverage"
+run = "uv run pytest --cov=personal_website --cov-report=json --cov-report=term"
+
+[tasks.ruff_check]
+description = "Run ruff lint checks"
+run = "uv run ruff check personal_website"
+
+[tasks.ruff_format_check]
+description = "Run ruff format checks"
+run = "uv run ruff format --check"
+
+[tasks.mypy_check]
+description = "Run mypy type checks"
+run = "uv run mypy personal_website"
+
+[tasks.lint]
+description = "Run lint checks (parallel)"
+depends = ["ruff_check", "ruff_format_check", "mypy_check"]
+
+[tasks.ruff_check_fix]
+description = "Apply ruff lint auto-fixes"
+run = "uv run ruff check personal_website --fix"
+
+[tasks.ruff_format_fix]
+description = "Apply ruff format changes"
+run = "uv run ruff format"
+
+[tasks.lint_fix]
+description = "Apply lint auto-fixes (parallel)"
+depends = ["ruff_check_fix", "ruff_format_fix"]
+
+# --- Prek ---
+[tasks.prek]
+description = "Run prek hooks on all files"
+run = "uv run prek run --all-files"

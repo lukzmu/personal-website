@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from personal_website.animal.repository import animal_repository
 from personal_website.event.repository import event_repository
 from personal_website.person.repository import person_repository
+from personal_website.services.github import GitHubClient
 
 load_dotenv()
 
@@ -28,6 +29,7 @@ SITE_DATA: dict[str, object] = {
         "pelican": "https://getpelican.com/",
         "link": "https://github.com/lukzmu/personal-website",
     },
+    "repositories": GitHubClient(os.getenv("GH_TOKEN")).get_repositories(),
 }
 
 # --- Feed Settings ---

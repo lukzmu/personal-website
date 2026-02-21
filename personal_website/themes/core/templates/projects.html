@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-<article class="prose prose-invert font-mono max-w-4xl mt-20">
+
+<p class="text-sm text-neutral-500 mt-20">$ ls -la ~/projects</p>
+<article class="prose prose-invert font-mono max-w-4xl mt-5">
     <div class="grid gap-y-5">
         {% for project in SITE_DATA.repositories %}
         <div>

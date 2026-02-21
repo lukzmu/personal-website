@@ -14,10 +14,10 @@ jobs:
   code_quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: lukzmu/reusable-actions/setup-python@v1
+      - uses: lukzmu/reusable-actions/setup-python@v2
         with:
           python-version: "3.14"
-      - uses: lukzmu/reusable-actions/code-quality@v1
+      - uses: lukzmu/reusable-actions/code-quality@v2
         with:
           main-module: personal_website
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -28,10 +28,10 @@ jobs:
       - code_quality
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: lukzmu/reusable-actions/setup-python@v1
+      - uses: lukzmu/reusable-actions/setup-python@v2
         with:
           python-version: "3.14"
-      - uses: lukzmu/reusable-actions/pelican-publish@v1
+      - uses: lukzmu/reusable-actions/pelican-publish@v2
         with:
           content: personal_website/content
           settings: personal_website/core/settings.py

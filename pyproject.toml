@@ -26,6 +26,7 @@ dev = [
     "prek>=0.2.5",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
+    "pytest-mock>=3.15.1",
     "python-dotenv>=1.1.1",
     "ruff<1.0.0,>=0.9.1",
     "types-pyyaml>=6.0.12.20250915",

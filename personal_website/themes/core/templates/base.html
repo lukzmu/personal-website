@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{{ SITENAME }}</title>
         <meta name="description" content="{{ DESCRIPTION }}">
+        {% if FEED_ALL_ATOM %}
+        <link rel="alternate" type="application/atom+xml" title="{{ SITENAME }}" href="{{ SITEURL }}/{{ FEED_ALL_ATOM }}">
+        {% endif %}
         <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
         <link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/code.css" />
         <link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/page.css" />

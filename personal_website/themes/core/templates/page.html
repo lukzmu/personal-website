@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block title %}
+<title>{{ page.title }} | {{ SITENAME }}</title>
+{% endblock %}
 {% block content %}
 <article class="prose prose-invert font-mono max-w-4xl mt-20">
     {{ page.content | safe }}

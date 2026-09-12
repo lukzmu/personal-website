@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quo vadis, Codeberg? | zmudzinski.me</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="zmudzinski.me">
+        <meta name="twitter:description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:image" content="https://zmudzinski.me/theme/cards/site_card.png">
+        <meta name="twitter:image:alt" content="zmudzinski.me social preview image">
+        <link rel="alternate" type="application/atom+xml" title="zmudzinski.me" href="https://zmudzinski.me/feed.xml">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-50 text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.me">zmudzinski.me</a></h1>
+<h2 class="text-sm text-neutral-600 dark:text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.me">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/family">Family</a></li>
+</ul><article class="prose prose-neutral dark:prose-invert font-mono max-w-4xl mt-20">
+    <h1>Quo vadis, Codeberg?</h1>
+    <h2 class="text-sm text-neutral-600 dark:text-neutral-500 -mt-6 mb-4">Created on: 2026.08.23</h2>
+    <section class="not-prose border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30 text-sm text-neutral-700 dark:text-neutral-400 leading-relaxed mb-10" aria-labelledby="ai-notice-title">
+        <h2 id="ai-notice-title" class="flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+            <svg class="h-4 w-4 text-neutral-600 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <path d="M5 14l.6 1.6L7 16l-1.4.4L5 18l-.6-1.6L3 16l1.4-.4L5 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+            </svg>
+            AI Notice
+        </h2>
+        <p class="mt-2">AI was not used to write this article. This is entirely on me.</p>
+        <p>However, I did use AI to fix typos and incorrect grammar because I suck at that.</p>
+        <p class="mt-3">
+            <span class="inline-block mr-4"><span class="text-neutral-600 dark:text-neutral-500">Model:</span> opus</span>
+            <span class="inline-block"><span class="text-neutral-600 dark:text-neutral-500">Tool:</span> claude</span>
+        </p>
+    </section>
+    <p>Some time ago I moved all my personal repositories to Codeberg<sup class="citation"><a href="#citation-1">[1]</a></sup>. I find this a great alternative to GitHub owned by Microsoft, especially since it's been recently flooded with a <em>"USE OUR AI FOR EVERYTHING"</em> mentality, shoving Copilot down its users' throats. There's one quirk though, as Codeberg changed its <strong>Terms of Use</strong> lately in a way that might hurt FOSS, especially given how the engineering world is changing right now. The voting process for platform changes is democratic, so that's what most of the platform users want&hellip; but it still feels short-sighted, although some of the reasoning behind it is probably sound.</p>
+<p>There were two new rules added into ToU regarding what can't be hosted on Codeberg:</p>
+<ol>
+<li>Ban for generative AI projects<sup class="citation"><a href="#citation-2">[2]</a></sup></li>
+<li>Ban for cryptocurrency projects<sup class="citation"><a href="#citation-3">[3]</a></sup></li>
+</ol>
+<p>It's worth seeing how little text we're talking about. </p>
+<p>The crypto one is a single edit - <em>"Content that harms the reputation of Codeberg."</em> became <em>"&hellip;such as cryptocurrency related projects."</em> The AI one adds one point: <em>"You must not share projects that mostly consist of code written by 'generative AI'-tools (including services such as Claude, OpenAI Codex)"</em>, justified by unclear copyright and few safeguards against harmful code. Two sentences, one of them naming commercial products inside a legal document, passed 358 to 144 with roughly half the active members voting. I read both proposal threads, and honestly - the discussions are more interesting than the rules.</p>
+<h2>Where they are right</h2>
+<p>It would be easy to write this from a negative only standpoint, so let me start with what I can't argue with and what really makes sense.</p>
+<p>The copyright angle is the strongest. LLM output sits in a legal grey area, and grey areas get resolved later, by whoever can afford to argue. <code>@geikha</code> put the scenario plainly: what if the AI companies eventually lobby the copyright of generated code towards themselves, or start asking for a percentage? <em>"How many Open Source projects have the money to fight that?"</em>, probably none of them. That's a blank cheque signed by people who won't be in the room when it gets cashed, and Codeberg is an association with a published budget, not a company with a legal department.</p>
+<p>The second argument is about review rather than law, and <code>@nieldk</code> compressed it into one line that belongs on every maintainer's wall: <em>"A contribution should be worth more to the project than the time it takes to review it"</em>. That's the whole problem with generated contributions, and it has nothing to do with whether the model is any good. You <em>could</em> review that pull request properly, but in practice it degenerates into <em>"LGTM, merge"</em> out of fatigue - and <a href="https://zmudzinski.me/posts/the-good-the-bad-and-the-ai-overlords-taking-over-the-world/">as I wrote before</a>, the more people trust generated output, the less they check it. Volunteer maintainers are the least able to absorb that, because their only currency is attention.</p>
+<p>There's also a much less ideological argument I hadn't considered - money. Crawlers are hammering their servers to ingest every repository, and the training boom took the hardware with it: an SSD they bought for €700 now costs €3.700. They also name <em>"license laundering"</em>, where copyleft code loses its reciprocity by being regenerated out of the training data. Bundled into the same vote was a promise never to train on your code, which given what every other forge is doing is not a small thing.</p>
+<h2>Generative AI is not going anywhere</h2>
+<p>My problem isn't the intent, it's that the intent lives in a blog post while the rule lives in the Terms of Use, and only one of those is the document you agree to.</p>
+<p><code>@Profpatsch</code> asked the questions nobody answered, and they aren't rhetorical:</p>
+<blockquote>
+<p>What does "written by" mean? Who defines authorship? What does "mostly" mean? Who defines ratio? Is this going to be enforced in practice? Who is going to enforce it? Based on which reporting?</p>
+</blockquote>
+<p>Underneath them is a structural shift. Codeberg's stance until now was passive - no unfree licenses, don't host illegal things, otherwise it's your repository. This moves it towards active enforcement, which needs what <code>@Profpatsch</code> called a <em>"police force"</em>: volunteers judging how much of your codebase a machine wrote, with no honest way to measure it.</p>
+<p><em>"Mostly"</em> manages to be too loose and too strict at once. <code>@hsza</code> asked whether a codebase that's 49% slop gets platformed. <code>@lucg</code> described the opposite case - a 150-line utility you generated, then actually read, understood and tested, technically unshareable unless you pad it with 75 lines of your own. When a rule can be satisfied by writing dead code, it's a ritual rather than a rule.</p>
+<p>The follow-up blog post<sup class="citation"><a href="#citation-4">[4]</a></sup> is far more reasonable than the clause it explains: no mass deletion, active projects are fine, small experiments <em>"likely to be tolerated in practice"</em>, and it even separates generated <em>contributions</em> from projects written entirely by a machine. The ToU text makes none of those distinctions. That's the whole issue - everything reasonable about this policy exists outside the policy, and a rule written as if this were a category of project rather than a spectrum of usage will age into either dead text or a stick, depending on who ends up holding it.</p>
+<h2>Not all marked crypto is bad</h2>
+<p>The crypto thread got much messier, mostly because people who despise crypto scams still argued against the rule. <code>@johnoestmannmusic</code> put that position best: banning a whole category of software over the bad actors inside it is extreme, and stops any healthy project from ever emerging there.</p>
+<p><code>@znseta</code> framed the distinction the way I wish the ToU had - there's a big difference between projects trying to harvest people's money and projects trying to secure it. Nobody was defending rug pulls. The objection is that <em>"cryptocurrency related"</em> separates neither, and isn't defined anywhere; <code>@johnnyjayjay</code> asked for a definition two weeks before the vote and never got one.</p>
+<p><code>@stevenj</code> then wrote the most technically damning comment in either thread by listing what the phrase could plausibly cover: ZK proof libraries, <code>Blake</code> and <code>SHA</code> hashes, <code>ed25519</code>, <code>secp256k1</code>, anything touching <code>libp2p</code>, anything touching BFT consensus. Their own example is the sharpest - they maintain a <code>CBOR</code> toolkit, and Cardano uses a lot of <code>CBOR</code>. Is that <em>"cryptocurrency related"</em>? Nobody can tell you, so <em>"the only safe policy is to assume that Codeberg is basically anti-cryptography"</em>. They also landed a recursive one that made me laugh: a clause this vague, if it damages Codeberg's reputation, is itself content that harms the reputation of Codeberg.</p>
+<p>Behind the definitions there are people. <code>@rudzik8</code> wrote about who actually depends on this - an anti-war trans person in Russia buying HRT with an XMR wallet, a friend paying for a foreign VPN in USDT to get around internet restrictions. The <em>"illicit trade"</em> and <em>"evasion of sanctions"</em> the rule worries about are the same properties keeping those people supplied and online. Follow the logic honestly and you ban BitTorrent clients and encrypted messaging too, because criminals use those as well.</p>
+<p>Here's what actually bothers me though. <code>@defnull</code> explained, and the presidium confirmed, that the clause only ever targeted reputation-harming content with scammy crypto as an example - a reassuring reading, and probably the correct one. But a user at the time saw a proposal titled <em>"Disallow cryptocurrency projects"</em> and a banner reading <em>"Cryptocurrency projects are no longer allowed"</em>. There is no world in which that title means something narrower, and having to dig through a comment thread to learn what a rule means is bizarre. The mismatch is still an open issue<sup class="citation"><a href="#citation-5">[5]</a></sup> a month later.</p>
+<p>And then both threads got closed - the AI one pointed at a Matrix room directly underneath <code>@Profpatsch</code>'s unanswered questions, the crypto one locked by the presidium citing <em>"apparent brigading"</em>, hours after it hit Hacker News. I understand the impulse; nobody wants to moderate an orange-site invasion on a Thursday morning. But what was on the table when the locks came down was a request for a definition, a list of cryptography libraries that might be caught, seven questions about enforcement, and a maintainer asking whether their project has to leave. That isn't brigading. Those are the questions a Terms of Use change should have to survive, asked by people who had no vote in it, and they got answered with a padlock.</p>
+<h2>Summary</h2>
+<p>The goal was right and the instrument was wrong. Generated slop really is drowning volunteer maintainers, and scams really do use code forges for legitimacy. But both got handled with a one-line edit, defended in comment threads, clarified in a blog post, and then locked - so the operative meaning of the rules now lives in three places, none of which is the rules.</p>
+<p>Vague rules are survivable when the people applying them are reasonable, and Codeberg's people clearly are. There won't be a purge; banning a project is more work than ignoring it. But that's a lot of weight to hang on goodwill, which isn't versioned, doesn't appear in the ToU, and changes when the people change. The same thing I said <a href="https://zmudzinski.me/posts/the-good-the-bad-and-the-ai-overlords-taking-over-the-world/">last time</a> applies: the technology is almost never the villain, and neither is the community - it's what we optimise for. Optimise for <em>"keep the obvious garbage out"</em> and you get moderation. Optimise for <em>"be seen taking a stance"</em> and you get a category ban, a banner that overstates it, and a locked thread full of people who agreed with you about the garbage.</p>
+<p>In general there's only one thing I can do, to be part of decisions like this. Join as an Active Member, this way at least I have a minimal input for change and the future of Codeberg. Complaining from the outside is free, and worth exactly that much.</p>
+<blockquote>
+<p>Hello Łukasz!</p>
+<p>We have received your membership request. Thank you for your interest in supporting Codeberg! We will try our best to review your request in the next weeks. Once your request is processed, you will receive another email.</p>
+<p>Codeberg e.V.</p>
+</blockquote>
+<section class="citations">
+<h2>References</h2>
+<ol class="citations__list">
+<li class="citations__item" id="citation-1"><span class="citations__marker">[1]</span> Codeberg &mdash; <a class="citations__url" href="https://codeberg.org">https://codeberg.org</a></li>
+<li class="citations__item" id="citation-2"><span class="citations__marker">[2]</span> Ban for generative AI projects &mdash; <a class="citations__url" href="https://codeberg.org/Codeberg/org/pulls/1253">https://codeberg.org/Codeberg/org/pulls/1253</a></li>
+<li class="citations__item" id="citation-3"><span class="citations__marker">[3]</span> Ban for cryptocurrency projects &mdash; <a class="citations__url" href="https://codeberg.org/Codeberg/org/pulls/1254">https://codeberg.org/Codeberg/org/pulls/1254</a></li>
+<li class="citations__item" id="citation-4"><span class="citations__marker">[4]</span> follow-up blog post &mdash; <a class="citations__url" href="https://blog.codeberg.org/protecting-our-floss-commons-from-llms.html">https://blog.codeberg.org/protecting-our-floss-commons-from-llms.html</a></li>
+<li class="citations__item" id="citation-5"><span class="citations__marker">[5]</span> an open issue &mdash; <a class="citations__url" href="https://codeberg.org/Codeberg/org/issues/1257">https://codeberg.org/Codeberg/org/issues/1257</a></li>
+</ol>
+</section>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-600 dark:text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.me - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

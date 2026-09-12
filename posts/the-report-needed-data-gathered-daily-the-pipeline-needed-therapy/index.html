@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The report needed data gathered daily. The pipeline needed therapy. | zmudzinski.me</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="zmudzinski.me">
+        <meta name="twitter:description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:image" content="https://zmudzinski.me/theme/cards/site_card.png">
+        <meta name="twitter:image:alt" content="zmudzinski.me social preview image">
+        <link rel="alternate" type="application/atom+xml" title="zmudzinski.me" href="https://zmudzinski.me/feed.xml">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-50 text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.me">zmudzinski.me</a></h1>
+<h2 class="text-sm text-neutral-600 dark:text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.me">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/family">Family</a></li>
+</ul><article class="prose prose-neutral dark:prose-invert font-mono max-w-4xl mt-20">
+    <h1>The report needed data gathered daily. The pipeline needed therapy.</h1>
+    <h2 class="text-sm text-neutral-600 dark:text-neutral-500 -mt-6 mb-4">Created on: 2026.06.12</h2>
+    <section class="not-prose border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30 text-sm text-neutral-700 dark:text-neutral-400 leading-relaxed mb-10" aria-labelledby="ai-notice-title">
+        <h2 id="ai-notice-title" class="flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+            <svg class="h-4 w-4 text-neutral-600 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <path d="M5 14l.6 1.6L7 16l-1.4.4L5 18l-.6-1.6L3 16l1.4-.4L5 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+            </svg>
+            AI Notice
+        </h2>
+        <p class="mt-2">AI was not used to write this article. This is entirely on me.</p>
+        <p>However, I did use AI to fix typos and incorrect grammar because I suck at that.</p>
+        <p class="mt-3">
+            <span class="inline-block mr-4"><span class="text-neutral-600 dark:text-neutral-500">Model:</span> gpt-5.5</span>
+            <span class="inline-block"><span class="text-neutral-600 dark:text-neutral-500">Tool:</span> codex</span>
+        </p>
+    </section>
+    <p>Over the last few months, I have been taking part in a STX Next<sup class="citation"><a href="#citation-1">[1]</a></sup> powered Data Engineering Bootcamp. The main idea was simple on paper: build a data pipeline using AWS and dbt. In practice, it quickly became a useful reminder that data engineering is not just about moving files from one place to another. It is a chain of decisions about data shape, storage format, orchestration, schema discovery, transformations, and all the tiny assumptions that can quietly turn into a nightmare.</p>
+<p>This post is my attempt to put that process in order. I want to walk through what I built, where AWS helped, where it made things more complicated, how dbt changed the way I thought about transformations, and what I learned while connecting all those pieces into something that could be explained, rerun, debugged, and finally improved.</p>
+<p>Do not treat this article as a guide or a perfect reference architecture. It is more of a <em>"lessons learned"</em> post from someone starting his data engineering path from the perspective of a backend engineer.</p>
+<blockquote>
+<p>It is worth mentioning that while I did a lot of the learning by breaking things myself, the actual guidance came from my mentor, Maks.</p>
+</blockquote>
+<p>PS. When your mentor asks, <em>"Maybe let's see what will happen if&hellip;"</em> - <strong>run</strong>.</p>
+<h2>The initial idea, built with duct tape and trytytki<sup class="citation"><a href="#citation-2">[2]</a></sup></h2>
+<p>I will be quite honest with you. I did not have much infrastructure experience on AWS when I started this project. I was more of a GCP person, and while both platforms offer similar building blocks, the mental models are different enough to make you second-guess almost every service choice.</p>
+<p>So when I got the task to prepare an ELT or ETL pipeline <em>(the choice was up to me)</em>, including ingestion, transformations, and a final report, I started looking for ways to connect all the dots. Or maybe all the boxes. Or maybe all the billable resources.</p>
+<p>Anyway, the first draft looked something like this:</p>
+<p><img alt="First version of Pipeline" src="https://zmudzinski.me/posts/the-report-needed-data-gathered-daily-the-pipeline-needed-therapy/de_bootcamp_initial.png" /></p>
+<p>At this point, I had more questions than architecture.</p>
+<ul>
+<li>How do I schedule this thing?</li>
+<li>Is <code>Redshift</code> the way to go?</li>
+<li>ELT vs ETL?</li>
+<li>Where should raw data live?</li>
+<li>What should be responsible for schema discovery?</li>
+<li>How do these services even talk to each other?</li>
+<li>So, how do I <code>Glue</code> this together? <em>(pun intended)</em></li>
+</ul>
+<p>It was still overwhelming, but with help from my mentor, AI-assisted questioning, documentation, and blog posts&hellip; I started to pinpoint what did not work in that version and what connections had to be made.</p>
+<p>After a while, I got to draft number two:</p>
+<p><img alt="Second version of Pipeline" src="https://zmudzinski.me/posts/the-report-needed-data-gathered-daily-the-pipeline-needed-therapy/de_bootcamp_middle.png" /></p>
+<p>As you can see, even the graph was fancier this time. I marked boundaries more clearly, the DAG flow looked less like spaghetti, and <code>dbt</code> appeared somewhere along the way. That already felt more like a data platform and less like <em>"Lambda calls a thing, probably"</em>.</p>
+<p>Still, the second version had issues:</p>
+<ul>
+<li>How would AWS know what to run in each step, and in what order?</li>
+<li>Should orchestration live in code, in a scheduler, or in a state machine?</li>
+<li>I still did not really know how <code>dbt</code> worked. I had mostly heard that it was good, which is not exactly an implementation strategy.</li>
+<li>I was planning to use Redshift, which felt a bit like shooting a fly with a cannon.</li>
+<li>An idea about Greek gods appeared. Athena? Never heard of her&hellip;</li>
+</ul>
+<p>So finally, after a lot of trial and error, I arrived at something I was happy with.</p>
+<p><strong>Behold the solution.</strong></p>
+<p><img alt="Final version of Pipeline" src="https://zmudzinski.me/posts/the-report-needed-data-gathered-daily-the-pipeline-needed-therapy/de_bootcamp_final.png" /></p>
+<p>The final architecture consists of multiple AWS services hosted in a single region. It supports the full ELT process: gather information from source systems, land it in storage, catalog it, transform it, and make the final data available for analysis.</p>
+<p>The shape is lakehouse-ish, but still small enough to understand without asking your favourite AI agent. <code>Lambda</code> handles extraction, <code>S3</code> stores raw and transformed data, <code>Glue</code> gives Athena something table-shaped to query, <code>Step Functions</code> keeps the flow explicit, and <code>dbt</code> runs as a containerized transformation layer rather than a mysterious SQL folder on someone's laptop.</p>
+<p><strong>The following services were used:</strong></p>
+<ul>
+<li><strong>Lambda:</strong> Runs Python extractors and gathers data from the required sources.</li>
+<li><strong>S3:</strong> Stores raw data, transformed data, and Elementary reports.</li>
+<li><strong>Secrets Manager:</strong> Provides secret values for the database and Slack notifications.</li>
+<li><strong>EventBridge and Scheduler:</strong> Trigger the pipeline on a schedule.</li>
+<li><strong>Step Functions:</strong> Defines the step-by-step flow and makes failures visible.</li>
+<li><strong>ECR:</strong> Stores prepared container images.</li>
+<li><strong>CodeBuild:</strong> Runs dbt in a controlled environment.</li>
+<li><strong>Glue Catalog and Crawlers:</strong> Discover schemas and expose S3 data as tables.</li>
+<li><strong>Athena:</strong> Queries the cataloged data and gives dbt a serverless SQL engine.</li>
+</ul>
+<h2>How I built ELT and survived to tell the tale</h2>
+<p>ELT stands for <strong>Extract, Load, Transform</strong>, which is a fancy way of saying: grab the data first, store it somewhere durable, and only then start making it useful. In this project, that meant <code>Lambda</code> pulled data from the source systems, <code>S3</code> became the landing zone for raw files, <code>Glue</code> and <code>Athena</code> made that data queryable, and <code>dbt</code> handled the part where chaos slowly became models, tables, and something a human could put in a report. Compared with classic ETL, the important shift is that transformation happens after loading, inside the analytics layer, where SQL, lineage, and repeatable models can do their work instead of hiding business logic inside ingestion scripts.</p>
+<p>One could argue that I actually built <strong>EtLT</strong>, because I still did some light transformation during extraction. Again, those changes appeared because my mentor decided to ask one of those <em>"What if?"</em> questions that later gave me a headache.</p>
+<h3>A bit on the technical side</h3>
+<p>Before diving into the ELT process itself, let's quickly map the technical stack. I used the following technologies:</p>
+<ul>
+<li>All AWS infrastructure resources were described in <code>Terraform</code> and <code>Terragrunt</code>.</li>
+<li>Lambda functions were written in <code>Python</code> with a few helpful packages:<ul>
+<li><code>dlt</code> gathered database and API responses.</li>
+<li><code>playwright</code> scraped site data.</li>
+<li><code>polars</code> built dataframes.</li>
+</ul>
+</li>
+<li><code>dbt</code> handled data transformations.</li>
+<li>GitHub Actions for the following automations:<ul>
+<li>Images were built and deployed to <code>ECR</code>.</li>
+<li>The solution was linted to maintain code formatting.</li>
+<li><code>dbt</code> docs were published to GitHub Pages.</li>
+</ul>
+</li>
+</ul>
+<p>The repository followed the Conventional Commits<sup class="citation"><a href="#citation-3">[3]</a></sup> approach.</p>
+<p>The full solution is available in my lukzmu/stx-de-bootcamp<sup class="citation"><a href="#citation-4">[4]</a></sup> repository.</p>
+<h3>A quick step over the Step Functions</h3>
+<p>Building a data pipeline is basically following a simple DAG <em>(a fancy acronym for Directed Acyclic Graph - a flow that only moves in one direction)</em>. You can notice this when looking at my <code>Step Functions</code> configuration.</p>
+<p><img alt="Step Functions" src="https://zmudzinski.me/posts/the-report-needed-data-gathered-daily-the-pipeline-needed-therapy/step_functions.png" /></p>
+<p>While this graph looks complicated at first, you can quickly notice that it just follows a couple of steps, with occasional loops that check whether a step has already finished. Here are the steps that are performed:</p>
+<ol>
+<li>Gather data from sources in parallel:<ul>
+<li>One <code>Lambda</code> loads data from devitjobs.uk.</li>
+<li>One <code>Lambda</code> loads data from nofluffjobs.pl.</li>
+<li>One <code>Lambda</code> loads data from the currency database, and this job can fail.</li>
+</ul>
+</li>
+<li>Trigger <code>Glue Crawler</code> to go through gathered data in <code>S3</code>.</li>
+<li>Trigger <code>CodeBuild</code> to run <code>dbt</code> transformations and <code>Elementary</code>.</li>
+</ol>
+<p>This is scheduled to run twice a day.</p>
+<h3>The Infrastructure</h3>
+<p>The infrastructure part was less glamorous than the pipeline diagram, but probably the most important one. I described AWS resources with <code>Terraform</code> and <code>Terragrunt</code> so the project could be recreated without clicking through console tabs and hoping I remembered every setting. That mattered because the pipeline had many small dependencies: IAM permissions, bucket paths, <code>Lambda</code> configuration, container images, <code>Step Functions</code> states, crawlers, schedules, secrets, and the glue between them. When one of those is configured by hand, it becomes very easy to forget why it exists or make the next run behave differently.</p>
+<p>Treating infrastructure as code also forced me to understand the edges between services. IAM roles stopped being abstract <em>"permissions magic"</em> and became part of the design. <code>S3</code> prefixes had to match crawler expectations, <code>Step Functions</code> had to know what to invoke, and <code>CodeBuild</code> needed enough context to run <code>dbt</code> consistently. It was slower at the beginning, but it made the final solution clean and explainable.</p>
+<h4>Deployment plumbing</h4>
+<p>The first infrastructure problems were not very cinematic. GitHub workflows did not yet have all the pieces needed to deploy Lambdas properly: role ARN secrets were missing, the <code>ECR</code> registry environment was not wired, Lambda update commands were incomplete, and deployment IAM policies lacked some required actions. The fix was mostly disciplined plumbing: add the missing workflow environment, update the Lambda deployment steps, and grant only the IAM actions the pipeline actually needed.</p>
+<p>The same kind of issue appeared in the <code>dbt</code> image path. Publishing a new image did not automatically point <code>CodeBuild</code> at the new SHA tag, so the workflow had to update the CodeBuild project directly after publishing. Even the Docker build itself had a surprise in it: <code>mmh3</code> needed native build tooling under Python 3.13, so the builder stage needed compiler dependencies instead of assuming every package would arrive as a wheel.</p>
+<h4>Production orchestration</h4>
+<p>Production orchestration also exposed several small AWS integration gaps. <code>Step Functions</code> expected the wrong <code>CodeBuild</code> response shape, <code>CodeBuild</code> needed more permissions, <code>Athena</code> needed access to its output bucket, and <code>Elementary</code> needed Glue table-version permissions. None of these were conceptually difficult, but each one proved that production pipelines fail at the boundaries between services as often as they fail inside the code.</p>
+<p>The crawler gate was the most subtle orchestration issue. Glue could report stale <code>READY</code> and <code>SUCCEEDED</code> states before the current crawl had actually run, which meant <code>dbt</code> could start against an old catalog. The safer version tracked whether the current execution had observed the crawler running before allowing the next step to begin.</p>
+<p>The important part was not the wait loop itself, but this small state flag:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="na">And</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="na">Variable</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;$.raw_glue_crawler.Crawler.State&quot;</span>
+<span class="w">      </span><span class="na">StringEquals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;READY&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="na">Variable</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;$.raw_glue_crawler_started&quot;</span>
+<span class="w">      </span><span class="na">BooleanEquals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="na">Variable</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;$.raw_glue_crawler.Crawler.LastCrawl.Status&quot;</span>
+<span class="w">      </span><span class="na">StringEquals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;SUCCEEDED&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="w">  </span><span class="na">Next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;start_dbt_prd_build&quot;</span>
+<span class="p">}</span>
+
+<span class="nb">mark_raw_glue_crawler_started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">Type</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Pass&quot;</span>
+<span class="w">  </span><span class="na">Result</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+<span class="w">  </span><span class="na">ResultPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;$.raw_glue_crawler_started&quot;</span>
+<span class="w">  </span><span class="na">Next</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;wait_for_raw_glue_crawler&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>The Extraction</h3>
+<p>The extraction part was where the pipeline had to touch the messy outside world. <code>Lambda</code> was a good fit here because each extractor could stay small, focused, and disposable: call the source, shape the response just enough to make it serializable, and push the result forward. The important lesson was not to make extraction too clever. At this stage, the job is to capture data as faithfully as possible, keep failures visible, and avoid burying business logic inside a script that future-me would have no clue about.</p>
+<h4>Stable Lambda output</h4>
+<p>Early extraction fixes were mostly about making Lambda output predictable. S3 paths drifted, bucket names were wrong in places, uploaded filenames were inconsistent, partition fields were missing, and temp paths were not safe enough for repeated Lambda runs. I handled this by standardizing upload paths, adding date partitions, cleaning up temp-file handling, and making the Lambda deployment configuration match the runtime behavior.</p>
+<h4>Source changes</h4>
+<p>The <code>Dev IT Jobs</code> source changed underneath the scraper. Optional and day-rate salary cards appeared, some fields could no longer be treated as guaranteed, and the page behavior changed enough that the scraper timed out. The final extractor made optional fields non-blocking, found the real scroll container, used bounded scrolling, and converted day rates into annual salary ranges so the downstream salary model had a consistent starting point.</p>
+<p>The bigger lesson, which I described separately in Scraping dynamic pages with Python, Playwright and AWS Lambda<sup class="citation"><a href="#citation-5">[5]</a></sup>, was that this was not a simple HTML parsing problem. The page behaved like a small frontend: job cards appeared in chunks, the DOM changed while the scraper was running, and scrolling the whole page was not enough because the actual lazy-loading happened inside <code>.joblist-container</code>. That made the scraper more about controlling browser behavior than parsing text. I needed headless Chromium flags that worked inside Lambda, stateful extraction with already-handled job IDs, and bounded scrolling so a site change would fail visibly instead of timing out forever.</p>
+<p>A small example of that adaptation was converting day-rate cards into the annual range shape already expected by the rest of the pipeline:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">_WORKING_DAYS_PER_YEAR</span> <span class="o">=</span> <span class="mi">260</span>
+<span class="n">_DAY_RATE_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;(?:£\s*)?(?P&lt;from&gt;\d[\d,]*)\s*-\s*(?P&lt;to&gt;\d[\d,]*)\s*GBP\s*/\s*day&quot;</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_annual_salary_from_day_rate</span><span class="p">(</span><span class="n">day_rate</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">day_rate</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">_DAY_RATE_PATTERN</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">day_rate</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">salary_from</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;from&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="o">*</span> <span class="n">_WORKING_DAYS_PER_YEAR</span>
+    <span class="n">salary_to</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;to&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="o">*</span> <span class="n">_WORKING_DAYS_PER_YEAR</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_format_gbp_salary</span><span class="p">(</span><span class="n">salary_from</span><span class="p">)</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">_format_gbp_salary</span><span class="p">(</span><span class="n">salary_to</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p>There was also an ingestion decision that I intentionally did not fix at this layer. Some <code>Dev IT Jobs</code> rows had no technology badges, and those empty values later polluted the mart path after split/explode logic. Instead of inventing missing technologies during extraction, I left ingestion faithful to the source and handled the blank badge strings in <code>dbt</code>.</p>
+<h4>Undocumented API shape</h4>
+<p>No Fluff Jobs was a different kind of extraction problem. It was not a browser-scraping task, but the search request shape was not documented in a way I could just copy into <code>dlt</code>. I ended up looking at necsord/go-nofluffjobs<sup class="citation"><a href="#citation-6">[6]</a></sup> to understand that search used a <code>POST</code> request with query parameters for currency, salary period, and region, plus a JSON body for the actual search criteria.</p>
+<p>Once that shape was clear, <code>dlt</code> could handle the pagination and Parquet data:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">source</span> <span class="o">=</span> <span class="n">rest_api_source</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;client&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;base_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://nofluffjobs.com/api/&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;headers&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;paginator&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;offset&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+                <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;total_path&quot;</span><span class="p">:</span> <span class="s2">&quot;totalCount&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;resources&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;posting&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;endpoint&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;search/posting&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data_selector&quot;</span><span class="p">:</span> <span class="s2">&quot;postings&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;salaryCurrency&quot;</span><span class="p">:</span> <span class="s2">&quot;PLN&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;salaryPeriod&quot;</span><span class="p">:</span> <span class="s2">&quot;hour&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;rawSearch&quot;</span><span class="p">:</span> <span class="s2">&quot;data engineering&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3>The Loading</h3>
+<p>Loading was mostly about giving the data a stable, predictable home. <code>S3</code> became the raw landing zone and the place where transformed results could live later, which sounds simple until you start caring about prefixes, file names, reruns, overwrites, and whether your bucket layout will make sense at 2 AM. This is also where <code>Glue Crawlers</code> entered the story: once the files were in S3, the catalog had to understand them well enough for <code>Athena</code> to query them. In other words, S3 stored the bytes, Glue explained what the bytes meant, and Athena pretended it had always been a database.</p>
+<h4>Raw schema drift</h4>
+<p>The hardest loading problems lived at the S3, Glue, and Athena boundary. Raw Parquet physical types and Glue table types kept disagreeing, especially around Free For All currency rates and No Fluff Jobs posting fields. The practical fix was to make raw Lambda outputs more string-compatible, rerun crawlers when the catalog needed to catch up, and let <code>dbt</code> perform safer casts later instead of pretending the raw layer was already clean.</p>
+<h4>Historical repair</h4>
+<p>No Fluff Jobs had an extra problem: even after the current code was partly fixed, old S3 objects still contained bad Parquet schemas and caused <code>HIVE_BAD_DATA</code> in Athena. I handled this with a data fix script, dry-ran the repair first, backed up the originals, and repaired five bad April files instead of deleting history or hoping Athena would ignore them.</p>
+<h3>The Transformation</h3>
+<p>Transformation was the point where <code>dbt</code> started to make sense. Instead of hiding cleanup logic in extractors or manually poking SQL into Athena, I could split the work into models: staging, intermediate, and mart tables that were easier to reason about. Bad input data did not magically become good, but dbt made the failure modes more civilized: SQL lived in version control, dependencies were explicit, lineage was visible, and every model had a place in the graph.</p>
+<p>Running it through <code>CodeBuild</code> also made the process feel less like <em>"works on my machine"</em> and more like an actual pipeline step.</p>
+<h4>Model layers and contracts</h4>
+<p>The first <code>dbt</code> shape was too messy. Staging names collided, chains between models became fragmented, and disabled models were awkwardly configured. I moved the project toward clearer staging, intermediate, and mart layers, then later consolidated provider staging chains while keeping disabled source-aligned models where they still helped explain the raw contract.</p>
+<h4>Types, salary, and currency</h4>
+<p>Because the raw layer leaned string-heavy, the transformation layer had to take typing seriously. Salaries, booleans, timestamps, arrays, and numerics were cast in staging and intermediate models with <code>try_cast</code> and reusable macros. This made bad input survivable without silently turning every downstream query into a guessing game.</p>
+<p>Salary normalization was the most involved example. <code>Dev IT Jobs</code> had GBP annual strings and day rates, No Fluff Jobs had several salary modes and currencies, and the final output needed monthly PLN, EUR, and USD values. I handled this with salary parsing, hourly-to-monthly and annual-to-monthly macros, FX-rate joins by date, and midpoint calculations.</p>
+<p>The currency join needed one more correction. I initially questioned whether <code>_dlt_*</code> metadata should drive conversion, but the right temporal anchor was <code>created_at</code>. The final version derived rate dates from <code>created_at</code>, selected the latest valid rates, and removed unnecessary <code>_dlt_*</code> load metadata from the staging contract. The row identifier still appears in the join logic, but only as a grain key, not as the source of time.</p>
+<p>In <code>dbt</code>, that became an as-of join: only rates from the posting date or earlier were eligible, and then the latest matching rate won.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">ranked_rates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">select</span>
+<span class="w">        </span><span class="n">postings</span><span class="p">.</span><span class="n">_dlt_id</span><span class="p">,</span>
+<span class="w">        </span><span class="n">currency_rates</span><span class="p">.</span><span class="n">base</span><span class="p">,</span>
+<span class="w">        </span><span class="n">currency_rates</span><span class="p">.</span><span class="n">target</span><span class="p">,</span>
+<span class="w">        </span><span class="n">currency_rates</span><span class="p">.</span><span class="n">rate</span><span class="p">,</span>
+<span class="w">        </span><span class="n">currency_rates</span><span class="p">.</span><span class="n">_created_at</span><span class="p">,</span>
+<span class="w">        </span><span class="n">row_number</span><span class="p">()</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="p">(</span>
+<span class="w">            </span><span class="n">partition</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">postings</span><span class="p">.</span><span class="n">_dlt_id</span><span class="p">,</span><span class="w"> </span><span class="n">currency_rates</span><span class="p">.</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">currency_rates</span><span class="p">.</span><span class="n">target</span>
+<span class="w">            </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">currency_rates</span><span class="p">.</span><span class="n">_rate_date</span><span class="w"> </span><span class="k">desc</span><span class="p">,</span><span class="w"> </span><span class="n">currency_rates</span><span class="p">.</span><span class="n">_created_at</span><span class="w"> </span><span class="k">desc</span>
+<span class="w">        </span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">rate_order</span>
+<span class="w">    </span><span class="k">from</span><span class="w"> </span><span class="n">postings</span>
+<span class="w">    </span><span class="k">inner</span><span class="w"> </span><span class="k">join</span><span class="w"> </span><span class="n">currency_rates</span>
+<span class="w">        </span><span class="k">on</span><span class="w"> </span><span class="n">currency_rates</span><span class="p">.</span><span class="n">_rate_date</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">postings</span><span class="p">.</span><span class="n">_load_date</span>
+<span class="p">),</span>
+
+<span class="n">latest_rates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">select</span><span class="w"> </span><span class="o">*</span>
+<span class="w">    </span><span class="k">from</span><span class="w"> </span><span class="n">ranked_rates</span>
+<span class="w">    </span><span class="k">where</span><span class="w"> </span><span class="n">rate_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4>Grain, deduplication, and tests</h4>
+<p>Grain took several rounds to clarify. Job postings, No Fluff child rows, and technology rows could duplicate in different ways, so I added row-number dedup models, uniqueness tests, and targeted fixes for the No Fluff duplicate grain. The technology mart also needed one explicit cleanup: blank badge strings were filtered before creating the by-technology model, which fixed the missing Dev IT Jobs technology issue without changing ingestion.</p>
+<p>Tests were useful because they found real problems, not just theoretical ones. They exposed blank technologies, duplicate <code>(posting_key, technology_name)</code> pairs, and an over-strict salary bounds check. The fixes were correspondingly different: remove blank technology rows, identify the narrow No Fluff duplicate case, and remove or relax the redundant metric-bounds test.</p>
+<h4>Tooling, docs, and Elementary</h4>
+<p>The dbt toolchain had its own share of tiny paper cuts. Renamed <code>data_tests</code>, package deprecations, lockfile changes, and <code>mise</code> or <code>uv</code> commands were not glamorous, but they made the project reproducible. The annoying part was that some checks wanted to talk to Athena even when I only needed a local sanity check. I ended up separating validation into two buckets: quick offline checks with <code>--no-populate-cache</code>, <code>--empty-catalog</code>, and profile-free parsing, and slower live checks for cases where catalog metadata actually mattered.</p>
+<p><code>dbt-checkpoint</code> became another boundary problem. Because the dbt project lived below the repository root, hooks initially looked in the wrong place, and catalog-backed checks ran before docs existed. A dedicated <code>.dbt-checkpoint.yaml</code>, explicit hook arguments, generated docs, and a rebuilt dev table turned those checks from noisy blockers into useful guards for contracts like boolean column naming.</p>
+<p>Elementary was the most <em>"it works, but only if you wire the wonky parts"</em> tool in the project. <code>dbt build</code> maintained the package models, but it did not produce the browsable HTML report, so the pipeline needed <code>edr report</code> plus a small upload script for <code>index.html</code>. The profile also had to exist inside the production image, not just on my laptop, and Slack alerts needed Secrets Manager values plus a preflight channel check before <code>edr monitor</code> could run without tripping over its first message.</p>
+<h2>Summary</h2>
+<p>The biggest lesson from this project is that data engineering is mostly about making hidden assumptions explicit. Most problems were not caused by one bad SQL file. They were boundary issues between raw scraped data, Parquet and Glue schemas, Athena behavior, dbt contracts, and AWS runtime wiring. The fix was to harden those boundaries one by one: normalize raw writes, repair historical data, make dbt casts and tests explicit, validate without live AWS dependencies where possible, and add narrow runtime permissions or scripts only where production actually needed them.</p>
+<p>Here are the lessons I am taking from it:</p>
+<ul>
+<li><strong>Raw data should be boring.</strong><br/>If raw files have inconsistent paths, missing partitions, surprising parquet types, or <em>"sometimes boolean, sometimes string"</em> columns, every later layer pays the price.</li>
+<li><strong>Schema drift is not a theory.</strong><br/>It happens when APIs change, websites change, crawlers infer something new, or historical files keep an old shape.</li>
+<li><strong>Do not put too much intelligence in extraction.</strong><br/>Extraction should collect data and make failures visible. The moment business logic starts hiding inside a scraper, you lose a clear picture of the data.</li>
+<li><strong>Undocumented APIs are still APIs, just more annoying.</strong><br/>No Fluff Jobs required a bit of reverse engineering before <code>dlt</code> could do its job. Once the real <code>POST</code> shape was known, the problem was solvable.</li>
+<li><strong>dbt works best when layers have a job.</strong><br/>Staging, intermediate, and mart models are not just naming ceremony. They help decide where transformations should actually live.</li>
+<li><strong>Use tests. Always.</strong><br/>The useful tests were not created just to create tests. They caught blank technologies, duplicate grains, broken contracts, and assumptions that looked fine.</li>
+<li><strong>Orchestration needs state, not vibes.</strong><br/>Waiting for a crawler to be <code>READY</code> was not enough, because it could be ready from a previous run. I needed to know whether it had actually finished in the current execution.</li>
+<li><strong>Permissions should be narrow, but complete.</strong><br/>Missing IAM actions are a chore until the workflow stops on them. The trick is to add the exact permissions the runtime needs, and no more.</li>
+<li><strong>Local validation should avoid the cloud until it cannot.</strong><br/>Profile-free checks, empty catalogs, and static docs generation kept feedback fast. Live validation was necessary, but only when production had to be validated.</li>
+</ul>
+<p>AWS gives you a lot of bricks, dbt gives you a sane way to build the transformation wall, and the real work is figuring out which parts should stay simple before the architecture starts cosplaying as enterprise software. At some point, the goal is not to make the pipeline clever. The goal is to make it predictable enough that when something breaks, you know exactly which part to inspect first&hellip;</p>
+<p>&hellip; but you know what? With all the problems I encountered, this was a very fun project to do. Especially because I learned much more than expected.</p>
+<blockquote>
+<p>10/10 would fix errors at 2 AM again.</p>
+</blockquote>
+<section class="citations">
+<h2>References</h2>
+<ol class="citations__list">
+<li class="citations__item" id="citation-1"><span class="citations__marker">[1]</span> STX Next &mdash; <a class="citations__url" href="https://stxnext.pl">https://stxnext.pl</a></li>
+<li class="citations__item" id="citation-2"><span class="citations__marker">[2]</span> trytytki &mdash; <a class="citations__url" href="https://en.wiktionary.org/wiki/trytytka">https://en.wiktionary.org/wiki/trytytka</a></li>
+<li class="citations__item" id="citation-3"><span class="citations__marker">[3]</span> Conventional Commits &mdash; <a class="citations__url" href="https://www.conventionalcommits.org/en/v1.0.0/">https://www.conventionalcommits.org/en/v1.0.0/</a></li>
+<li class="citations__item" id="citation-4"><span class="citations__marker">[4]</span> lukzmu/stx-de-bootcamp &mdash; <a class="citations__url" href="https://github.com/lukzmu/stx-de-bootcamp">https://github.com/lukzmu/stx-de-bootcamp</a></li>
+<li class="citations__item" id="citation-5"><span class="citations__marker">[5]</span> Scraping dynamic pages with Python, Playwright and AWS Lambda &mdash; <a class="citations__url" href="https://zmudzinski.sh/posts/scraping-dynamic-pages-with-python-playwright-and-aws-lambda.html">https://zmudzinski.sh/posts/scraping-dynamic-pages-with-python-playwright-and-aws-lambda.html</a></li>
+<li class="citations__item" id="citation-6"><span class="citations__marker">[6]</span> necsord/go-nofluffjobs &mdash; <a class="citations__url" href="https://github.com/necsord/go-nofluffjobs">https://github.com/necsord/go-nofluffjobs</a></li>
+</ol>
+</section>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-600 dark:text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.me - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

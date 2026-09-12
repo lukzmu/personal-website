@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raspberry Pi, NixOS and Home Assistant. A survival story. | zmudzinski.me</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="zmudzinski.me">
+        <meta name="twitter:description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:image" content="https://zmudzinski.me/theme/cards/site_card.png">
+        <meta name="twitter:image:alt" content="zmudzinski.me social preview image">
+        <link rel="alternate" type="application/atom+xml" title="zmudzinski.me" href="https://zmudzinski.me/feed.xml">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-50 text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.me">zmudzinski.me</a></h1>
+<h2 class="text-sm text-neutral-600 dark:text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.me">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/family">Family</a></li>
+</ul><article class="prose prose-neutral dark:prose-invert font-mono max-w-4xl mt-20">
+    <h1>Raspberry Pi, NixOS and Home Assistant. A survival story.</h1>
+    <h2 class="text-sm text-neutral-600 dark:text-neutral-500 -mt-6 mb-4">Created on: 2026.08.26</h2>
+    <section class="not-prose border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30 text-sm text-neutral-700 dark:text-neutral-400 leading-relaxed mb-10" aria-labelledby="ai-notice-title">
+        <h2 id="ai-notice-title" class="flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+            <svg class="h-4 w-4 text-neutral-600 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <path d="M5 14l.6 1.6L7 16l-1.4.4L5 18l-.6-1.6L3 16l1.4-.4L5 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+            </svg>
+            AI Notice
+        </h2>
+        <p class="mt-2">AI was not used to write this article. This is entirely on me.</p>
+        <p>However, I did use AI to fix typos and incorrect grammar because I suck at that.</p>
+        <p class="mt-3">
+            <span class="inline-block mr-4"><span class="text-neutral-600 dark:text-neutral-500">Model:</span> opus</span>
+            <span class="inline-block"><span class="text-neutral-600 dark:text-neutral-500">Tool:</span> claude</span>
+        </p>
+    </section>
+    <p>Recently, due to the doings and politics of the USA government, I started moving more and more of my services outside of their Big Tech companies, to focus on european alternatives<sup class="citation"><a href="#citation-1">[1]</a></sup> and open source software<sup class="citation"><a href="#citation-2">[2]</a></sup>. I doubt they would pull the plug on Europe, because there's too much money invested by these corporations, but I generally like the idea of keeping my information private, while doing some nerdy work around it. </p>
+<p>My <code>nix-config</code> repository had exactly one host since I made the Linux jump: <code>sol</code>, the desktop I work on. The plan was to add a second one - <code>luna</code>, a headless Raspberry Pi 5 running Home Assistant - and it looked like maybe 1-2 evenings of work. Copy the host directory, change the architecture, deploy, done.</p>
+<p>Frankly, it was not. It was several evenings, one entire lost day staring at a Pi that refused to boot, and a thermometer that toyed with me with 4 separate issues before it would report the temperature outside my window.</p>
+<p>What follows is the list of things I actually learned, in roughly the order they hurt. The code is in nix-config<sup class="citation"><a href="#citation-3">[3]</a></sup> if you want to read the finished version rather than the endless technological suffering.</p>
+<h2>What I was actually building</h2>
+<p><code>luna</code> is a Raspberry Pi 5 with 8 GB of RAM, booting from a 32 GB class-10 microSD, with no SSD attached (this is something I want to change in the future, because running it on a microSD is generally a bad idea. I just didn't want to spend too much money to begin with). It runs Home Assistant in rootful Podman, alongside an OpenThread Border Router and a Matter server, so that a Thread-based Eve Weather sensor has something to talk to.</p>
+<p>Nothing gets built on the Pi itself - no point starving a modest board and a microSD card with compile jobs. <code>sol</code> builds the whole <code>aarch64</code> closure using <code>boot.binfmt.emulatedSystems</code> and pushes it over SSH. Since it's on NixOS I had to carefully look at ownership as this was a problem for me in the past:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Owner</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hosts/luna/home-assistant/</code></td>
+<td>Nix, in this repo</td>
+<td>Compose file, service definitions, capabilities</td>
+</tr>
+<tr>
+<td><code>/var/lib/home-assistant/</code></td>
+<td>Runtime state</td>
+<td>Thread creds, Matter fabric, integrations</td>
+</tr>
+<tr>
+<td><code>secrets.env</code></td>
+<td>Myself with <code>0600</code></td>
+<td>Credentials that must not enter any store</td>
+</tr>
+<tr>
+<td><code>~/.config/home-assistant</code></td>
+<td>A separate git repo</td>
+<td>Home Assistant's own YAML, automations, dashboards</td>
+</tr>
+</tbody>
+</table>
+<p>I'll come back to why that table matters more than it looks.</p>
+<h2>The kernel gamble that paid off</h2>
+<p><code>nixos-hardware</code> has a <code>raspberry-pi-5</code> module, and importing it is obviously the right move. What is less obvious is that it defaults to Raspberry Pi's own downstream kernel tree, and <strong>no binary cache serves that kernel</strong>. On an x86 machine building for ARM through qemu emulation, that is not a download - it is a multi-hour compile of a Linux kernel running under an instruction translator.</p>
+<p>So I overrode it:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span>inputs<span class="o">.</span>nixos-hardware<span class="o">.</span>nixosModules<span class="o">.</span>raspberry-pi-5<span class="p">];</span>
+  boot<span class="o">.</span><span class="ss">kernelPackages</span> <span class="o">=</span> pkgs<span class="o">.</span>linuxPackages<span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Mainline 6.18 does carry BCM2712 and RP1 support now, and it comes straight out of <code>cache.nixos.org</code>. <code>luna</code>'s kernel resolved to <code>linux-6.18.43</code> and was fetched, not built. Only a few cheap module-repackaging derivations ran locally.</p>
+<p>There was one trap hiding underneath it. On a Pi 5, both USB and Ethernet hang off <strong>RP1</strong>, a southbridge sitting behind the BCM2712 PCIe root complex. Inspecting the built module tree showed <code>xhci-pci</code>, <code>usb_storage</code> and <code>macb</code> were compiled in, but <code>pcie-brcmstb</code> and <code>rp1-pci</code> were <em>modules</em>, and they were not in the initrd. Boot from any USB medium and the root filesystem was unreachable, because the bus it lives on never came up.</p>
+<div class="codehilite"><pre><span></span><code>boot<span class="o">.</span>initrd<span class="o">.</span><span class="ss">availableKernelModules</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="s2">&quot;pcie-brcmstb&quot;</span>
+  <span class="s2">&quot;rp1-pci&quot;</span>
+  <span class="s2">&quot;usbhid&quot;</span>
+  <span class="s2">&quot;usb_storage&quot;</span>
+  <span class="s2">&quot;uas&quot;</span>
+<span class="p">];</span>
+</code></pre></div>
+
+<p>The incidental win: <code>macb</code> being built into mainline is what confirmed ethernet would work at all. That was the single biggest risk in the whole plan, and it evaporated by reading a module tree instead of by rebooting hopefully.</p>
+<p><strong>Lesson:</strong> when a hardware module "just works", find out <em>which</em> kernel it decided you wanted. And check what the initrd actually contains before trusting that your root device is reachable.</p>
+<h2>The day the Pi died</h2>
+<p>Then it stopped booting. Green LED, no DHCP lease, no network, nothing on the wire.</p>
+<p>It had booted fine an hour earlier, so this was concerning.</p>
+<p>I burned an entire day on three hypotheses, and all three were wrong:</p>
+<ol>
+<li><strong>My configuration broke it.</strong> I rolled the extlinux entry back to the stock generation. Apparently it's not always my shitty code fault.</li>
+<li><strong>The ext4 resize corrupted the card.</strong> It took ages to even land on this one. I wrote a completely fresh, unresized image - identical failure.</li>
+<li><strong>The device tree or networkd was wrong.</strong> The filtered DTB turned out byte-identical to the kernel's and correctly described <code>raspberrypi,rp1-gem</code>. The networkd unit had the right <code>en*</code> match. Both fine.</li>
+</ol>
+<p>The actual fault was the <strong>Raspberry Pi 5 bootloader EEPROM</strong>. Not the card, not NixOS, not my config - the firmware living on the board itself. The fix is a recovery flash: put <code>recovery.bin</code> plus a <code>pieeprom.upd</code> and its <code>pieeprom.sig</code> (generated with <code>rpi-eeprom-digest</code>) onto the FAT boot partition and power-cycle. <code>recovery.bin</code> renames itself to <code>RECOVERY.000</code> when it succeeds, which is the only honest confirmation that it ran.</p>
+<p>A nixpkgs-specific wrinkle: <code>rpiboot</code> ships only the <code>msd</code> and <code>mass-storage-gadget64</code> payloads, with no recovery payload at all. The Pi 5 bootloader images live in <code>raspberrypi-eeprom</code> under <code>bootloader-2712/</code>, so the recovery directory has to be assembled by hand from two packages.</p>
+<div class="chat"><img alt="Anna" class="chat__avatar" src="https://zmudzinski.me/images/family/people/anna.jpeg" /><div class="chat__body">
+<p>You said <em>"I'll just plug in the sensor"</em> on Saturday morning.</p>
+</div>
+</div>
+<div class="chat"><img alt="Łukasz" class="chat__avatar" src="https://zmudzinski.me/images/family/people/lukasz.jpeg" /><div class="chat__body">
+<p>And I did plug it in. Nobody said anything about it working.</p>
+</div>
+</div>
+<p>Two diagnostic lessons came out of this, and they cost more than the fix did.</p>
+<p>The first: <strong><code>rpiboot</code> kept working the entire time</strong>. The board was demonstrably alive and talking over USB while it refused to boot. That single fact isolates "boot path fault" from "dead board", and I should have weighted it far more heavily than I did instead of rewriting the card again.</p>
+<p>The second is worse, because I did it to myself. I had set journald to volatile storage to spare the microSD:</p>
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span>journald<span class="o">.</span><span class="ss">extraConfig</span> <span class="o">=</span> <span class="s s-Multiline">&#39;&#39;</span>
+<span class="s s-Multiline">  Storage=volatile</span>
+<span class="s s-Multiline">  RuntimeMaxUse=64M</span>
+<span class="s s-Multiline">&#39;&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Which means every failed boot destroyed its own evidence. A headless machine with no persistent logs cannot tell you why it didn't come up, and that is precisely the failure a headless machine has. For debugging purposes I set <code>Storage=persistent</code> with a sizeable cap, and it helped a lot.</p>
+<p>While I was chasing ghosts I also kept scanning the LAN filtered by Raspberry Pi MAC OUI, and kept finding nothing - because NixOS with NetworkManager presents a randomised, locally-administered MAC. The router's own DHCP client list found it every single time. Fancy tooling lost to the boring list.</p>
+<h2>The card is the part that dies</h2>
+<p>A Raspberry Pi on a microSD has one obvious mortality risk, and it is not the CPU. Every avoidable write shortens the card's life, so <code>luna</code>'s config treats writes as a budget:</p>
+<div class="codehilite"><pre><span></span><code><span class="ss">swapDevices</span> <span class="o">=</span> <span class="p">[];</span>
+zramSwap<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<p>No swap file, because on a machine with no SSD the swap file would be the single hottest write target on the card. Compressed RAM instead. On top of that: <code>boot.tmp.useTmpfs</code>, documentation disabled, weekly garbage collection with a 14-day window, <code>configurationLimit = 5</code> on the bootloader, and <code>i18n.supportedLocales</code> trimmed to three entries - the full <code>glibc-locales</code> was both the slowest emulated build in the closure and roughly 200 MB of a 32 GB card.</p>
+<p>The other half of that budget is not in Nix at all. Home Assistant's recorder writes every state change to SQLite by default, which on an appliance full of chatty sensors is a continuous write stream. Its <code>configuration.yaml</code> gets a <code>recorder:</code> block that keeps a week of history, batches commits every 30 seconds, and excludes the entities that churn for no reason - signal strength, link quality, uptime, <code>sun.sun</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">recorder</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">purge_keep_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7</span>
+<span class="w">  </span><span class="nt">commit_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">auto_purge</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">auto_repack</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">exclude</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">domains</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">camera</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">update</span>
+<span class="w">    </span><span class="nt">entities</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sun.sun</span>
+<span class="w">    </span><span class="nt">entity_globs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sensor.*_linkquality</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sensor.*_rssi</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sensor.*_lqi</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sensor.*_signal_strength</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sensor.*_last_seen</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sensor.*_uptime</span>
+</code></pre></div>
+
+<h2>Flashing a radio without Home Assistant OS</h2>
+<p>The Eve Weather sensor I own is a Thread device, so the Pi needs a Thread border router, so the ZBT-2 dongle needs OpenThread RCP firmware rather than the Zigbee firmware it ships with.</p>
+<div class="chat"><img alt="Łukasz" class="chat__avatar" src="https://zmudzinski.me/images/family/people/lukasz.jpeg" /><div class="chat__body">
+<p>Fun fact, at first I actually ordered the wrong dongle by mistake (ZWA-2) and ZBT-2 still arrived faster.</p>
+</div>
+</div>
+<p>Nabu Casa's official flow for this runs inside Home Assistant OS. <code>luna</code> does not run Home Assistant OS - it runs NixOS with Home Assistant in a container - so that path was closed before it opened. The dongle got flashed from <code>sol</code> instead, using the web flasher at <code>toolbox.openhomefoundation.org</code>, which drives the radio over <strong>WebSerial</strong> - so it needs a Chromium-based browser, a requirement I got for free by already using Brave and would otherwise have walked straight into.</p>
+<p>And that is where NixOS put up a wall I did not expect. Serial devices are <code>root:dialout</code> mode <code>0660</code>, and NixOS ships <strong>no <code>uaccess</code> ACL rule</strong> for them - the only udev rule granting a logged-in user direct access to a serial device covers a single Valve product. So the browser could see nothing at all until my user was in <code>dialout</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="ss">extraGroups</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="c1"># ...</span>
+  <span class="c1"># Serial adapters are root:dialout 0660 and get no uaccess ACL,</span>
+  <span class="c1"># so this is what lets the user reach the ZBT-2 at all:</span>
+  <span class="c1"># on sol to flash firmware, on luna to debug a radio.</span>
+  <span class="s2">&quot;dialout&quot;</span>
+<span class="p">];</span>
+</code></pre></div>
+
+<p>Group membership is fixed when your session starts, so this needs a full logout and login, not a rebuild. If you would rather stay on the command line, <code>universal-silabs-flasher</code> <em>is</em> in nixpkgs, with a <code>--profile zbt2</code> that knows the ZBT-2's layout.</p>
+<h2>Containers that lie to you</h2>
+<p>Three separate container problems, all of the same shape: the image did not behave the way its documentation implied.</p>
+<p><strong>The archived project.</strong> I was ready to run <code>python-matter-server</code>, which is what half the internet still tells you to use. It was archived after 8.1.2, and its <code>stable</code> tag is now the final build of a dead project rather than a maintained image - the sort of thing that looks perfectly healthy in <code>docker pull</code> and rots quietly. Home Assistant's own container documentation points at <code>matterjs-server</code> now. Worth noting that a container registry has no concept of "this project is over".</p>
+<p><strong>The user ID.</strong> <code>matterjs-server</code> declares <code>"User": "1000:1000"</code>, unlike the root-run server it replaces. Rootful Podman maps container uid 1000 straight through to host uid 1000, so my perfectly sensible root-owned state directory was an instant <code>EACCES</code> crash loop:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># matterjs-server runs as uid 1000, unlike the root-run python server it</span>
+<span class="c1"># replaced, so a root-owned directory is an EACCES crash loop on startup.</span>
+<span class="s2">&quot;d </span><span class="si">${</span>stateDir<span class="si">}</span><span class="s2">/matter 0700 1000 1000 - -&quot;</span>
+</code></pre></div>
+
+<p><strong>The symlink.</strong> The OpenThread Border Router entrypoint runs <code>mkdir -p /data/thread</code> followed by <code>ln -sft /var/lib /data/thread</code>. It wants to <em>create</em> <code>/var/lib/thread</code> as a symlink. Bind-mount a directory there - which is exactly what the path name invites you to do - and that <code>ln</code> fails, and <code>otbr-agent</code> exits before it ever opens the radio. The mount belongs on the other side of the link:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/lib/home-assistant/otbr:/data/thread</span>
+</code></pre></div>
+
+<p>One habit that saved time rather than costing it: every image in this stack was checked with <code>skopeo inspect --raw</code> for a <code>linux/arm64</code> manifest <em>before</em> the Pi ever tried to pull it. On ARM, "the image exists" and "the image runs" are different claims.</p>
+<h2>Profiles, and the orphan that wasn't</h2>
+<p>Not every radio is always plugged in, so the radio services sit behind docker-compose <strong>profiles</strong>, driven from Nix:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Possible values: thread, zwave, eufy</span>
+<span class="ss">enabledServices</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;thread&quot;</span><span class="p">];</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="ss">composeEnv</span> <span class="o">=</span> pkgs<span class="o">.</span>writeText <span class="s2">&quot;home-assistant-compose.env&quot;</span> <span class="s s-Multiline">&#39;&#39;</span>
+<span class="s s-Multiline">  COMPOSE_PROFILES=</span><span class="si">${</span>lib<span class="o">.</span>concatStringsSep <span class="s2">&quot;,&quot;</span> enabledServices<span class="si">}</span>
+<span class="s s-Multiline">  # ...</span>
+<span class="s s-Multiline">&#39;&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Drop an entry from that list and the container is parked, so the stack still comes up cleanly with a dongle missing. Very tidy.</p>
+<p>Except it did not stay tidy. I found <code>matter-server</code> running happily on a host where <code>enabledServices</code> was <code>[]</code>, which for a declarative configuration is about as unwelcome as it gets. The cause is a genuinely subtle one: <code>docker-compose up --remove-orphans</code> removes services that were <strong>deleted from the file</strong>. It does not stop a service that is still declared but whose profile just went inactive. Combine that with <code>restart: unless-stopped</code> and the container cheerfully resurrected itself on every boot, permanently out of sync with the file that was supposed to define it.</p>
+<p><strong>Lesson:</strong> <code>--remove-orphans</code> sounds like "make reality match the file". It means something considerably narrower, and the gap between those two readings is where configuration drift lives.</p>
+<h2>What belongs in Nix, and what genuinely does not</h2>
+<p>The strong temptation with a setup like this is to put <em>everything</em> in the flake. That is the wrong instinct, and the split ended up being three-way rather than two.</p>
+<p><strong>Nix owns the shape of the system</strong>: the compose file, the generated environment, the udev rules, the <code>tmpfiles</code> declarations, the systemd unit.</p>
+<p><strong>Home Assistant owns its own configuration</strong>, in a separate git repository bind-mounted as <code>/config</code>. Automations and dashboards are edited through a web UI often - pretending they are declarative just means fighting the application.</p>
+<p><strong>Secrets belong in neither.</strong> The Nix store is world-readable and in my public git repository. Credentials live in a root-owned <code>0600</code> file outside both repositories, and the unit simply refuses to start without it:</p>
+<div class="codehilite"><pre><span></span><code>unitConfig<span class="o">.</span><span class="ss">ConditionPathExists</span> <span class="o">=</span> lib<span class="o">.</span>mkIf needsSecrets secretsEnv<span class="p">;</span>
+</code></pre></div>
+
+<p>A fresh deploy without credentials fails visibly instead of crash-looping a container that will never authenticate.</p>
+<h2>Thermometer, Y U NO WORK</h2>
+<p>I decided to start with the Eve Weather device, as it seemed the easiest to pair. "Seemed" is a horrible assumption.</p>
+<p>With the border router reporting <code>leader</code> and the Matter server listening, pairing one battery-powered temperature sensor should have been the easy part.</p>
+<p>It was not. In order:</p>
+<ol>
+<li><strong>The phone app scanned the QR code and failed.</strong> The device was still paired to Apple Home, so it was not advertising for commissioning at all. A HomeKit or Matter accessory serves one controller. Ten seconds on the reset button, the display said <code>Hi</code>, and it started advertising.</li>
+<li><strong>The phone-side flow still failed</strong> with a cheerfully unhelpful "can't add the accessory". Switching to browser-based commissioning moved the work server-side, so the Pi's own Bluetooth radio ran the process - and, crucially, so the logs were on a machine I could read.</li>
+<li><strong>That died partway through commissioning</strong>, with the following statement in the logs: <code>[wifi-or-thread-network-credentials-not-configured]</code>. Which was baffling, because Home Assistant's own stored Thread datasets clearly showed a preferred network. It had the credentials. It just never handed them over - the Matter server's greeting reported <code>thread_credentials_set: false</code> throughout.</li>
+<li><strong>Fixed by hand.</strong> Pull the active dataset out of the border router's REST API, pipe it into the Matter server's <code>set_thread_dataset</code> call over its websocket, and the flag flips to <code>true</code>. Commissioning then succeeded on the next attempt and the node joined the fabric.</li>
+</ol>
+<p>If you do this yourself: that dataset TLV <strong>contains your Thread network key</strong>. It is the credential for your entire mesh. Do not paste it into a forum thread, an issue, or a chat window while asking for help - redact it first.</p>
+<p>The honest read on step 3 is that "drop-in replacement" was doing some heavy lifting. Same port, same websocket path, same protocol version - and one initialisation call that nothing made.</p>
+<h2>Shooting my own foot</h2>
+<p>The best bug of the whole exercise was mine.</p>
+<p>I had written a small <code>ha</code> helper into the config - <code>up</code>, <code>down</code>, <code>restart</code>, <code>logs</code>, <code>ps</code> - which drives the systemd unit that owns the whole compose project. Right after commissioning finally succeeded, I ran <code>ha restart</code>.</p>
+<p>That restarted <strong>everything</strong>, including the border router. Which destroyed and recreated <code>wpan0</code> - the interface index went from 4 to 6, which is how I eventually spotted it - which dropped the IPv6 route to the Thread mesh. The Matter server started logging <code>ENETUNREACH</code> to the sensor's address, its subscription timed out, and the device I had just spent an evening pairing went <code>unavailable</code>.</p>
+<p>The mesh itself survived; the off-mesh-routable prefix was unchanged afterwards, so the Thread network never re-formed. It was purely a routing casualty of restarting a container that had no business being restarted.</p>
+<p>The helper is too coarse. "Restart Home Assistant" and "restart the radio stack that Home Assistant depends on" are different operations that should never have shared a verb, and the convenience wrapper hid that from me right up until it bit. A helper script that makes the dangerous thing as easy as the safe thing is not a helper.</p>
+<h2>Summary</h2>
+<p>The finished setup is genuinely good. One command rebuilds and deploys the whole appliance from <code>sol</code>, the container stack is declared in a reviewable file, radios can be added or parked by editing a list, and the parts that should not be declarative - Home Assistant's own config, and the secrets - are honestly kept out of it.</p>
+<p>But almost none of the difficulty was where I expected it. The Nix side was the <em>easy</em> part; the module refactor to make shared code architecture-neutral took an afternoon and <code>nix store diff-closures</code> proved my desktop was untouched by it. Everything expensive lived one layer below or one layer above: board firmware, initrd contents, a container's uid, an entrypoint's symlink, an initialisation call that quietly never happened.</p>
+<p>Three things I'd take to the next box, in order of how much they cost me:</p>
+<ul>
+<li><strong>Keep the logs.</strong> Optimising away your own post-mortem evidence is a false economy, and you find that out on the day you need it.</li>
+<li><strong>Notice what still works.</strong> <code>rpiboot</code> responding the whole time was the answer, sitting in plain view, while I reimaged a card that was never broken.</li>
+<li><strong>Read the entrypoint.</strong> For anything running in a container that touches devices, networking or state directories, the shell script that starts it will tell you more in two minutes than the README will in twenty.</li>
+</ul>
+<p>The outside temperature is 21.4 degrees, and I know exactly why.</p>
+<section class="citations">
+<h2>References</h2>
+<ol class="citations__list">
+<li class="citations__item" id="citation-1"><span class="citations__marker">[1]</span> european alternatives &mdash; <a class="citations__url" href="https://european-alternatives.eu/">https://european-alternatives.eu/</a></li>
+<li class="citations__item" id="citation-2"><span class="citations__marker">[2]</span> open source software &mdash; <a class="citations__url" href="https://opensourcealternative.to/">https://opensourcealternative.to/</a></li>
+<li class="citations__item" id="citation-3"><span class="citations__marker">[3]</span> nix-config &mdash; <a class="citations__url" href="https://github.com/lukzmu/nix-config">https://github.com/lukzmu/nix-config</a></li>
+</ol>
+</section>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-600 dark:text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.me - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

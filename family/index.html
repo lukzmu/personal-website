@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>zmudzinski.me</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="zmudzinski.me">
+        <meta name="twitter:description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:image" content="https://zmudzinski.me/theme/cards/site_card.png">
+        <meta name="twitter:image:alt" content="zmudzinski.me social preview image">
+        <link rel="alternate" type="application/atom+xml" title="zmudzinski.me" href="https://zmudzinski.me/feed.xml">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-50 text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.me">zmudzinski.me</a></h1>
+<h2 class="text-sm text-neutral-600 dark:text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.me">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/family">Family</a></li>
+</ul><p class="text-sm text-neutral-600 dark:text-neutral-500 mt-20">$ psql -d family --html</p>
+<article class="max-w-4xl">
+    <section class="mt-5">
+        <h2 class="text-xl">Family Members</h2>
+        <p class="text-sm text-neutral-600 dark:text-neutral-500 mt-1">$ SELECT name, title, avatar FROM family.members;</p>
+        <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <li class="border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="w-full aspect-square object-cover rounded"
+                    src="https://zmudzinski.me/images/family/people/lukasz.jpeg"
+                    alt="Łukasz"
+                >
+                <p class="mt-3">Łukasz</p>
+                <p class="text-sm text-neutral-600 dark:text-neutral-500">Python Engineer</p>
+            </li>
+            <li class="border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="w-full aspect-square object-cover rounded"
+                    src="https://zmudzinski.me/images/family/people/anna.jpeg"
+                    alt="Anna"
+                >
+                <p class="mt-3">Anna</p>
+                <p class="text-sm text-neutral-600 dark:text-neutral-500">Animal Sciences PhD</p>
+            </li>
+            <li class="border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="w-full aspect-square object-cover rounded"
+                    src="https://zmudzinski.me/images/family/people/alicja.jpeg"
+                    alt="Alicja"
+                >
+                <p class="mt-3">Alicja</p>
+                <p class="text-sm text-neutral-600 dark:text-neutral-500">Future Scientist</p>
+            </li>
+            <li class="border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="w-full aspect-square object-cover rounded"
+                    src="https://zmudzinski.me/images/family/people/zuzanna.jpeg"
+                    alt="Zuzanna"
+                >
+                <p class="mt-3">Zuzanna</p>
+                <p class="text-sm text-neutral-600 dark:text-neutral-500">Future Rock Star</p>
+            </li>
+        </ul>
+    </section>
+
+    <section class="mt-12">
+        <h2 class="text-xl">Animals</h2>
+        <p class="text-sm text-neutral-600 dark:text-neutral-500 mt-1">$ SELECT name, avatar, is_alive FROM family.animals ORDER BY is_alive DESC, name;</p>
+        <ul class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover "
+                    src="https://zmudzinski.me/images/family/animals/geralt.png"
+                    alt="Geralt"
+                >
+                <p class="mt-2 text-sm text-neutral-800 dark:text-neutral-200">
+                    Geralt
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover "
+                    src="https://zmudzinski.me/images/family/animals/kotek.png"
+                    alt="Kotek"
+                >
+                <p class="mt-2 text-sm text-neutral-800 dark:text-neutral-200">
+                    Kotek
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover "
+                    src="https://zmudzinski.me/images/family/animals/vader.png"
+                    alt="Vader"
+                >
+                <p class="mt-2 text-sm text-neutral-800 dark:text-neutral-200">
+                    Vader
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover grayscale opacity-60"
+                    src="https://zmudzinski.me/images/family/animals/asajj.png"
+                    alt="Asajj"
+                >
+                <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-500">
+                    Asajj
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover grayscale opacity-60"
+                    src="https://zmudzinski.me/images/family/animals/bingo.png"
+                    alt="Bingo"
+                >
+                <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-500">
+                    Bingo
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover grayscale opacity-60"
+                    src="https://zmudzinski.me/images/family/animals/fifi.png"
+                    alt="Fifi"
+                >
+                <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-500">
+                    Fifi
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover grayscale opacity-60"
+                    src="https://zmudzinski.me/images/family/animals/garfield.png"
+                    alt="Garfield"
+                >
+                <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-500">
+                    Garfield
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover grayscale opacity-60"
+                    src="https://zmudzinski.me/images/family/animals/luna.png"
+                    alt="Luna"
+                >
+                <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-500">
+                    Luna
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover grayscale opacity-60"
+                    src="https://zmudzinski.me/images/family/animals/rey.png"
+                    alt="Rey"
+                >
+                <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-500">
+                    Rey
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover grayscale opacity-60"
+                    src="https://zmudzinski.me/images/family/animals/simba.png"
+                    alt="Simba"
+                >
+                <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-500">
+                    Simba
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover grayscale opacity-60"
+                    src="https://zmudzinski.me/images/family/animals/stefa.png"
+                    alt="Stefa"
+                >
+                <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-500">
+                    Stefa
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover grayscale opacity-60"
+                    src="https://zmudzinski.me/images/family/animals/stefajr.png"
+                    alt="Stefa Jr."
+                >
+                <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-500">
+                    Stefa Jr.
+                </p>
+            </li>
+            <li class="text-center border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30">
+                <img
+                    class="mx-auto h-20 w-20 rounded-full object-cover grayscale opacity-60"
+                    src="https://zmudzinski.me/images/family/animals/wifi.png"
+                    alt="Wifi"
+                >
+                <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-500">
+                    Wifi
+                </p>
+            </li>
+        </ul>
+    </section>
+
+    <section class="mt-12">
+        <h2 class="text-xl">Events</h2>
+        <p class="text-sm text-neutral-600 dark:text-neutral-500 mt-1">$ SELECT title, icon, occured_at, is_important FROM family.events ORDER BY occured_at DESC;</p>
+        <ul class="mt-4 border border-neutral-300 dark:border-neutral-800 rounded divide-y divide-neutral-300 dark:divide-neutral-800 bg-neutral-100/70 dark:bg-neutral-900/30">
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🎓</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Łukasz finishes post-graduate in GDPR
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2026.03</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🎓</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Łukasz finishes post-graduate in Healthcare Management
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2024.09</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🇮🇹</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Trip to Italy
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2023.08</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🎓</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Anna receives a PhD in Animal Sciences
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2023.03</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🏡</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Land acquired in Kikity, Poland
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2023.02</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐱</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Geralt is adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2022.01</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🇨🇦</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Trip to Canada
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2021.12</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐴</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Vader is adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2021.11</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🚗</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Family car "Lambert" is bought
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2021.08</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐴</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Baine is adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2021.05</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">👰🏻‍♀️</span>
+                <span class="text-neutral-800 dark:text-neutral-200">
+                    Anna and Łukasz get married
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2021.05</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🕹️</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Anna and Łukasz join Barbarzyńcy
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2021.04</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐹</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Simba is adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2021.03</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🎓</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Anna receives a MSc in Biotechnology
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2018.07</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">💍</span>
+                <span class="text-neutral-800 dark:text-neutral-200">
+                    Anna and Łukasz get engaged
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2017.09</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🇦🇪</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Trip to UAE
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2017.09</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐹</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Rey and Asajj are adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2017.04</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🎓</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Anna receives a BSc in Biotechnology
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2017.02</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🇨🇿</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Trip to Czech Republic
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2016.12</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🥰</span>
+                <span class="text-neutral-800 dark:text-neutral-200">
+                    Anna and Łukasz get together
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2016.11</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐱</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Kotek is adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2016.09</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🎓</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Łukasz receives a MSc in Information Technology
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2016.07</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐺</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Wifi is adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2015.10</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🎓</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Łukasz receives a BSc in Information Technology
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2014.06</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐹</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Fifi and Stefa Jr. are adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2014.04</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐱</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Garfield is adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2013.07</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🎓</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Anna goes to University
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2012.10</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">😮</span>
+                <span class="text-neutral-800 dark:text-neutral-200">
+                    Anna and Łukasz meet for the first time
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2012.09</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐹</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Luna and Stefa are adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2011.02</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🎓</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Łukasz goes to University
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">2009.10</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🐶</span>
+                <span class="text-neutral-700 dark:text-neutral-400">
+                    Bingo is adopted
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">1998.11</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🍼</span>
+                <span class="text-neutral-800 dark:text-neutral-200">
+                    Anna is born
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">1993.04</time>
+            </li>
+            <li class="grid grid-cols-[1.5rem_1fr_auto] gap-3 px-3 py-2 text-sm">
+                <span class="text-center">🍼</span>
+                <span class="text-neutral-800 dark:text-neutral-200">
+                    Łukasz is born
+                </span>
+                <time class="text-neutral-600 dark:text-neutral-500 whitespace-nowrap">1989.05</time>
+            </li>
+        </ul>
+    </section>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-600 dark:text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.me - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

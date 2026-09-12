@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nix and Home Manager for MacOS | zmudzinski.me</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="zmudzinski.me">
+        <meta name="twitter:description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:image" content="https://zmudzinski.me/theme/cards/site_card.png">
+        <meta name="twitter:image:alt" content="zmudzinski.me social preview image">
+        <link rel="alternate" type="application/atom+xml" title="zmudzinski.me" href="https://zmudzinski.me/feed.xml">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-50 text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.me">zmudzinski.me</a></h1>
+<h2 class="text-sm text-neutral-600 dark:text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.me">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/family">Family</a></li>
+</ul><article class="prose prose-neutral dark:prose-invert font-mono max-w-4xl mt-20">
+    <h1>Nix and Home Manager for MacOS</h1>
+    <h2 class="text-sm text-neutral-600 dark:text-neutral-500 -mt-6 mb-4">Created on: 2026.03.06</h2>
+    <section class="not-prose border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30 text-sm text-neutral-700 dark:text-neutral-400 leading-relaxed mb-10" aria-labelledby="ai-notice-title">
+        <h2 id="ai-notice-title" class="flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+            <svg class="h-4 w-4 text-neutral-600 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <path d="M5 14l.6 1.6L7 16l-1.4.4L5 18l-.6-1.6L3 16l1.4-.4L5 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+            </svg>
+            AI Notice
+        </h2>
+        <p class="mt-2">AI was not used to write this article. This is entirely on me.</p>
+        <p>However, I did use AI to fix typos and incorrect grammar because I suck at that.</p>
+        <p class="mt-3">
+            <span class="inline-block mr-4"><span class="text-neutral-600 dark:text-neutral-500">Model:</span> gpt-5.5</span>
+            <span class="inline-block"><span class="text-neutral-600 dark:text-neutral-500">Tool:</span> codex</span>
+        </p>
+    </section>
+    <p>My old MacOS setup was functional, but had a bit of Mos Eisley energy: noisy and full of irritating manual steps. Apps were installed in different ways, shell tweaks lived in random files, and after each reinstall I had to rebuild everything from memory.</p>
+<p>The goal was to make my system setup reproducible, modular, and easy to evolve without turning configuration into one giant bash script. That is why this setup is built on <code>nix-darwin</code> + <code>home-manager</code>, with profile-based composition and a practical split between Nix and Homebrew. An additional benefit is that, I might create more profiles in the future, for other machines (eg. my work laptop).</p>
+<p>Feel free to explore the code in the nix-config<sup class="citation"><a href="#citation-1">[1]</a></sup> repository.</p>
+<div class="chat"><img alt="Łukasz" class="chat__avatar" src="https://zmudzinski.me/images/family/people/lukasz.jpeg" /><div class="chat__body">
+<p>I moved away from MacOS at some point and the repository holds now Linux only configurations. To preview the mentioned MacOS setup you need to go to an earlier commit<sup class="citation"><a href="#citation-2">[2]</a></sup> that still holds the MacOS configs.</p>
+</div>
+</div>
+<div class="chat"><img alt="Anna" class="chat__avatar" src="https://zmudzinski.me/images/family/people/anna.jpeg" /><div class="chat__body">
+<p>And he already sold his MacBook. Linux all the way.</p>
+</div>
+</div>
+<h2>What was the quest?</h2>
+<p>Three requirements guided the design:</p>
+<ol>
+<li>One-command rebuild of a full machine,</li>
+<li>Clean feature toggles (<code>base</code>, <code>dev</code>, <code>desktop</code>, <code>gaming</code>) without editing many places,</li>
+<li>Realistic MacOS packaging, with <code>nix</code>, <code>brew</code> and Apple Store apps.</li>
+</ol>
+<h2>Repository map</h2>
+<p>Here is the simplified structure:</p>
+<div class="codehilite"><pre><span></span><code>nix-macos/
+├── flake.nix
+├── home.nix
+├── hosts/
+│   └── terra/
+└── modules/
+    ├── apps/
+    ├── darwin/
+    └── home/
+        ├── profiles/
+        ├── programs/
+        └── theme/
+</code></pre></div>
+
+<p>The tree is easier to read if you think of it as layers, not folders.
+<code>flake.nix</code> starts everything and passes shared context, <code>hosts/</code> only identifies the machine, <code>modules/darwin</code> and <code>modules/apps</code> define system behavior and packaging, and <code>home.nix</code> with <code>modules/home</code> shapes the user environment.
+This way, host identity stays small while behavior stays reusable.</p>
+<h2>Why <code>flake.nix</code> is intentionally boring</h2>
+<p><code>flake.nix</code> is the composition entrypoint of this setup: it makes decisions about structure, not implementation details. The <code>mkDarwin</code> helper takes host parameters (<code>hostName</code>, <code>system</code>, <code>username</code>, <code>userHome</code>, <code>profiles</code>) and builds <code>nix-darwin.lib.darwinSystem</code> from a stable module list.</p>
+<div class="codehilite"><pre><span></span><code><span class="ss">darwinConfigurations</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="ss">terra</span> <span class="o">=</span> mkDarwin <span class="p">{</span>
+    <span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;terra&quot;</span><span class="p">;</span>
+    <span class="ss">system</span> <span class="o">=</span> <span class="s2">&quot;aarch64-darwin&quot;</span><span class="p">;</span>
+    <span class="ss">username</span> <span class="o">=</span> <span class="s2">&quot;lukzmu&quot;</span><span class="p">;</span>
+    <span class="ss">userHome</span> <span class="o">=</span> <span class="s2">&quot;/Users/lukzmu&quot;</span><span class="p">;</span>
+    <span class="ss">profiles</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;base&quot;</span> <span class="s2">&quot;dev&quot;</span> <span class="s2">&quot;desktop&quot;</span> <span class="s2">&quot;gaming&quot;</span><span class="p">];</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>The important part is passing <code>profiles</code> via <code>specialArgs</code>. That one choice lets every downstream module stay simple: it only checks whether a profile is enabled and imports the matching bits. No hidden per-host branching spread around the codebase, no “who changed this and where?” debugging saga.</p>
+<h2>Thin hosts, heavy reuse</h2>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>pkgs<span class="p">,</span> <span class="o">...</span><span class="p">}:</span> <span class="p">{</span>
+  networking<span class="o">.</span><span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;terra&quot;</span><span class="p">;</span>
+  system<span class="o">.</span><span class="ss">primaryUser</span> <span class="o">=</span> <span class="s2">&quot;lukzmu&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><code>hosts/terra/default.nix</code> only sets hostname and primary user. That is on purpose. Host modules should answer “who is this machine?”, while shared modules answer “how do machines behave?”.</p>
+<p>This is one of the highest-leverage patterns in the repo. Adding a new host means declaring identity and selecting profiles, nothing less and nothing more.</p>
+<h2>Why apps are split between Nix and Homebrew?</h2>
+<p>Inside <code>modules/apps/default.nix</code>, each profile imports two files: one from <code>modules/apps/nix/</code> and one from <code>modules/apps/brew/</code>. If <code>dev</code> is enabled, both <code>nix/dev.nix</code> and <code>brew/dev.nix</code> are loaded. Same for <code>base</code>, <code>desktop</code>, and <code>gaming</code>.</p>
+<p>That split is not ideological, it is operational. Nix handles CLI and reproducibility very well (<code>git</code>, <code>ripgrep</code>, <code>terraform</code>, <code>neovim</code>, etc.). Homebrew casks and <code>masApps</code> cover several MacOS-native desktop flows more smoothly (<code>brave-browser</code>, <code>wezterm</code>, <code>signal</code>, App Store apps, game launchers). Trying to force a single universal package lane on MacOS usually creates more pain than order.</p>
+<p>Additionally, some apps that even might be on Nix package manager&hellip; don't have support for Darwin. When something was available on Nix, I tried using that for simplicity. If it wasn't - Apple Store + Homebrew took place. A good example might be below for handling <code>gaming</code> apps. Nix could only support Discord:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>pkgs<span class="p">,</span> <span class="o">...</span><span class="p">}:</span> <span class="p">{</span>
+  environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span>
+    discord
+  <span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>&hellip; but Homebrew handled my other gaming apps <em>(worth looking that Steam is here as well, as it is available on Nix, but not for Darwin)</em>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="o">...</span><span class="p">}:</span> <span class="p">{</span>
+  <span class="ss">homebrew</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+    <span class="ss">casks</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="s2">&quot;battle-net&quot;</span>
+      <span class="s2">&quot;curseforge&quot;</span>
+      <span class="s2">&quot;steam&quot;</span>
+      <span class="s2">&quot;warcraft-logs-uploader&quot;</span>
+    <span class="p">];</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>Darwin modules own system policy</h2>
+<p><code>modules/darwin/core.nix</code> handles the Nix trust/runtime side (flakes, substituters, trusted keys, unfree policy). <code>modules/darwin/system.nix</code> owns MacOS behavior: Touch ID for sudo, Finder and Dock defaults, keyboard preferences, screenshot location, login window settings, and <code>system.stateVersion</code>. <code>modules/darwin/browser.nix</code> sets Brave as default via an activation script. Keeping this layer separate from Home Manager avoids coupling OS policy to user app preferences. I can swap editor tooling later without accidentally touching login-window behavior or Dock layout.</p>
+<p>I feel like this part can get some makeover in the future - it depends too much on specific applications (eg. for dock building).</p>
+<h2>Home Manager profiles and program modules</h2>
+<p><code>home.nix</code> mirrors the same profile model. It always imports shared theme/program defaults, then conditionally imports profile modules. Current profile behavior is:</p>
+<table>
+<thead>
+<tr>
+<th>Profile</th>
+<th>Home Manager modules</th>
+<th>Practical role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>base</code></td>
+<td>shell + git</td>
+<td>Baseline interactive workflow and defaults</td>
+</tr>
+<tr>
+<td><code>dev</code></td>
+<td>neovim + wezterm</td>
+<td>Development-focused user tooling</td>
+</tr>
+<tr>
+<td><code>desktop</code></td>
+<td>none yet (package-driven today)</td>
+<td>Extension point for desktop-specific user config</td>
+</tr>
+<tr>
+<td><code>gaming</code></td>
+<td>none yet (package-driven today)</td>
+<td>Extension point for gaming-specific user config</td>
+</tr>
+</tbody>
+</table>
+<p>Program modules are kept per domain (<code>zsh</code>, <code>git</code>, <code>neovim</code>, <code>wezterm</code>) to minimize blast radius. Changing Git defaults does not require editing shell config, and vice versa. This keeps review and rollback straightforward.</p>
+<p>It is worth mentioning, that when an app doesn't need specific settings and just works "as is" - then you don't need a configuration for it in programs.</p>
+<p>Additionally a great thing about Nix is that I can still keep my <code>.lua</code> configurations for apps. An example for <code>neovim</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="o">...</span><span class="p">}:</span> <span class="p">{</span>
+  programs<span class="o">.</span><span class="ss">neovim</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+    <span class="ss">defaultEditor</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+    <span class="ss">viAlias</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+    <span class="ss">vimAlias</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  xdg<span class="o">.</span>configFile<span class="o">.</span><span class="s2">&quot;nvim&quot;</span><span class="o">.</span><span class="ss">source</span> <span class="o">=</span> <span class="l">./config</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>While source is the actual thing I would normally put into <code>~/.config</code>:</p>
+<div class="codehilite"><pre><span></span><code>neovim
+├──<span class="w"> </span>config
+│<span class="w">   </span>├──<span class="w"> </span>init.lua
+│<span class="w">   </span>├──<span class="w"> </span>lazy-lock.json
+│<span class="w">   </span>└──<span class="w"> </span>lua
+│<span class="w">       </span>├──<span class="w"> </span>config
+│<span class="w">       </span>│<span class="w">   </span>├──<span class="w"> </span>init.lua
+│<span class="w">       </span>│<span class="w">   </span>├──<span class="w"> </span>keymap.lua
+│<span class="w">       </span>│<span class="w">   </span>└──<span class="w"> </span>window.lua
+│<span class="w">       </span>└──<span class="w"> </span>plugins
+│<span class="w">           </span>├──<span class="w"> </span>cmp.lua
+│<span class="w">           </span>├──<span class="w"> </span>conform.lua
+│<span class="w">           </span>└──<span class="w"> </span>...
+└──<span class="w"> </span>default.nix
+</code></pre></div>
+
+<h2>Theme activation without drama</h2>
+<p><code>modules/home/theme/wallpaper.nix</code> is a good example of pragmatic declarative setup. It deploys <code>wallpaper.png</code> into <code>~/Pictures/Wallpapers/</code>, then applies it during Home Manager activation using <code>m-cli</code>, with AppleScript fallback across desktops. The script checks for a running Dock and suppresses hard failures, so activation remains idempotent and resilient.</p>
+<p>As a big Lovecraft fan, I'd love to attribute Guillem H. Pongiluppi<sup class="citation"><a href="#citation-3">[3]</a></sup> for creating this awesome <em>Shadow over Innsmouth</em> art, that I used as my wallpaper.</p>
+<p>For now theming only goes around setting the wallpaper, but I might thing of something more in the future.</p>
+<h2>Final outcome</h2>
+<p>The result is a MacOS setup that behaves less like a one-off pet machine and more like versioned infrastructure. Profiles act as contracts, modules isolate concerns, and the host layer stays clean.</p>
+<p>Rebuild remains a single command:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nix<span class="w"> </span>run<span class="w"> </span>nix-darwin/master#darwin-rebuild<span class="w"> </span>--<span class="w"> </span>switch<span class="w"> </span>--flake<span class="w"> </span>.#terra
+</code></pre></div>
+
+<p>Or even simpler, when you start using <code>mise</code> configurations:</p>
+<div class="codehilite"><pre><span></span><code>mise<span class="w"> </span>switch<span class="w"> </span>terra
+</code></pre></div>
+
+<p>Once configuration is code, “works on my machine” becomes less of a recurring problem and more of an implementation detail.</p>
+<section class="citations">
+<h2>References</h2>
+<ol class="citations__list">
+<li class="citations__item" id="citation-1"><span class="citations__marker">[1]</span> nix-config &mdash; <a class="citations__url" href="https://github.com/lukzmu/nix-config">https://github.com/lukzmu/nix-config</a></li>
+<li class="citations__item" id="citation-2"><span class="citations__marker">[2]</span> earlier commit &mdash; <a class="citations__url" href="https://github.com/lukzmu/nix-config/commit/b28397b3f5095ba1100d5708fc7561be04d2802d">https://github.com/lukzmu/nix-config/commit/b28397b3f5095ba1100d5708fc7561be04d2802d</a></li>
+<li class="citations__item" id="citation-3"><span class="citations__marker">[3]</span> Guillem H. Pongiluppi &mdash; <a class="citations__url" href="https://www.artstation.com/artwork/oZbyJ">https://www.artstation.com/artwork/oZbyJ</a></li>
+</ol>
+</section>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-600 dark:text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.me - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

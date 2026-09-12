@@ -1,0 +1,47 @@
+Title: I am oficially a PhD dropout
+Date: 2020-10-31 10:00
+
+As of today, I am no longer affiliated with my previous research employer - the University of Warmia and Mazury in Olsztyn. After a total of 11 years, combined from studying and work, I am ready to let go and move on with my life. This post will be a bit about nostalgia, a bit about what made me quit the job and as a result - quit my PhD. Let's dig into this!
+
+This stage of my life was really important to me and defined who I am right now. That is why I decided to write this blog post about it - so I do not forget what happened during the years (I am known for a memory of a goldfish), allowing me to go back to this entry when I'm an old prick 👨🏻‍🦳.
+
+## A long time ago in a Galaxy far, far away...
+
+Not many people know, that I didn't start my academic journey with Computer Science. On my first year at the university I was a student of Veterinary Sciences - I did pass Physics, Chemistry and Biology during my secondary school exam after all. It wasn't a long stage, because I quit due to the amount of learning by heart (which I despise). This made me realize one thing tho: all of my high school friends were already at the finish of their Bachelors degree (or halway through 6 year studies), and I wasn't making any progress at all.
+
+I decided to pursue the Computer Science degree, which was frowned upon by my surroundings back then. It was something that I felt comfortable with, as I had experience with computer graphics, some programming using Turbo Pascal or being the format my PC guy around the block. I quickly managed to find my first job as a programmer during my first year and was financially free from various dependencies (and often ate potatoes as they were cheap).
+
+It was hard. While I had to work twice as hard compared to others, just to show my parents that this is something I really want to do, or to actually make a living... I did enjoy the whole process. I joined a scientific circle (Microsoft .NET group), received scholarships and things were finally looking bright. On later years, I even got promoted to the leader of the group at one point, which brought a lot of knowledge through internal trainings and transformed the hardcore introvert to someone that can speak with peers or clients with ease. I was always in the middle of all promotion events (open doors, children university, contests) as I embraced the hobby I used to have into something I can live by.
+
+Am I happy with what I achieved on my Bachelors degree? Of course.
+Did I fail a lot on the way? Oh, more than I would have wanted back then.
+
+One does not usually speak of their failures, because that is how marketing works nowadays. The truth is that failures usually define you, and shape you in a way you are today. I did my share of stupid things during my Bachelors degree including: throwing all away for ill-placed love, changing employeers like gloves (IT people usually feel like kings of the world), failing uni subjects or using people for my own needs without any regret.
+
+## Now, I am the master.
+
+When thinking of my Masters degree, the first thing that cames to my mind is... that I didn't want to go there. I was happy with my knowledge (as little as it was), I had a fun job programming mobile apps and on top of that - I was finding more years spent at the university redundant. By that time I already figured out that 80% of the staff can't teach me anything that is of importance to me. Hearing voices from all directions, that certificate papers proving that I'm a MSc are important, I started my second stage of university education.
+
+I have not been idle during my Masters mind you. I was continuing my role as a Microsoft Student Partner and furthering my knowledge on IoT and Robotics. The first part actually landed me a job at one of Olsztyn companies, that worked with IoT on a daily basis. With that in mind, I also started participating in another scientific circle - Scientific Circle of Robotics, which of I became a core member in some time, also producing my first scientific paper. Which leads us to the next section...
+
+## There's always a bigger fish.
+
+While I loved the job I had at Investcom, I wanted something bigger. Programmers are led to believe they can change the world (which is of course true in some way, we build technology that helps a lot of people in various industry branches). I turned to robotics because I was always a big fan of Star Wars - how cool would it be to build a personal C3-P0?! My employer didn't provide the possibilities... but I was approached by the university staff member, that told me I could do great things when working at the university. And not thinking much about it... I said yes.
+
+I was promised a lot. All the projects, all the science I would do, all those contacts I would acquire... It is obvious that I was so hyped to work at the university. The thing is... it was mostly promises, although some good came out of it.
+
+My first year was spent doing literally nothing (well I did get a lot of achievements in World of Warcraft then). There was one project, but in the end the (medical so kinda sensitive) data provider told us that we can't publish our research. It was a bit of a shame, because this was some serious data mining project. All in all, I got fed up with waiting for any kind of support and picked up a robotics project myself - the department had some side projects lying around.
+
+Whatever I can say of the lack of scientific help (I learned most things myself doing online courses and reading research papers), I am quite grateful for the publishing possibilities I was given. Once I was on the roll with various scientific articles, my professor and my colleagues did everything they could to publish them in the best place possible. Thanks to them I took part in international conferences, published in a journal from the capital of robotics (South Korea), or even went to the US to a high renown conference, hosting speakers from NASA, US military, and more. Those were the things I wouldn't be able to experience anywhere else.
+
+Thank you for that possibility.
+
+## These aren’t the droids you’re looking for...
+
+The thing is, working at the university is somewhat strange. No matter what you do, no matter what you try to build, most of it is theory. Over the years I learned that good things are the things that people actually want to use. From my experience, most of the science work you do, algorithms you produce, is art for the sake of art and lands in the so called closet, unless you have backup from the industry. What good came out of the research I was doing? Citations? Higher RG score? A chance to visit new places? Ministry points? Pat on the back from my colleagues?
+
+Those are the things that simple minded people care about. I want an impact, to make business grow, to make people happy... and it isn't something I can get while working at the university.
+
+I felt stagnated for the last two years. The decision to leave was really hard and I postponed it for a long time, again and again. Nevertheless, as of today Dobby I am free of the burden and I am already creating great, international projects that are making me proud of myself again.
+
+Wish me luck on the journey ahead!

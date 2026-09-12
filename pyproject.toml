@@ -1,0 +1,49 @@
+[project]
+name = "zmudzinski-me"
+version = "1.0.0"
+description = "Personal website written using Pelican."
+readme = "README.md"
+authors = [
+    {name = "Lukasz Zmudzinski", email = "lukasz@zmudzinski.me"},
+]
+
+requires-python = "<4.0,>=3.14"
+dependencies = [
+    "pelican<5.0.0,>=4.11.0",
+    "markdown>=3.8",
+    "pygments>=2.18.0",
+    "httpx>=0.28.1",
+    "pyyaml>=6.0.2",
+    "pelican-render-math>=1.0.5",
+]
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "mypy>=1.17.1",
+    "prek>=0.2.5",
+    "python-dotenv>=1.1.1",
+    "ruff<1.0.0,>=0.9.1",
+    "types-markdown>=3.8.0.20250913",
+    "types-pyyaml>=6.0.12.20250915",
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "C",  # flake8-comprehensions
+    "I",  # isort errors
+    "B",  # flake8-bugbear
+    "S",  # flake-bandit
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+disallow_untyped_defs = true

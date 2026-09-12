@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="text-sm text-neutral-600 dark:text-neutral-500 mt-20">$ ls -la ~/developer/projects/lukzmu/</p>
+<article class="prose prose-neutral dark:prose-invert font-mono max-w-4xl mt-5">
+    <div class="grid gap-y-5">
+        {% for project in SITE_DATA.repositories %}
+        <div>
+            <span class="inline-block">
+            <a class="underline" href="{{ project.html_url }}">{{ project.name }}</a>
+            {% if project.archived %}
+            <span class="text-xs text-indigo-700 dark:text-indigo-400">archived</span>
+            {% endif %}
+            </span>
+            <span class="text-xs text-neutral-600 dark:text-neutral-500 block">{{ project.description }}</span>
+        </div>
+        {% endfor %}
+    </div> 
+</article>
+{% endblock %}

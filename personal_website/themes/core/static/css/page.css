@@ -1,0 +1,165 @@
+.prose code::before,
+.prose code::after {
+  content: ''; /* removes the added backticks */
+}
+
+.prose blockquote p:first-of-type::before,
+.prose blockquote p:last-of-type::after {
+  content: ''; /* removes the added quote marks */
+}
+
+.prose pre code {
+  background-color: transparent !important;
+  padding: 0 !important;
+  color: inherit !important;
+  font-size: inherit !important;
+}
+
+/* --- Chat blocks --- */
+/*
+ * Tokens mirror the AI notice and post cards so callouts share one look.
+ * The surface is the flattened equivalent of the notice's translucent fill:
+ * the tail below stacks a fill triangle over a border triangle, so a
+ * see-through surface would let the border colour bleed into the tail.
+ * --chat-page must track the body background set in base.html.
+ */
+.chat {
+  --chat-page: rgb(250 250 250); /* neutral-50 */
+  --chat-border: rgb(212 212 212); /* neutral-300 */
+  --chat-surface: color-mix(in srgb, rgb(245 245 245) 70%, var(--chat-page)); /* neutral-100/70 */
+
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin: 1.75rem 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .chat {
+    --chat-page: rgb(10 10 10); /* neutral-950 */
+    --chat-border: rgb(38 38 38); /* neutral-800 */
+    --chat-surface: color-mix(in srgb, rgb(23 23 23) 30%, var(--chat-page)); /* neutral-900/30 */
+  }
+}
+
+.chat__avatar {
+  flex: none;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 !important;
+  border: 1px solid var(--chat-border);
+  border-radius: 0.25rem;
+  object-fit: cover;
+}
+
+.chat__body {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--chat-border);
+  border-radius: 0.25rem;
+  background-color: var(--chat-surface);
+}
+
+/* Two stacked triangles: the outer one draws the tail's border, the inner its fill. */
+.chat__body::before,
+.chat__body::after {
+  content: '';
+  position: absolute;
+  top: 0.9rem;
+  width: 0;
+  height: 0;
+  border: 0.45rem solid transparent;
+}
+
+.chat__body::before {
+  left: -0.9rem;
+  border-right-color: var(--chat-border);
+}
+
+.chat__body::after {
+  left: calc(-0.9rem + 1px);
+  border-right-color: var(--chat-surface);
+}
+
+.prose .chat__body > :first-child {
+  margin-top: 0;
+}
+
+.prose .chat__body > :last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .chat {
+    gap: 0.75rem;
+  }
+
+  .chat__avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+/* --- Citations --- */
+.citation,
+.citations {
+  --citation-border: rgb(212 212 212); /* neutral-300 */
+  --citation-muted: rgb(115 115 115); /* neutral-500 */
+}
+
+@media (prefers-color-scheme: dark) {
+  .citation,
+  .citations {
+    --citation-border: rgb(38 38 38); /* neutral-800 */
+    --citation-muted: rgb(163 163 163); /* neutral-400 */
+  }
+}
+
+.citation {
+  margin-left: 0.1rem;
+  font-size: 0.7em;
+}
+
+.citation a {
+  color: var(--citation-muted);
+  text-decoration: none;
+  font-weight: inherit;
+}
+
+.citation a:hover {
+  text-decoration: underline;
+}
+
+.citations {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--citation-border);
+}
+
+.prose .citations h2 {
+  margin-top: 0;
+  font-size: 1.125rem;
+}
+
+.prose .citations__list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.prose .citations__item {
+  padding-left: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.prose .citations__item::marker {
+  content: '';
+}
+
+.citations__marker {
+  color: var(--citation-muted);
+}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="text-sm text-neutral-600 dark:text-neutral-500 mt-20">$ journalctl -r</p>
+<ul class="mt-6">
+  {% for article in articles_page.object_list %}
+    <li>
+        <div class="flex gap-4">
+            <a class="block min-w-0 flex-grow overflow-hidden text-ellipsis whitespace-nowrap hover:underline" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
+            <span class="shrink-0 whitespace-nowrap text-neutral-600 dark:text-neutral-500">{{ article.date.strftime('%Y-%m-%d') }}</span>
+        </div>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

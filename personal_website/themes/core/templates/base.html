@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="{{ DEFAULT_LANG }}">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {% block title %}
+        <title>{{ SITENAME }}</title>
+        {% endblock %}
+        <meta name="description" content="{{ DESCRIPTION }}">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ SITENAME }}">
+        <meta name="twitter:description" content="{{ DESCRIPTION }}">
+        {% block card %}
+        <meta name="twitter:image" content="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/cards/site_card.png">
+        {% endblock %}
+        <meta name="twitter:image:alt" content="{{ SITENAME }} social preview image">
+        {% if FEED_ALL_ATOM %}
+        <link rel="alternate" type="application/atom+xml" title="{{ SITENAME }}" href="{{ SITEURL }}/{{ FEED_ALL_ATOM }}">
+        {% endif %}
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/code.css" />
+        <link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-50 text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+                {% include "partial/navigation.html" %}
+                {% block content %}                
+                {% endblock %}
+                {% include "partial/footer.html" %}
+            </div>
+        </main>
+    </body>
+</html>

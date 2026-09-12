@@ -1,0 +1,28 @@
+name: 'Publish website to Github Pages'
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * *"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: lukzmu/reusable-actions/setup-python@v2
+        with:
+          python-version: "3.14"
+      - uses: lukzmu/reusable-actions/pelican-publish@v2
+        with:
+          content: personal_website/content
+          settings: personal_website/core/settings.py
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}

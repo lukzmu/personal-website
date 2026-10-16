@@ -1,5 +1,6 @@
 Title: Providing feature handlers in an elegant way in Python
 Date: 2021-05-17 10:00
+Canonical: https://www.merixstudio.com/insights/feature-handlers-made-easy
 
 Lately one of my colleagues has shown me a neat way of providing functional handlers, instead of working with an **if-elif-else** structure. I liked it so much that not only did I implement it with some pieces of my code, but also decided to share the method with you in this blog post!
 

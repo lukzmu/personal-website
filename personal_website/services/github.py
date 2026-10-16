@@ -38,7 +38,7 @@ class GitHubClient:
                 result,
                 key=lambda x: (x["archived"], -self._parse_date(date_string=x["updated_at"]).timestamp()),
             )
-            if repository["name"] not in self._IGNORED_REPOSITORIES
+            if repository["name"] not in self._IGNORED_REPOSITORIES and repository["owner"]["login"] == "lukzmu"
         ]
 
     @staticmethod

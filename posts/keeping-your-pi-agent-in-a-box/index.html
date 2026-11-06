@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keeping your pi agent in a box. | zmudzinski.me</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="zmudzinski.me">
+        <meta name="twitter:description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:image" content="https://zmudzinski.me/theme/cards/site_card.png">
+        <meta name="twitter:image:alt" content="zmudzinski.me social preview image">
+        <link rel="alternate" type="application/atom+xml" title="zmudzinski.me" href="https://zmudzinski.me/feed.xml">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-50 text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.me">zmudzinski.me</a></h1>
+<h2 class="text-sm text-neutral-600 dark:text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.me">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/family">Family</a></li>
+</ul><article class="prose prose-neutral dark:prose-invert font-mono max-w-4xl mt-20">
+    <h1>Keeping your pi agent in a box.</h1>
+    <h2 class="text-sm text-neutral-600 dark:text-neutral-500 -mt-6 mb-4">
+        Created on: 2026.11.06.
+    </h2>
+    <section class="not-prose border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30 text-sm text-neutral-700 dark:text-neutral-400 leading-relaxed mb-10" aria-labelledby="ai-notice-title">
+        <h2 id="ai-notice-title" class="flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+            <svg class="h-4 w-4 text-neutral-600 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <path d="M5 14l.6 1.6L7 16l-1.4.4L5 18l-.6-1.6L3 16l1.4-.4L5 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+            </svg>
+            AI Notice
+        </h2>
+        <p class="mt-2">AI was not used to write this article. This is entirely on me.</p>
+        <p>However, I did use AI to fix typos and incorrect grammar because I suck at that.</p>
+        <p class="mt-3">
+            <span class="inline-block mr-4"><span class="text-neutral-600 dark:text-neutral-500">Model:</span> gemma-4-26B-A4B-it-oQ8e-mtp</span>
+            <span class="inline-block"><span class="text-neutral-600 dark:text-neutral-500">Tool:</span> pi</span>
+        </p>
+    </section>
+    <p>For some time now, I've been looking into running my agents locally to preserve the last bits of my privacy in this tech-driven world. Every request I send to <code>claude</code> makes me feel like I'm selling my soul to Big Tech companies, and that's not a good thing. So, like in other things, I started exploring open-source projects that would allow me to achieve this goal.</p>
+<p>You can check orion<sup class="citation"><a href="#citation-1">[1]</a></sup> for the actual code and configurations I use for my pi agents.</p>
+<h2>The Problem</h2>
+<p>I decided to go with the pi coding agent<sup class="citation"><a href="#citation-2">[2]</a></sup>. What I love about it is that it gives you full control over the configuration - it provides a base without forcing unnecessary dependencies on you. This flexibility fits my worldview perfectly&hellip;</p>
+<p>&hellip;but it comes at a price. When I was testing some models, they were extremely aggressive in their exploration <em>(Qwen, I'm looking at you)</em>. They were touching files on my disk that I never intended for them to see. Obviously, I needed to build a sandbox to ensure they stayed exactly where they belonged.</p>
+<h2>Containers, containers everywhere</h2>
+<p>The pi security documentation<sup class="citation"><a href="#citation-3">[3]</a></sup> treats running the harness securely as a vital task and points to containers and isolated environments as a primary solution. Since I'm constantly hosting containers on <code>podman</code> on my system, it made sense to reuse my existing workflow for this <em>"project"</em>.</p>
+<div class="chat"><img alt="Łukasz" class="chat__avatar" src="https://zmudzinski.me/images/family/people/lukasz.jpeg" /><div class="chat__body">
+<p>Think of it as a Schrödinger's Agent: until you run the container, we don't know if the model will be a helpful assistant or a chaotic entity trying to explore your entire home directory.</p>
+</div>
+</div>
+<p>Let's start with how a <code>Dockerfile</code> could look:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">FROM</span><span class="w"> </span><span class="s">node:26.12-bookworm-slim</span>
+
+<span class="k">RUN</span><span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>--no-install-recommends<span class="w"> </span>bash<span class="w"> </span>ca-certificates<span class="w"> </span>curl<span class="w"> </span>git<span class="w"> </span>ripgrep<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/var/lib/apt/lists/*
+
+<span class="k">ARG</span><span class="w"> </span><span class="nv">PI_VERSION</span><span class="o">=</span>latest
+<span class="k">RUN</span><span class="w"> </span>npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>--ignore-scripts<span class="w"> </span>@earendil-works/pi-coding-agent@<span class="si">${</span><span class="nv">PI_VERSION</span><span class="si">}</span>
+
+<span class="k">ENTRYPOINT</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<p>As you can see, it's very minimal. I installed only the essentials for <code>pi</code> to run and included the ability to pin the version (I used <code>latest</code> for testing). Let's build the image and give it a name so it's easier to reuse:</p>
+<div class="codehilite"><pre><span></span><code>podman<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>orion<span class="w"> </span>-f<span class="w"> </span>Dockerfile<span class="w"> </span>.
+</code></pre></div>
+
+<p>Now for the important part: running it. I mount the current project at the <em>same path</em> inside the container and use it as the working directory, so paths the agent prints match the ones on my host:</p>
+<div class="codehilite"><pre><span></span><code>podman<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">:</span><span class="nv">$PWD</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.pi/agent:/root/.pi/agent&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;orion&quot;</span>
+</code></pre></div>
+
+<p>The agent can now freely modify files in that one directory and nothing else on your disk. The only other mount is <code>~/.pi/agent</code>, which keeps <code>pi</code>'s configuration and sessions between runs. Keep in mind that this directory is writable from inside the container, so treat it as trusted: anything the agent changes there will affect your future sessions too.</p>
+<p>You probably don't want to type this long command every time you want to run <code>pi</code> in a container, though. You can either create an <code>alias</code> or use a start script<sup class="citation"><a href="#citation-4">[4]</a></sup> like I did.</p>
+<h2>This is great, but&hellip;</h2>
+<p>Files aren't everything. You probably want to reuse your project configurations (Python, Rust) or your Git identity&hellip; and suddenly, those are unavailable inside the container.</p>
+<h3>So how do we commit files?</h3>
+<p>For starters, I added the following to my <code>Dockerfile</code> so the system trusts every repository inside the container:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">RUN</span><span class="w"> </span>git<span class="w"> </span>config<span class="w"> </span>--system<span class="w"> </span>safe.directory<span class="w"> </span><span class="s1">&#39;*&#39;</span>
+</code></pre></div>
+
+<p>When running the image, I can pass my Git identity as environment variables:</p>
+<div class="codehilite"><pre><span></span><code>podman<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">GIT_AUTHOR_NAME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$GIT_NAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">GIT_AUTHOR_EMAIL</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$GIT_EMAIL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">GIT_COMMITTER_NAME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$GIT_NAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">GIT_COMMITTER_EMAIL</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$GIT_EMAIL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;orion&quot;</span>
+</code></pre></div>
+
+<p>With this, the agent can commit on your behalf without touching your host's global config. Note that this is only your name and email: the container has no SSH keys or tokens, so the agent can commit but can't push. I consider that a feature.</p>
+<h3>Tooling? I want to work on my project.</h3>
+<p>This is a tricky one. Some guides suggest adding every possible tool to your <code>Dockerfile</code> <em>(or create multiple new ones)</em>. I avoided this because I don't want to bloat a minimal image with a massive layer of dependencies. </p>
+<p>Instead, I use mise-en-place<sup class="citation"><a href="#citation-5">[5]</a></sup>. It allows you to configure all the tools, environments, and tasks required for your project on the fly. It's the perfect companion for containerized agents. I even added <code>mise</code> to my <code>Dockerfile</code> so <code>pi</code> can pick it up and run commands in the correct environment:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">RUN</span><span class="w"> </span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://mise.run<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+<span class="k">ENV</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;/root/.local/bin:/root/.local/share/mise/shims:</span><span class="si">${</span><span class="nv">PATH</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p>Since the container is started with <code>--rm</code>, every run would download the toolchains from scratch. Mounting a cache volume fixes that:</p>
+<div class="codehilite"><pre><span></span><code>podman<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>orion-mise:/root/.local/share/mise<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;orion&quot;</span>
+</code></pre></div>
+
+<h3>How does the agent reach my local model?</h3>
+<p>The model server runs on the host, not inside the container, so <code>localhost</code> won't work from within it. Podman exposes the host as <code>host.containers.internal</code>, so point your provider's base URL at something like <code>http://host.containers.internal:8080/v1</code> (use the port of your inference server).</p>
+<h3>And what, if I just want to chat?</h3>
+<p>Sometimes I want to use <code>pi</code> just to have a conversation, without working on a specific project. I decided to use the container's own <code>/tmp</code> directory as my workspace. Nothing from the host is mounted there, so it contains nothing of value. I updated my <code>run.sh</code> to support a <code>--chat</code> flag:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">CHAT_MODE</span><span class="o">=</span><span class="nb">false</span>
+<span class="nv">ARGS</span><span class="o">=()</span>
+
+<span class="k">for</span><span class="w"> </span>arg<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$arg</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;--chat&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nv">CHAT_MODE</span><span class="o">=</span><span class="nb">true</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nv">ARGS</span><span class="o">+=(</span><span class="s2">&quot;</span><span class="nv">$arg</span><span class="s2">&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># ... (logic to build PODMAN_ARGS)</span>
+
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CHAT_MODE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PODMAN_ARGS</span><span class="o">+=(</span>-w<span class="w"> </span>/tmp<span class="o">)</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nv">PODMAN_ARGS</span><span class="o">+=(</span>-v<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">:</span><span class="nv">$PWD</span><span class="s2">&quot;</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">&quot;</span><span class="o">)</span>
+<span class="k">fi</span>
+
+podman<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PODMAN_ARGS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$IMAGE</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ARGS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p>This way, if the model tries to go rogue and look for sensitive data, it'll just find an empty <code>/tmp</code> folder. What a pity.</p>
+<div class="chat"><img alt="Łukasz" class="chat__avatar" src="https://zmudzinski.me/images/family/people/lukasz.jpeg" /><div class="chat__body">
+<p>I'm sorry, Pi, I'm afraid I can't let you access that directory.</p>
+</div>
+</div>
+<h2>What this doesn't protect you from</h2>
+<p>A container is a fence, not a vault, so it's worth knowing where the fence ends:</p>
+<ul>
+<li><strong>Network access.</strong> The container can still reach the network. Running models locally is what keeps your prompts private, while the container only keeps the agent out of your files. These are two separate concerns.</li>
+<li><strong>Whatever you mount.</strong> The agent has full access to your project directory and to <code>~/.pi/agent</code>. If you run <code>run.sh</code> from <code>~</code>, you've just mounted your entire home directory. Obviously, don't do that.</li>
+<li><strong>The shared kernel.</strong> Containers are not virtual machines. For a hostile model, you'd want a VM. For an over-curious one, a container is plenty.</li>
+</ul>
+<h2>Summary</h2>
+<p>By containerizing the <code>pi</code> agent, I've achieved a balance between powerful AI assistance and local security. Using <code>podman</code> allows me to isolate the agent's file system access, while tools like <code>mise-en-place</code> and environment variable injection ensure that I don't lose the developer experience. It's a simple setup, and while it's no perfect sandbox, it gives me the peace of mind that my files stay mine, even when an aggressive model is trying to learn everything about my life.</p>
+<section class="citations">
+<h2>References</h2>
+<ol class="citations__list">
+<li class="citations__item" id="citation-1"><span class="citations__marker">[1]</span> orion &mdash; <a class="citations__url" href="https://github.com/lukzmu/orion">https://github.com/lukzmu/orion</a></li>
+<li class="citations__item" id="citation-2"><span class="citations__marker">[2]</span> pi coding agent &mdash; <a class="citations__url" href="https://pi.dev">https://pi.dev</a></li>
+<li class="citations__item" id="citation-3"><span class="citations__marker">[3]</span> pi security documentation &mdash; <a class="citations__url" href="https://pi.dev/docs/latest/security">https://pi.dev/docs/latest/security</a></li>
+<li class="citations__item" id="citation-4"><span class="citations__marker">[4]</span> start script &mdash; <a class="citations__url" href="https://github.com/lukzmu/orion/blob/main/run.sh">https://github.com/lukzmu/orion/blob/main/run.sh</a></li>
+<li class="citations__item" id="citation-5"><span class="citations__marker">[5]</span> mise-en-place &mdash; <a class="citations__url" href="https://mise.jdx.dev/">https://mise.jdx.dev/</a></li>
+</ol>
+</section>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-600 dark:text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.me - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>

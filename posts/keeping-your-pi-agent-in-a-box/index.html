@@ -55,7 +55,7 @@
         </p>
     </section>
     <p>For some time now, I've been looking into running my agents locally to preserve the last bits of my privacy in this tech-driven world. Every request I send to <code>claude</code> makes me feel like I'm selling my soul to Big Tech companies, and that's not a good thing. So, like in other things, I started exploring open-source projects that would allow me to achieve this goal.</p>
-<p>You can check orion<sup class="citation"><a href="#citation-1">[1]</a></sup> for the actual code and configurations I use for my pi agents.</p>
+<p>You can check orion<sup class="citation"><a href="#citation-1">[1]</a></sup> for the code and configurations I use for my pi agents.</p>
 <h2>The Problem</h2>
 <p>I decided to go with the pi coding agent<sup class="citation"><a href="#citation-2">[2]</a></sup>. What I love about it is that it gives you full control over the configuration - it provides a base without forcing unnecessary dependencies on you. This flexibility fits my worldview perfectly&hellip;</p>
 <p>&hellip;but it comes at a price. When I was testing some models, they were extremely aggressive in their exploration <em>(Qwen, I'm looking at you)</em>. They were touching files on my disk that I never intended for them to see. Obviously, I needed to build a sandbox to ensure they stayed exactly where they belonged.</p>
@@ -91,9 +91,9 @@
 </code></pre></div>
 
 <p>The agent can now freely modify files in that one directory and nothing else on your disk. The only other mount is <code>~/.pi/agent</code>, which keeps <code>pi</code>'s configuration and sessions between runs. Keep in mind that this directory is writable from inside the container, so treat it as trusted: anything the agent changes there will affect your future sessions too.</p>
-<p>You probably don't want to type this long command every time you want to run <code>pi</code> in a container, though. You can either create an <code>alias</code> or use a start script<sup class="citation"><a href="#citation-4">[4]</a></sup> like I did.</p>
+<p>You probably don't want to type this command every time you want to run <code>pi</code> in a container. You can either create an <code>alias</code> or use a start script<sup class="citation"><a href="#citation-4">[4]</a></sup> like I did.</p>
 <h2>This is great, but&hellip;</h2>
-<p>Files aren't everything. You probably want to reuse your project configurations (Python, Rust) or your Git identity&hellip; and suddenly, those are unavailable inside the container.</p>
+<p>Files aren't everything. You probably want to reuse your project configurations (Python, Rust) or your Git identity&hellip; and suddenly, those are unavailable inside the container the agent is working on.</p>
 <h3>So how do we commit files?</h3>
 <p>For starters, I added the following to my <code>Dockerfile</code> so the system trusts every repository inside the container:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">RUN</span><span class="w"> </span>git<span class="w"> </span>config<span class="w"> </span>--system<span class="w"> </span>safe.directory<span class="w"> </span><span class="s1">&#39;*&#39;</span>

@@ -51,6 +51,17 @@
             </h2>
             <p class="mt-2">AI was not used to write this article. This is entirely on me.</p>
         </section>
+        <section class="border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30 text-sm text-neutral-700 dark:text-neutral-400 leading-relaxed" aria-labelledby="notice-title">
+            <h2 id="notice-title" class="flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                <svg class="h-4 w-4 text-neutral-600 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7" />
+                    <path d="M12 11v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                    <circle cx="12" cy="7.75" r="1" fill="currentColor" />
+                </svg>
+                Notice
+            </h2>
+            <p class="mt-2">Article was created as part of my work at Merixstudio.</p>
+        </section>
     </div>
     <p>While there are a few ways to approach inheritance database models in Django, the main advantage of using polymorphic models lies in their simplicity of use and speed of development. At Merixstudio we appreciate this handy solution and use it in a number of projects to facilitate the creation of concise database relationships in an easy-to-read, clean-code manner.</p>
 <p>Everyone who had a go at object-oriented programming surely experienced the use of polymorphism mechanisms one way or the other. Typically, you would create a class that implements some level of abstraction and override the functions in classes inheriting from it, changing output based on the object type. What if we could do the same thing with Django models? Today we will learn how to perform such magic using two Django packages.</p>

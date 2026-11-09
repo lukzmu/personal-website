@@ -1,6 +1,7 @@
 Title: Polymorphic models in Django
 Date: 2021-02-24 10:00
 Canonical: https://www.merixstudio.com/insights/polymorphic-models-django
+Notice: Article was created as part of my work at Merixstudio.
 
 While there are a few ways to approach inheritance database models in Django, the main advantage of using polymorphic models lies in their simplicity of use and speed of development. At Merixstudio we appreciate this handy solution and use it in a number of projects to facilitate the creation of concise database relationships in an easy-to-read, clean-code manner.
 

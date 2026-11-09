@@ -1,6 +1,7 @@
 Title: Discord bots in Python
 Date: 2021-05-20 10:00
 Canonical: https://www.merixstudio.com/insights/discord-bots-python
+Notice: Article was created as part of my work at Merixstudio.
 
 In the last couple of years, we have experienced a shift in the way people work and study. We can see this movement on the job market - many offers related to IT are tagged 100% remote, allowing people to work with peers from all around the world. This is why such applications as Slack, Microsoft Teams, or Discord increased in popularity and are used by many people on a daily basis. Today we will focus on Discord - a means of communication that rose from a gaming tool to a platform that is used by professionals, educators, and communities.
 

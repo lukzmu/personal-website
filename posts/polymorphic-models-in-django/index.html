@@ -39,17 +39,19 @@
         Created on: 2021.02.24.
         First appeared over <a href="https://www.merixstudio.com/insights/polymorphic-models-django">here</a>.
     </h2>
-    <section class="not-prose border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30 text-sm text-neutral-700 dark:text-neutral-400 leading-relaxed mb-10" aria-labelledby="ai-notice-title">
-        <h2 id="ai-notice-title" class="flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-            <svg class="h-4 w-4 text-neutral-600 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
-                <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
-                <path d="M5 14l.6 1.6L7 16l-1.4.4L5 18l-.6-1.6L3 16l1.4-.4L5 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
-            </svg>
-            AI Notice
-        </h2>
-        <p class="mt-2">AI was not used to write this article. This is entirely on me.</p>
-    </section>
+    <div class="not-prose space-y-3 mb-10">
+        <section class="border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30 text-sm text-neutral-700 dark:text-neutral-400 leading-relaxed" aria-labelledby="ai-notice-title">
+            <h2 id="ai-notice-title" class="flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                <svg class="h-4 w-4 text-neutral-600 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                    <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                    <path d="M5 14l.6 1.6L7 16l-1.4.4L5 18l-.6-1.6L3 16l1.4-.4L5 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                </svg>
+                AI Notice
+            </h2>
+            <p class="mt-2">AI was not used to write this article. This is entirely on me.</p>
+        </section>
+    </div>
     <p>While there are a few ways to approach inheritance database models in Django, the main advantage of using polymorphic models lies in their simplicity of use and speed of development. At Merixstudio we appreciate this handy solution and use it in a number of projects to facilitate the creation of concise database relationships in an easy-to-read, clean-code manner.</p>
 <p>Everyone who had a go at object-oriented programming surely experienced the use of polymorphism mechanisms one way or the other. Typically, you would create a class that implements some level of abstraction and override the functions in classes inheriting from it, changing output based on the object type. What if we could do the same thing with Django models? Today we will learn how to perform such magic using two Django packages.</p>
 <h2>Interesting use case example for polymorphic models</h2>

@@ -17,7 +17,7 @@
 
 /* --- Chat blocks --- */
 /*
- * Tokens mirror the AI notice and post cards so callouts share one look.
+ * Tokens mirror the article notices and post cards so callouts share one look.
  * The surface is the flattened equivalent of the notice's translucent fill:
  * the tail below stacks a fill triangle over a border triangle, so a
  * see-through surface would let the border colour bleed into the tail.

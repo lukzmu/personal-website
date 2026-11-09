@@ -1,5 +1,5 @@
 Title: Keeping your pi agent in a box.
-Date: 2026-11-06 10:00
+Date: 2026-11-09 10:00
 Model: gemma-4-26B-A4B-it-oQ8e-mtp
 Tool: pi
 

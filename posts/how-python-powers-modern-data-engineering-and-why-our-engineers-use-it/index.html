@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Python powers modern Data Engineering and why our engineers use it. | zmudzinski.me</title>
+        <meta name="description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="zmudzinski.me">
+        <meta name="twitter:description" content="I write Python code and do nerdy things.">
+        <meta name="twitter:image" content="https://zmudzinski.me/theme/cards/site_card.png">
+        <meta name="twitter:image:alt" content="zmudzinski.me social preview image">
+        <link rel="alternate" type="application/atom+xml" title="zmudzinski.me" href="https://zmudzinski.me/feed.xml">
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/code.css" />
+        <link rel="stylesheet" href="https://zmudzinski.me/theme/css/page.css" />
+        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+    <body class="bg-neutral-50 text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 font-mono">
+        <main role="main">
+            <div class="container max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+<h1 class="text-4xl mt-20"><a href="https://zmudzinski.me">zmudzinski.me</a></h1>
+<h2 class="text-sm text-neutral-600 dark:text-neutral-500">I write Python code and do nerdy things.</h2>
+
+<ul class="mt-5 flex space-x-4">
+    <li><a class="underline" href="https://zmudzinski.me">Posts</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/about">About</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/projects">Projects</a></li>
+    <li><a class="underline" href="https://zmudzinski.me/family">Family</a></li>
+</ul><article class="prose prose-neutral dark:prose-invert font-mono max-w-4xl mt-20">
+    <h1>How Python powers modern Data Engineering and why our engineers use it.</h1>
+    <h2 class="text-sm text-neutral-600 dark:text-neutral-500 -mt-6 mb-4">
+        Created on: 2026.11.06.
+        First appeared over <a href="https://www.stxnext.com/blog/why-our-data-engineers-use-python">here</a>.
+    </h2>
+    <div class="not-prose space-y-3 mb-10">
+        <section class="border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30 text-sm text-neutral-700 dark:text-neutral-400 leading-relaxed" aria-labelledby="ai-notice-title">
+            <h2 id="ai-notice-title" class="flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                <svg class="h-4 w-4 text-neutral-600 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                    <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                    <path d="M5 14l.6 1.6L7 16l-1.4.4L5 18l-.6-1.6L3 16l1.4-.4L5 14z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                </svg>
+                AI Notice
+            </h2>
+            <p class="mt-2">AI was not used to write this article. This is entirely on me.</p>
+        </section>
+        <section class="border border-neutral-300 dark:border-neutral-800 rounded p-3 bg-neutral-100/70 dark:bg-neutral-900/30 text-sm text-neutral-700 dark:text-neutral-400 leading-relaxed" aria-labelledby="notice-title">
+            <h2 id="notice-title" class="flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                <svg class="h-4 w-4 text-neutral-600 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7" />
+                    <path d="M12 11v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                    <circle cx="12" cy="7.75" r="1" fill="currentColor" />
+                </svg>
+                Notice
+            </h2>
+            <p class="mt-2">Article was created as part of my work at STX Next.</p>
+        </section>
+    </div>
+    <p>Python is one of the most widely used languages in data engineering. Engineers rely on it to collect data from different sources, clean and transform it, and build pipelines that move data between systems. With tools like PySpark and Apache Airflow, they can also process large datasets and automate complex workflows.</p>
+<p>Python works with a wide range of databases, cloud platforms, and data processing tools, making it a versatile choice for both developing new pipelines and maintaining existing ones.</p>
+<p>In this article, we look at how Python supports data engineering, why our engineers use it, and which tools they rely on at different stages of the process.</p>
+<h2>Data engineering in the cloud</h2>
+<p>Everyday challenges facing data engineers are similar to the ones facing data scientists. Processing data in its various forms is the center of attention for both specializations. The difference lies in what they aim to achieve: data scientists use data to generate insights and build models, while data engineers ensure that the data is available, consistent, and of high quality. In the data engineering context, however, we focus more on production-grade <strong>data pipelines, ETL/ELT workflows, and data platforms</strong> that need to be robust, reliable, and efficient.</p>
+<p>When it comes to the cloud, Python has proven itself to be good enough to incentivize cloud platform providers to use it for implementing and controlling their services. If we look at the biggest players - namely Amazon Web Services (AWS), Google Cloud Platform (GCP), and Microsoft Azure - they all accommodate Python users in their solutions to a number of problems.</p>
+<p>Cloud platforms support Python across a much broader range of data engineering workloads than serverless functions alone. Engineers can use Python to write functions that run as part of event-driven workflows, using services such as AWS Lambda, Google Cloud Run functions, and Azure Functions. They can also use it to develop and run data transformations, notebooks, distributed processing jobs, and production workflows within managed data platforms.</p>
+<p>Python is now deeply integrated into environments such as Databricks, Microsoft Fabric, and Snowflake through Snowpark. These platforms allow data teams to build and execute Python-based workloads closer to the data, while relying on managed compute, collaborative notebooks, and cloud-native orchestration instead of maintaining the underlying infrastructure themselves.</p>
+<p>Python SDKs also make it possible to manage cloud resources, retrieve data, and trigger jobs programmatically across AWS, Google Cloud, and Microsoft Azure, allowing cloud operations to become part of repeatable data workflows.</p>
+<p>Distributed processing is particularly useful for ETL workloads that exceed the memory or processing capacity of a single machine. Frameworks such as Apache Spark divide computations across multiple worker nodes, allowing data engineers to process large datasets in parallel. However, the right approach depends on data volumes, workload characteristics, and whether processing can be optimized or executed within an existing data platform.</p>
+<div class="chat"><img alt="Anna" class="chat__avatar" src="https://zmudzinski.me/images/family/people/anna.jpeg" /><div class="chat__body">
+<p>How is Python used in data engineering?</p>
+</div>
+</div>
+<div class="chat"><img alt="Łukasz" class="chat__avatar" src="https://zmudzinski.me/images/family/people/lukasz.jpeg" /><div class="chat__body">
+<p>Python is widely used because it supports every major stage of the data engineering lifecycle: from data ingestion and transformation to workflow orchestration, distributed processing, cloud automation, and AI-ready data platforms. Its extensive ecosystem and cloud integrations make it a practical choice for building scalable data pipelines.</p>
+</div>
+</div>
+<p>While Apache Spark is now the go-to technology for data parallelism, a Python wrapper for the Spark engine called PySpark is supported by AWS Elastic MapReduce (EMR), Dataproc for GCP, and HDInsight for Azure.</p>
+<p>As far as controlling and managing the resources in the cloud is concerned, appropriate Application Programming Interfaces (APIs) are exposed for each platform.</p>
+<p>Cloud providers offer Python SDKs and client libraries for accessing their services programmatically. These include Boto3 for AWS, Google Cloud's Python client libraries, and the Azure SDK for Python. Data engineers use them to retrieve data, manage cloud resources, and trigger processing jobs directly from Python code.</p>
+<p><strong>Python is used in cloud data engineering to build and maintain pipelines that retrieve, transform, and deliver data for analytics, reporting, and AI. Its SDKs and integrations allow engineers to connect cloud services and automate processing across different environments.</strong></p>
+<p>Python is particularly useful when pipelines require custom API integrations, file processing, automation, or distributed transformations with PySpark. However, not every workload needs custom Python code. SQL, particularly when used with frameworks like dbt that introduce modularity, version control, testing, and documentation, is often better suited to transformations performed directly in a data warehouse, while managed ingestion services can handle data movement without custom extraction scripts. The choice depends on the costs, workload, existing infrastructure, and maintenance requirements.</p>
+<p>Designing and maintaining these pipelines requires more than choosing the right programming language. Modern data engineering services<sup class="citation"><a href="#citation-1">[1]</a></sup> combine cloud architecture, orchestration, data quality, and scalable pipeline design to ensure reliable data delivery across the organization.</p>
+<h2>Focus on data ingestion with Python</h2>
+<p>Business data may come from various sources of different natures, including databases (both SQL and noSQL), flat files (e.g. CSVs), other files used by companies (e.g. spreadsheets), external systems, APIs, and web documents.</p>
+<p><strong>The popularity of Python as a programming language results in an abundance of libraries and modules, including those used for accessing the data, for example SQLAlchemy for some SQL databases, Scrapy, Beautiful Soup, or Requests for data with web origins, among others.</strong></p>
+<p>Pandas is widely used for loading, exploring, and transforming structured data in Python. It supports formats such as CSV, JSON, Excel, SQL, and Apache Parquet, making it useful when data engineers need to work with files, database exports, and other structured data sources.</p>
+<p>Pandas also supports columnar file formats such as Apache Parquet, which can improve storage efficiency and query performance in analytical workloads.</p>
+<p>In modern data lakehouses, Parquet is often used alongside open table formats such as Apache Iceberg, Delta Lake, and Apache Hudi. These add table-level capabilities such as transactional updates, schema evolution, and versioned data access. Python integrates with these environments through libraries and processing frameworks, including PySpark.</p>
+<p>Pandas offers a broad set of functions for cleaning, joining, aggregating, and transforming data. For performance-intensive workloads, data engineers can also consider Polars, which supports parallel execution and lazy query optimization, or DuckDB, which executes analytical SQL queries directly against files and local datasets. The choice depends on data size, transformation requirements, and the tools already used in the pipeline.</p>
+<p>AWS SDK for pandas (awswrangler), formerly known as AWS Data Wrangler, simplifies data operations across AWS services such as Amazon S3, Athena, Glue, and Redshift. It can also be deployed as an AWS Lambda layer, allowing serverless functions to use the library without packaging it into each function deployment.</p>
+<div class="chat"><img alt="Zuzanna" class="chat__avatar" src="https://zmudzinski.me/images/family/people/zuzanna.jpeg" /><div class="chat__body">
+<p>Python vs. SQL in data engineering: when should you use each?</p>
+</div>
+</div>
+<div class="chat"><img alt="Łukasz" class="chat__avatar" src="https://zmudzinski.me/images/family/people/lukasz.jpeg" /><div class="chat__body">
+<p>Python and SQL are complementary rather than competing technologies. SQL is typically the preferred choice for transformations that can execute efficiently within a data warehouse or database, with tools like dbt helping structure and manage these workflows. Python becomes more valuable when pipelines require custom integrations, API interactions, complex processing logic, or transformations that extend beyond what is practical with SQL alone.</p>
+</div>
+</div>
+<p>The choice also depends on where and how data is processed. Executing transformations directly in the database can reduce unnecessary data movement and operational complexity, while Python-based frameworks such as PySpark support distributed processing when the workload requires it. In practice, well-designed data platforms combine both approaches, selecting tools based on performance, maintainability, scalability, and cost.</p>
+<h2>Parallel computing with PySpark</h2>
+<p>Apache Spark is an open-source engine for distributed data processing. It runs computations across multiple machines, making it suitable for workloads that require more processing capacity than a single machine can provide. PySpark is its Python API, allowing data engineers to work with Spark without writing Scala or Java.</p>
+<p>PySpark supports Spark SQL, DataFrames, Structured Streaming, and MLlib for machine learning. These capabilities allow engineers to build batch and streaming data pipelines, although performance still depends on how data is partitioned, transformed, and processed.</p>
+<p>PySpark workloads can run on managed platforms such as Amazon EMR, Google Cloud Dataproc, Microsoft Fabric, and Databricks. These services provide the computing infrastructure needed to run distributed data processing jobs without requiring teams to manage every component themselves.</p>
+<p>In addition, you can connect a Jupyter Notebook to facilitate the development of the distributed processing Python code, for example with natively supported EMR Notebooks in AWS.</p>
+<p>PySpark is therefore a powerful tool for transforming and aggregating huge volumes of data, making it ready for consumption by end users, such as business analysts, or by further components, for instance by involving machine learning.</p>
+<div class="chat"><img alt="Alicja" class="chat__avatar" src="https://zmudzinski.me/images/family/people/alicja.jpeg" /><div class="chat__body">
+<p>Is Python used in both ETL and ELT?</p>
+</div>
+</div>
+<div class="chat"><img alt="Łukasz" class="chat__avatar" src="https://zmudzinski.me/images/family/people/lukasz.jpeg" /><div class="chat__body">
+<p>Yes. Python is commonly used to build both ETL and ELT workflows. It can extract data from multiple sources, automate data movement, coordinate transformations, and integrate with cloud data warehouses and processing platforms regardless of where the transformation takes place.</p>
+</div>
+</div>
+<p>For extracting and loading data, engineers can use tools such as dlt<sup class="citation"><a href="#citation-2">[2]</a></sup> (data load tool), an open-source Python library that helps build data ingestion pipelines. It simplifies moving data from APIs, databases, and files into data warehouses and other destinations, while supporting incremental loading and schema changes.</p>
+<h2>Job scheduling with Apache Airflow</h2>
+<p>Cloud providers offer managed orchestration services, reducing the infrastructure work needed to deploy and operate data pipelines. For teams using Apache Airflow, examples include Amazon Managed Workflows for Apache Airflow (MWAA) and Google Cloud Composer.</p>
+<p>Apache Airflow is a widely used platform for developing, scheduling, and monitoring data workflows. Engineers define workflows in Python, specify task dependencies, and integrate processing jobs across different services. Airflow 3 introduced a dedicated Task SDK that provides a stable interface for defining workflows and tasks.</p>
+<p>Managed offerings such as Amazon Managed Workflows for Apache Airflow and Google Cloud Composer reduce the infrastructure management required to operate Airflow in cloud environments.</p>
+<p>Airflow is not the only option, however. Python-based orchestrators such as Prefect and Dagster offer different approaches to pipeline development, observability, asset management, and local testing. The right choice depends on factors such as the existing cloud ecosystem, deployment model, workflow complexity, team experience, and operational requirements rather than on a single universally best tool.</p>
+<p>Regardless of the platform, Python remains valuable because it allows orchestration logic, data processing code, integrations, and automation to work within the same broader engineering ecosystem built around technologies such as dbt, Apache Iceberg, lakehouses, and AI-ready data platforms. Beyond writing transformation code, engineers increasingly use Python to automate testing, monitor data quality, orchestrate cloud services, and support machine learning pipelines.</p>
+<h3>Where Python fits in modern data engineering</h3>
+<p>Python has evolved far beyond a scripting language. Today it supports every major stage of the data engineering lifecycle, making it one of the most versatile technologies for building modern data platforms.</p>
+<ul>
+<li><strong>Data ingestion</strong> – collecting data from APIs, databases, files, and third-party systems.</li>
+<li><strong>ETL &amp; ELT pipelines</strong> – building reliable workflows for extracting, transforming, and loading data.</li>
+<li><strong>Data transformation</strong> – cleaning, enriching, validating, and preparing data for analytics and AI.</li>
+<li><strong>Workflow orchestration</strong> – scheduling, automating, and monitoring pipelines with tools like Apache Airflow, Prefect, or Dagster.</li>
+<li><strong>Distributed processing</strong> – scaling workloads with technologies such as PySpark.</li>
+<li><strong>Cloud automation</strong> – integrating with AWS, Azure, and Google Cloud services through Python SDKs.</li>
+<li><strong>AI-ready data platforms</strong> – preparing trusted, high-quality data that powers analytics, machine learning, and generative AI applications.</li>
+</ul>
+<h2>Final thoughts on Python for data engineering</h2>
+<div class="chat"><img alt="Anna" class="chat__avatar" src="https://zmudzinski.me/images/family/people/anna.jpeg" /><div class="chat__body">
+<p>Is Python enough for modern data engineering?</p>
+</div>
+</div>
+<div class="chat"><img alt="Łukasz" class="chat__avatar" src="https://zmudzinski.me/images/family/people/lukasz.jpeg" /><div class="chat__body">
+<p>Python is a core technology, but successful data platforms also depend on cloud infrastructure, storage, orchestration, monitoring, data quality, governance, and sound architectural decisions. The greatest value comes from combining Python with the right engineering practices and platform design.</p>
+</div>
+</div>
+<p>Python is one of the foundational technologies of modern data engineering. Its versatility, extensive ecosystem, and broad support across cloud and data platforms make it a strong choice for building and maintaining data pipelines, integrating systems, and automating complex workflows.</p>
+<p>Its strength also lies in how well it integrates with the broader data ecosystem. Python can work alongside SQL-based transformations, distributed processing engines, managed cloud services, and specialized data tools, allowing engineers to choose the most effective approach for each workload without sacrificing flexibility.</p>
+<p>However, building a production-ready data platform requires more than choosing the right language. Reliability, scalability, and maintainability also depend on sound architecture, data quality controls, observability, security, governance, and operational practices. Python provides a powerful foundation, while these complementary capabilities help turn individual pipelines into a dependable data platform.</p>
+<section class="citations">
+<h2>References</h2>
+<ol class="citations__list">
+<li class="citations__item" id="citation-1"><span class="citations__marker">[1]</span> data engineering services &mdash; <a class="citations__url" href="https://www.stxnext.com/services/data-engineering">https://www.stxnext.com/services/data-engineering</a></li>
+<li class="citations__item" id="citation-2"><span class="citations__marker">[2]</span> dlt &mdash; <a class="citations__url" href="https://dlthub.com/product/dlt">https://dlthub.com/product/dlt</a></li>
+</ol>
+</section>
+</article>
+<footer class="mt-20 mb-20 text-sm text-neutral-600 dark:text-neutral-500">
+    <p>Site built with <a class="underline" href="https://getpelican.com/">Pelican</a> and hosted on <a class="underline" href="https://github.com/lukzmu/personal-website">GitHub</a>.</p>
+    <p>&copy; 2026 zmudzinski.me - from Poland with code.</p>
+</footer>            </div>
+        </main>
+    </body>
+</html>
